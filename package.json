@@ -13,17 +13,22 @@
   },
   "private": true,
   "dependencies": {
+    "assert": "*",
     "body-parser": "*",
-    "cookie-parser": "^1.4.5",
-    "cookie-session": "^1.4.0",
+    "cookie-parser": "*",
+    "cookie-session": "*",
     "cors": "*",
     "express": "*",
-    "express-session": "^1.17.1",
-    "guid": "*",
-    "moment": "^2.27.0",
-    "moment-timezone": "^0.5.31",
-    "request": "^2.88.2",
-    "swagger": "^0.7.5",
-    "swagger-ui-express": "^4.1.4"
+    "express-session": "*",
+    "uuid": "*",
+    "moment": "*",
+    "moment-timezone": "*",
+    "mongodb": "*",
+    "nocache": "*",
+    "request": "*",
+    "swagger": "*",
+    "swagger-ui-express": "*",
+    "winston": "*",
+    "winston-cloudwatch": "*"
   }
 }
