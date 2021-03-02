@@ -12,25 +12,4 @@ router.get('/:boxid', async function apiDistricts(req, res) {
     res.send(value);
 });
 
-function parseQueryString(url) {
-    //var query = url.split("?").pop();
-    url = decodeURIComponent(url.replace(/\+/g, ' '));
-    var query = url.substring(url.indexOf('?') + 1);
-    var pairs = query.split('&');
-    //console.log(pairs);
-    var params = {};
-    for (var i = 0; i < pairs.length; i++) {
-        var temp = pairs[i].split('=');
-        params[temp[0]] = temp[1];
-    }
-    if (params.switchip && params.url) {
-        params.url = url.substring(url.indexOf('url=') + 4);
-    }
-    if (params.redirect) {
-        params.redirect = url.substring(url.indexOf('redirect=') + 9);
-    }
-    params.query = query;
-    return params;
-}
-
 module.exports = router;
