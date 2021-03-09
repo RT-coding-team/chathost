@@ -17,6 +17,9 @@ webapp.use(bodyParser.text({ type: 'text/html' }));
 webapp.use(nocache());
 
 webapp.use('/api/messageStatus', require('./routes/messagestatus.js'));
+webapp.use('/api/courseRosters', require('./routes/courserosters.js'));
+webapp.use('/api/messages', require('./routes/messages.js'));
+webapp.use('/api/attachments', require('./routes/attachments.js'));
 
 //webapp.use('/', express.static('www/'));
 

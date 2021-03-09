@@ -19,6 +19,7 @@ services:
       - ROOT_URL=http://localhost:3000
       - MONGO_URL=mongodb://mongo:27017/rocketchat
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local
+      - CREATE_TOKENS_FOR_USERS=true
       - MAIL_URL=smtp://smtp.email
 #       - HTTP_PROXY=http://proxy.domain.com
 #       - HTTPS_PROXY=http://proxy.domain.com
@@ -72,11 +73,11 @@ services:
       options:
         max-size: 50m
     environment:
-      - CHATHOST_PORT=2819
+      - CHATHOST_PORT=2820
       - CHATHOST_LOGGING=console
       - CHATHOST_MONGO=mongodb://mongo:27017/chathost
     ports:
-      - '2819:2819/tcp'
+      - '2820:2820/tcp'
     volumes:
       - ./src:/usr/src
       - ./node_modules:/usr/src/node_modules
