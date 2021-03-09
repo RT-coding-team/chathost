@@ -1,0 +1,96 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Chathost: Bridges The Well by Relay Trust to RocketChat.",
+    "version": "1.0.0",
+    "contact": {
+      "email": ""
+    },
+    "title": "The Well Chathost"
+  },
+  "servers": [
+    {
+      "url": "/chathost"
+    }
+  ],
+  "paths": {
+    "/messageStatus/{boxid}": {
+      "get": {
+        "summary": "Get most recent sync time",
+        "operationId": "/messageStatus",
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          },
+          "302": {
+            "description": "Redirected to Login"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/courseRosters/{boxid}": {
+      "post": {
+        "summary": "Post all the rosters for that boxid",
+        "operationId": "/courseRosters",
+      	"consumes": "application/json",
+        "parameters": [
+          {
+            "name": "boxid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful"
+          },
+          "302": {
+            "description": "Redirected to Login"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
