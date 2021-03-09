@@ -11,7 +11,7 @@ const configs = require('./configs.js'),
 var db;
 
 console.log(url);
-MongoClient.connect(url, function(err, client) {
+MongoClient.connect(url,{ useUnifiedTopology: true}, function(err, client) {
 	assert.equal(null, err);
 	console.log("Connected successfully to server");
 	db = client.db(dbName);
