@@ -20,14 +20,13 @@
     "cors": "*",
     "express": "*",
     "express-session": "*",
-    "uuid": "*",
     "moment": "*",
     "moment-timezone": "*",
     "mongodb": "*",
     "nocache": "*",
     "request": "*",
-    "swagger": "*",
     "swagger-ui-express": "*",
+    "uuid": "^8.3.2",
     "winston": "*",
     "winston-cloudwatch": "*"
   }
