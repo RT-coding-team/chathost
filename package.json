@@ -1,0 +1,34 @@
+{
+  "name": "chathost",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com:frontporch/cm-enabler.git"
+  },
+  "private": true,
+  "dependencies": {
+    "assert": "*",
+    "body-parser": "*",
+    "cookie-parser": "*",
+    "cookie-session": "*",
+    "cors": "*",
+    "express": "*",
+    "express-session": "*",
+    "uuid": "*",
+    "moment": "*",
+    "moment-timezone": "*",
+    "mongodb": "*",
+    "nocache": "*",
+    "request": "*",
+    "swagger": "*",
+    "swagger-ui-express": "*",
+    "winston": "*",
+    "winston-cloudwatch": "*"
+  }
+}
