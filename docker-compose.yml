@@ -3,6 +3,7 @@ version: '2'
 services:
   rocketchat:
     image: rocketchat/rocket.chat:latest
+    container_name: rocketchat    
     command: >
       bash -c
         "for i in `seq 1 30`; do
@@ -33,6 +34,7 @@ services:
 
   mongo:
     image: mongo:4.0
+    container_name: mongo
     restart: unless-stopped
     ports:
       - 27017:27017
@@ -61,8 +63,24 @@ services:
     depends_on:
       - mongo
 
+  nginx: 
+    image: nginx:latest
+    container_name: nginx
+    restart: always 
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./logs:/logs
+    ports:
+      - 80:80
+
+
   chathostAPIs:
     image: 'node:10.15.0'
+    container_name: chathost
     restart: always
     working_dir: /usr/src
     command: [ 'node', 'index.js' ]
