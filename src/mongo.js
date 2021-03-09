@@ -25,7 +25,14 @@ async function getMessageStatusValue(boxid) {
 				resolve(null);
 			}
 			else {
-				resolve(result[0].timestamp.toString());
+				if (result && result[0] && result[0].timestamp) {
+					resolve(result[0].timestamp.toString());			
+				}
+				else {
+					setMessageStatusValue(boxid, function(result) {					
+						resolve("0");
+					});
+				}
 			}
 		});
 	});
