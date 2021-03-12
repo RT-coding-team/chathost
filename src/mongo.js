@@ -80,11 +80,45 @@ async function getMessagesOutbound(boxid) {
     return result;
 }
 
+async function setMessageOutbound(boxid,record) {
+    let promise = new Promise((resolve, reject) => {
+		record.timestamp = moment().unix();
+		record.boxid = boxid;
+		const collection = db.collection('messagesOutbound');
+		collection.insertOne(record, function(err, result) {
+			if (err) {
+				console.log(`setMessageOutbound: ${record.conversation_id}: Error: ${err}`);
+				resolve (false);
+			}
+			else {
+				console.log(`setMessageOutbound: ${record.conversation_id}: Success`);
+				resolve (true);
+			}
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
 function setMessagesInbound(boxid,body,callback) {
 	const collection = db.collection('messagesInbound');
 	for (var record of body) {
 		record.timestamp = moment().unix();
 		record.boxid = boxid;
+
+///////////////////
+// TODO: This is just testing auto-reply
+var send = {
+	recipient: {id:record.sender.id},
+	sender: {id:record.recipient.id},
+	message_raw: `Received Message: ${record.message}`,
+	conversation_id: record.conversation_id,
+	subject: record.subject	
+};
+var sending = setMessageOutbound(boxid,send);
+console.log(`Sending: ${sending}`);
+//
+
 		collection.insertOne(record, function(err, result) {
 			if (err) {
 				console.log(`setMessagesInbound: ${record.id}: Error: ${err}`);
