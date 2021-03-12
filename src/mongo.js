@@ -84,6 +84,7 @@ function setMessagesInbound(boxid,body,callback) {
 	const collection = db.collection('messagesInbound');
 	for (var record of body) {
 		record.timestamp = moment().unix();
+		record.boxid = boxid;
 		collection.insertOne(record, function(err, result) {
 			if (err) {
 				console.log(`setMessagesInbound: ${record.id}: Error: ${err}`);
