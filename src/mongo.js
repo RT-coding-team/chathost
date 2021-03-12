@@ -64,10 +64,10 @@ function setCourseRoster(boxid,body,callback) {
   	});
 }
 
-async function getMessagesOutbound(boxid) {
+async function getMessagesOutbound(boxid,since) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('messagesOutbound');
-		collection.find({'_id':boxid}).toArray(function(err, results) {
+		collection.find({'boxid':boxid,'timestamp':{$gte: since} }).toArray(function(err, results) {
 			if (err) {
 				resolve([]);
 			}
@@ -111,7 +111,7 @@ function setMessagesInbound(boxid,body,callback) {
 var send = {
 	recipient: {id:record.sender.id},
 	sender: {id:record.recipient.id},
-	message_raw: `Received Message: ${record.message}`,
+	message: `Received Message: ${record.message}`,
 	conversation_id: record.conversation_id,
 	subject: record.subject	
 };
