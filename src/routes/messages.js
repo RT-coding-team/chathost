@@ -7,13 +7,15 @@ const express = require('express'),
 
 
 //  Get the messages data
-router.get('/:boxid', async function getMessages(req, res) {
-	var value = await mongo.getMessagesOutbound(req.params.boxid);
+router.get('/:boxid/:since', async function getMessages(req, res) {
+	logger.log('debug', `${req.method} ${req.url}: Last Sync: ${value}`);
+	var value = await mongo.getMessagesOutbound(req.params.boxid,req.params.since);
 	res.send(value);
 });
 
 //  Put in the message data
 router.post('/:boxid', async function postMessages(req, res) {
+	logger.log('debug', `${req.method} ${req.url}: Last Sync: ${value}`);
 	console.log(req.body);
 	mongo.setMessagesInbound(req.params.boxid,req.body, function(result) {
 	    res.sendStatus(result);
