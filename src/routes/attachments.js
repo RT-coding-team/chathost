@@ -1,11 +1,12 @@
 const express = require('express'),
 	multer = require('multer'),
-	upload = multer(),
     router = express.Router()
     configs = require('../configs.js'),
     mongo = require('../mongo.js'),
     Logger = require('../logger.js'),
     logger = new Logger(configs.logging);
+    
+const upload = multer({limits: { fileSize: 1000000000 }}); // This is set to 1Gig but is really governed by nginx.conf.  Modify nginx.conf and reload nginx.
 
 
 //  Get the messages data
