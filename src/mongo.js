@@ -137,11 +137,11 @@ async function getAttachmentsOutbound(attachmentId) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('attachments');
 		collection.find({'_id':attachmentId}).toArray(function(err, results) {
-			if (err) {
-				resolve([]);
+			if (results[0] && results[0].mimetype) {
+				resolve({response:200,mimetype: results[0].mimetype,file:Buffer.from(results[0].file.buffer, 'base64')});
 			}
 			else {
-				resolve(results);
+				resolve({response:404,mimetype: null,file:null});
 			}
 		});
 	});
@@ -149,20 +149,18 @@ async function getAttachmentsOutbound(attachmentId) {
     return result;
 }
 
-function setAttachmentsInbound(body,callback) {
+function setAttachmentsInbound(record,callback) {
 	const collection = db.collection('attachments');
-	for (var record of body) {
-		record.timestamp = moment().unix();
-		collection.insertOne(record, function(err, result) {
-			if (err) {
-				console.log(`setAttachmentsInbound: ${record.id}: Error: ${err}`);
-			}
-			else {
-				console.log(`setAttachmentsInbound: ${record.id}: Success`);
-			}
-		});
-	
-	}
+	record.timestamp = moment().unix();
+	record._id = record.id;
+	collection.insertOne(record, function(err, result) {
+		if (err) {
+			console.log(`setAttachmentsInbound: ${record.id}: Error: ${err}`);
+		}
+		else {
+			console.log(`setAttachmentsInbound: ${record.id}: Success`);
+		}
+	});
 	callback(200);
 }
 
