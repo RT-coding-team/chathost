@@ -6,9 +6,9 @@ const express = require('express'),
     logger = new Logger(configs.logging);
 
 //  Put in the courseRoster data
-router.post('/:boxid', async function postRosters(req, res) {
-	console.log(req.body);
-	mongo.setCourseRoster(req.params.boxid,req.body, function(result) {
+router.post('/', async function postRosters(req, res) {
+	mongo.setCourseRoster(req.boxid,req.body, function(result) {
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.url}: ${result}`);
 	    res.sendStatus(result);
 	});
 });

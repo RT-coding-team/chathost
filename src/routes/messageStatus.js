@@ -6,9 +6,9 @@ const express = require('express'),
     logger = new Logger(configs.logging);
 
 //  Get a list of all the districts being processed
-router.get('/:boxid', async function apiDistricts(req, res) {
-	var value = await mongo.getMessageStatusValue(req.params.boxid);
-	logger.log('debug', `${req.method} ${req.url}: Last Sync: ${value}`);
+router.get('/', async function apiDistricts(req, res) {
+	var value = await mongo.getMessageStatusValue(req.boxid);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.url}: Last Sync: ${value}`);
     res.send(value);
 });
 

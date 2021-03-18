@@ -10,12 +10,28 @@ const express = require('express'),
 
 
 webapp.listen(configs.port);
+
+webapp.use(function (req, res, next) {
+	// todo: finish security later
+	if (!req.headers['x-boxid'] || !req.headers.authorization) {
+		res.sendStatus(401);
+	}
+	else {
+		req.boxid = req.headers['x-boxid'];
+	}
+	next();
+});
+
+
 webapp.use('/chathost/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // TODO
 webapp.use(bodyParser.urlencoded({ extended: false }));
 webapp.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
 webapp.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 webapp.use(bodyParser.text({ type: 'text/html' }));
 webapp.use(nocache());
+
+
+
 
 webapp.use('/chathost/messageStatus', require('./routes/messageStatus.js'));
 webapp.use('/chathost/courseRosters', require('./routes/courseRosters.js'));
