@@ -23,6 +23,7 @@
     "moment": "*",
     "moment-timezone": "*",
     "mongodb": "*",
+    "multer": "*",
     "nocache": "*",
     "request": "*",
     "swagger-ui-express": "*",
