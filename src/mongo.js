@@ -17,10 +17,11 @@ MongoClient.connect(url,{ useUnifiedTopology: true}, function(err, client) {
 	db = client.db(dbName);
 });
 
+// Returns the timestamp of the MOST RECENT MESSAGE RECEIVED FROM MOODLE
 async function getMessageStatusValue(boxid) {
     let promise = new Promise((resolve, reject) => {
-		const collection = db.collection('messageStatus');
-		collection.find({'_id':boxid}).toArray(function(err, result) {
+		const collection = db.collection('messagesInbound');
+		collection.find({'boxid':boxid}).sort({_id:-1}).limit(1).toArray(function(err, result) {
 			if (err) {
 				resolve(null);
 			}
@@ -29,9 +30,7 @@ async function getMessageStatusValue(boxid) {
 					resolve(result[0].timestamp.toString());			
 				}
 				else {
-					setMessageStatusValue(boxid, function(result) {					
-						resolve("0");
-					});
+					resolve("0");
 				}
 			}
 		});
@@ -40,18 +39,7 @@ async function getMessageStatusValue(boxid) {
     return result;
 }
 
-function setMessageStatusValue(boxid,callback) {
-	const collection = db.collection('messageStatus');
-	collection.updateOne({'_id':boxid.toString()},{ $set: {timestamp : moment().unix()}},{upsert:true}, function(err, result) {
-		if (err) {
-			callback(false);
-		}
-		else {
-			callback(true);
-		}
-  	});
-}
-
+// Put the courseRoster in Mongo.  That is all
 function setCourseRoster(boxid,body,callback) {
 	const collection = db.collection('courseRoster');
 	collection.updateOne({'_id':boxid.toString()},{ $set: {data: JSON.stringify(body),timestamp : moment().unix()}},{upsert:true}, function(err, result) {
@@ -64,10 +52,11 @@ function setCourseRoster(boxid,body,callback) {
   	});
 }
 
+// Get all messages pending for a Moodle since timestamp (typically the value provided by getMessageStatusValue)
 async function getMessagesOutbound(boxid,since) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('messagesOutbound');
-		collection.find({'boxid':boxid,'timestamp':{$gte: since} }).toArray(function(err, results) {
+		collection.find({boxid:boxid,timestamp:{$gt: parseInt(since)} }).toArray(function(err, results) {
 			if (err) {
 				resolve([]);
 			}
@@ -80,6 +69,7 @@ async function getMessagesOutbound(boxid,since) {
     return result;
 }
 
+// Write a message to later be sent to Moodle
 async function setMessageOutbound(boxid,record) {
     let promise = new Promise((resolve, reject) => {
 		record.timestamp = moment().unix();
@@ -87,11 +77,11 @@ async function setMessageOutbound(boxid,record) {
 		const collection = db.collection('messagesOutbound');
 		collection.insertOne(record, function(err, result) {
 			if (err) {
-				console.log(`setMessageOutbound: ${record.conversation_id}: Error: ${err}`);
+				console.log(`setMessageOutbound: Error: ${err}`);
 				resolve (false);
 			}
 			else {
-				console.log(`setMessageOutbound: ${record.conversation_id}: Success`);
+				console.log(`setMessageOutbound: ${record._id}: Success`);
 				resolve (true);
 			}
 		});
@@ -100,11 +90,18 @@ async function setMessageOutbound(boxid,record) {
     return result;
 }
 
+// Write a message received from Moodle
 function setMessagesInbound(boxid,body,callback) {
 	const collection = db.collection('messagesInbound');
 	for (var record of body) {
 		record.timestamp = moment().unix();
 		record.boxid = boxid;
+		collection.insertOne(record, async function(err, result) {
+			if (err) {
+				console.log(`setMessagesInbound: Error: messageId: ${record.id}: ${err}`);
+			}
+			else {
+				console.log(`setMessagesInbound: Success: messageId: ${record.id}:`);
 
 ///////////////////
 // TODO: This is just testing auto-reply
@@ -115,16 +112,10 @@ var send = {
 	conversation_id: record.conversation_id,
 	subject: record.subject	
 };
-var sending = setMessageOutbound(boxid,send);
-console.log(`Sending: ${sending}`);
+console.log(`Sending: Writing AutoResponder: ${send.message}`);
+var sending = await setMessageOutbound(boxid,send);
 //
 
-		collection.insertOne(record, function(err, result) {
-			if (err) {
-				console.log(`setMessagesInbound: ${record.id}: Error: ${err}`);
-			}
-			else {
-				console.log(`setMessagesInbound: ${record.id}: Success`);
 			}
 		});
 	
@@ -132,7 +123,7 @@ console.log(`Sending: ${sending}`);
 	callback(200);
 }
 
-
+// Get an attachment requested by Moodle
 async function getAttachmentsOutbound(attachmentId) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('attachments');
@@ -149,6 +140,7 @@ async function getAttachmentsOutbound(attachmentId) {
     return result;
 }
 
+// Receive an attachment sent by Moodle
 function setAttachmentsInbound(record,callback) {
 	const collection = db.collection('attachments');
 	record.timestamp = moment().unix();
