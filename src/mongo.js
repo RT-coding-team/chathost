@@ -159,7 +159,6 @@ function setAttachmentsInbound(record,callback) {
 
 module.exports = {
 	getMessageStatusValue,
-	setMessageStatusValue,
 	setCourseRoster,
 	getMessagesOutbound,
 	setMessagesInbound,
