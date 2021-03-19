@@ -15,7 +15,7 @@ router.get('/:attachmentId/exists', async function getAttachments(req, res) {
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.response}`);
 	if (response.response === 200) {
 		res.type(response.mimetype);
-	 	res.send(response.response);
+	 	res.sendStatus(response.response);
 	}
 	else {
 		res.sendStatus(response.response);
