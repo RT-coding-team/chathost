@@ -8,14 +8,14 @@ const express = require('express'),
 
 //  Get the messages data
 router.get('/:since', async function getMessages(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.url}: Since: ${req.params.since}`);
 	var value = await mongo.getMessagesOutbound(req.boxid,req.params.since);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Found ${value.length} messages`);
 	res.send(value);
 });
 
 //  Put in the message data
 router.post('/', async function postMessages(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.url}: req.body.length()`);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Received ${req.body.length} messages`);
 	console.log(req.body);
 	mongo.setMessagesInbound(req.boxid,req.body, function(result) {
 	    res.sendStatus(result);
