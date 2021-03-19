@@ -23,14 +23,14 @@ async function getMessageStatusValue(boxid) {
 		const collection = db.collection('messagesInbound');
 		collection.find({'boxid':boxid}).sort({_id:-1}).limit(1).toArray(function(err, result) {
 			if (err) {
-				resolve(null);
+				resolve("2");
 			}
 			else {
 				if (result && result[0] && result[0].timestamp) {
 					resolve(result[0].timestamp.toString());			
 				}
 				else {
-					resolve("0");
+					resolve("1");
 				}
 			}
 		});
@@ -148,12 +148,13 @@ function setAttachmentsInbound(record,callback) {
 	collection.insertOne(record, function(err, result) {
 		if (err) {
 			console.log(`setAttachmentsInbound: ${record.id}: Error: ${err}`);
+			callback(500);
 		}
 		else {
 			console.log(`setAttachmentsInbound: ${record.id}: Success`);
+			callback(200);
 		}
 	});
-	callback(200);
 }
 
 
