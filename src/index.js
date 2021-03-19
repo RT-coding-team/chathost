@@ -5,7 +5,9 @@ const express = require('express'),
     swaggerUi = require('swagger-ui-express'),
 	moment = require('moment-timezone'),
     configs = require('./configs.js'),
-	swaggerDocument = require('./swagger.json')
+	swaggerDocument = require('./swagger.json'),
+    Logger = require('./logger.js'),
+    logger = new Logger(configs.logging);
 
 
 
@@ -14,12 +16,13 @@ webapp.listen(configs.port);
 webapp.use(function (req, res, next) {
 	// todo: finish security later
 	if (!req.headers['x-boxid'] || !req.headers.authorization) {
+		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request`);
 		res.sendStatus(401);
 	}
 	else {
 		req.boxid = req.headers['x-boxid'];
+		next();
 	}
-	next();
 });
 
 
