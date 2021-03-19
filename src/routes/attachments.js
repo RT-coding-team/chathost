@@ -9,6 +9,20 @@ const express = require('express'),
 const upload = multer({limits: { fileSize: 1000000000 }}); // This is set to 1Gig but is really governed by nginx.conf.  Modify nginx.conf and reload nginx.
 
 
+//  Get the attachment status
+router.get('/:attachmentId/exists', async function getAttachments(req, res) {
+ 	var response = await mongo.getAttachmentsOutbound(`${req.boxid}-${req.params.attachmentId}`);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.response}`);
+	if (response.response === 200) {
+		res.type(response.mimetype);
+	 	res.send(response.response);
+	}
+	else {
+		res.sendStatus(response.response);
+	}
+});
+
+
 //  Get the attachment data
 router.get('/:attachmentId', async function getAttachments(req, res) {
  	var response = await mongo.getAttachmentsOutbound(`${req.boxid}-${req.params.attachmentId}`);
