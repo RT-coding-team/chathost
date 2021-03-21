@@ -152,7 +152,7 @@ function setAttachmentsInbound(record,callback) {
 	record.timestamp = moment().unix();
 	record._id = record.idWithBoxid;
 	collection.insertOne(record, function(err, result) {
-		if (err.code === 11000) {
+		if (err && err.code === 11000) {
 			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Already Exists.  Not Updating`);			
 			callback (200);
 		}
