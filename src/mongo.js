@@ -56,7 +56,7 @@ function setCourseRoster(boxid,body,callback) {
 async function getMessagesOutbound(boxid,since) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('messagesOutbound');
-		collection.find({boxid:boxid,timestamp:{$gt: parseInt(since)} }).toArray(function(err, results) {
+		collection.find({'boxid':boxid,'timestamp':{$gt: parseInt(since)} }).toArray(function(err, results) {
 			if (err) {
 				resolve([]);
 			}
@@ -96,6 +96,12 @@ function setMessagesInbound(boxid,body,callback) {
 	for (var record of body) {
 		record.timestamp = moment().unix();
 		record.boxid = boxid;
+		if (record.attachment) {
+			record.attachment.idWithBoxid = `${boxid}-${record.attachment.id}`;
+		}
+		if (record.message.includes('<attachment type')) {
+			record.attachment.uploaded = false;
+		}
 		collection.insertOne(record, async function(err, result) {
 			if (err) {
 				console.log(`setMessagesInbound: Error: messageId: ${record.id}: ${err}`);
@@ -144,19 +150,58 @@ async function getAttachmentsOutbound(attachmentId) {
 function setAttachmentsInbound(record,callback) {
 	const collection = db.collection('attachments');
 	record.timestamp = moment().unix();
-	record._id = record.id;
+	record._id = record.idWithBoxid;
 	collection.insertOne(record, function(err, result) {
-		if (err) {
-			console.log(`setAttachmentsInbound: ${record.id}: Error: ${err}`);
+		if (err.code === 11000) {
+			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Already Exists.  Not Updating`);			
+			callback (200);
+		}
+		else if (err) {
+			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Error: ${err}`);
 			callback(500);
 		}
 		else {
-			console.log(`setAttachmentsInbound: ${record.id}: Success`);
+			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Success`);
+			setAttachmentsAsUploaded(record.idWithBoxid);
 			callback(200);
 		}
 	});
 }
 
+// Get all attachmentIds for attachments that didn't make it
+async function findMissingAttachmentsInbound(boxid) {
+    let promise = new Promise((resolve, reject) => {
+		const collection = db.collection('messagesInbound');
+		collection.find({'boxid':boxid,'attachment.uploaded':{$ne: true} }).toArray(function(err, results) {
+			if (err) {
+				resolve([]);
+			}
+			else {
+				// TODO: There should be a mongo way to do get just the idWithBoxid from the record:
+				var finalResults = [];
+				for (var result of results) {
+					finalResults.push(result.attachment.idWithBoxid);
+				}
+				var unique = [...new Set(finalResults)];
+				resolve(unique);
+			}
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
+function setAttachmentsAsUploaded(id) {
+	const collection = db.collection('messagesInbound');
+	collection.updateOne({'id':id},{ $set: {attachmentUploaded: true}},{upsert:true}, function(err, result) {
+		if (err) {
+			console.log(`Failed to Update the Attachment ${id} as Uploaded.  It will try again later`);
+		}
+		else {
+			// Success
+		}
+  	});
+}
 
 module.exports = {
 	getMessageStatusValue,
@@ -164,6 +209,6 @@ module.exports = {
 	getMessagesOutbound,
 	setMessagesInbound,
 	getAttachmentsOutbound,
-	setAttachmentsInbound
-	
+	setAttachmentsInbound,
+	findMissingAttachmentsInbound
 };

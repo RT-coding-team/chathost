@@ -22,6 +22,12 @@ router.get('/:attachmentId/exists', async function getAttachments(req, res) {
 	}
 });
 
+// Get missing attachments
+router.get('/missing', async function getAttachments(req, res) {
+ 	var response = await mongo.findMissingAttachmentsInbound(req.boxid);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.response}`);
+	res.send(response);
+});
 
 //  Get the attachment data
 router.get('/:attachmentId', async function getAttachments(req, res) {
@@ -42,8 +48,8 @@ router.post('/', upload.any(), async function postAttachments(req, res) {
 	body.file = req.files[0].buffer;
 	body.mimetype = req.files[0].mimetype;
 	body.size = req.files[0].size;
-	body.id = `${req.boxid}-${body.id}`;
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${body.id}`);
+	body.idWithBoxid = `${req.boxid}-${body.id}`;
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${body.idWithBoxid}`);
  	mongo.setAttachmentsInbound(body, function(result) {
  	    res.sendStatus(result);
  	});
