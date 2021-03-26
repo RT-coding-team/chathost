@@ -52,6 +52,20 @@ function setCourseRoster(boxid,body,callback) {
   	});
 }
 
+
+// Put the logs in Mongo.  That is all
+function setLogs(boxid,body,callback) {
+	const collection = db.collection('logs');
+	collection.updateOne({'boxid':boxid.toString()},{ $set: {data: JSON.stringify(body),timestamp : moment().unix()}},{upsert:true}, function(err, result) {
+		if (err) {
+			callback(404);
+		}
+		else {
+			callback(200);
+		}
+  	});
+}
+
 // Get all messages pending for a Moodle since timestamp (typically the value provided by getMessageStatusValue)
 async function getMessagesOutbound(boxid,since) {
     let promise = new Promise((resolve, reject) => {
@@ -210,5 +224,6 @@ module.exports = {
 	setMessagesInbound,
 	getAttachmentsOutbound,
 	setAttachmentsInbound,
-	findMissingAttachmentsInbound
+	findMissingAttachmentsInbound,
+	setLogs
 };
