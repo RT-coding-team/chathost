@@ -113,7 +113,7 @@ function setMessagesInbound(boxid,body,callback) {
 		if (record.attachment) {
 			record.attachment.idWithBoxid = `${boxid}-${record.attachment.id}`;
 		}
-		if (record.message.includes('<attachment type')) {
+		if (record.message.includes('<attachment ')) {
 			record.attachment.uploaded = false;
 		}
 		collection.insertOne(record, async function(err, result) {
@@ -168,6 +168,7 @@ function setAttachmentsInbound(record,callback) {
 	collection.insertOne(record, function(err, result) {
 		if (err && err.code === 11000) {
 			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Already Exists.  Not Updating`);			
+			setAttachmentsAsUploaded(record.idWithBoxid);
 			callback (200);
 		}
 		else if (err) {
