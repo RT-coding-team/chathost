@@ -1,101 +1,142 @@
 version: '2'
 
 services:
-  rocketchat:
-    image: rocketchat/rocket.chat:latest
-    container_name: rocketchat    
-    command: >
-      bash -c
-        "for i in `seq 1 30`; do
-          node main.js &&
-          s=$$? && break || s=$$?;
-          echo \"Tried $$i times. Waiting 5 secs...\";
-          sleep 5;
-        done; (exit $$s)"
-    restart: unless-stopped
-    volumes:
-      - ./uploads:/app/uploads
-    environment:
-      - PORT=3000
-      - ROOT_URL=http://localhost:3000
-      - MONGO_URL=mongodb://mongo:27017/rocketchat
-      - MONGO_OPLOG_URL=mongodb://mongo:27017/local
-      - CREATE_TOKENS_FOR_USERS=true
-      - MAIL_URL=smtp://smtp.email
+ rocketchat:
+   image: rocketchat/rocket.chat:latest
+   container_name: rocketchat    
+   command: >
+     bash -c
+       "for i in `seq 1 30`; do
+         node main.js &&
+         s=$$? && break || s=$$?;
+         echo \"Tried $$i times. Waiting 5 secs...\";
+         sleep 5;
+       done; (exit $$s)"
+   restart: unless-stopped
+   volumes:
+     - ./uploads:/app/uploads
+   environment:
+     - PORT=3000
+     - ROOT_URL=http://localhost:3000
+     - MONGO_URL=mongodb://mongo:27017/rocketchat
+     - MONGO_OPLOG_URL=mongodb://mongo:27017/local
+     - CREATE_TOKENS_FOR_USERS=true
+     - MAIL_URL=smtp://smtp.email
 #       - HTTP_PROXY=http://proxy.domain.com
 #       - HTTPS_PROXY=http://proxy.domain.com
-    depends_on:
-      - mongo
-    ports:
-      - 3000:3000
-    labels:
-      - "traefik.backend=rocketchat"
-      - "traefik.frontend.rule=Host: your.domain.tld"
+   depends_on:
+     - mongo
+   ports:
+     - 3000:3000
+   labels:
+     - "traefik.backend=rocketchat"
+     - "traefik.frontend.rule=Host: your.domain.tld"
 
-  mongo:
-    image: mongo:4.0
-    container_name: mongo
-    restart: unless-stopped
-    ports:
-      - 27017:27017
-    volumes:
-     - ./data/db:/data/db
-     #- ./data/dump:/dump
-    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
-    labels:
-      - "traefik.enable=false"
+ mongo:
+   image: mongo:4.0
+   #container_name: mongo
+   restart: unless-stopped
+   ports:
+     - 27017:27017
+   volumes:
+    - ./data/db:/data/db
+    #- ./data/dump:/dump
+   command: mongod --smallfiles --oplogSize 128 --replSet rs0
+   labels:
+     - "traefik.enable=false"
 
-  # this container's job is just run the command to initialize the replica set.
-  # it will run the command and remove himself (it will not stay running)
-  mongo-init-replica:
-    image: mongo:4.0
+ # this container's job is just run the command to initialize the replica set.
+ # it will run the command and remove himself (it will not stay running)
+ mongo-init-replica:
+   image: mongo:4.0
+   command: >
+     bash -c
+       "for i in `seq 1 30`; do
+         mongo mongo/rocketchat --eval \"
+           rs.initiate({
+             _id: 'rs0',
+             members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
+         s=$$? && break || s=$$?;
+         echo \"Tried $$i times. Waiting 5 secs...\";
+         sleep 5;
+       done; (exit $$s)"
+   depends_on:
+     - mongo
+
+ nginx: 
+   image: nginx:latest
+   container_name: nginx
+   restart: always 
+   logging:
+     driver: json-file
+     options:
+       max-size: "1m"
+   volumes:
+     - ./nginx.conf:/etc/nginx/nginx.conf
+     - ./logs:/logs
+   ports:
+     - 80:80
+
+
+ chathostAPIs:
+   image: 'node:10.15.0'
+   container_name: chathost
+   restart: always
+   working_dir: /usr/src
+   command: [ 'node', 'index.js' ]
+   depends_on:
+     - mongo
+   logging:
+     driver: json-file
+     options:
+       max-size: 50m
+   environment:
+     - CHATHOST_PORT=2820
+     - CHATHOST_LOGGING=console
+     - CHATHOST_MONGO=mongodb://mongo:27017/chathost
+   ports:
+     - '2820:2820/tcp'
+   volumes:
+     - ./src:/usr/src
+     - ./node_modules:/usr/src/node_modules
+
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb
     command: >
-      bash -c
-        "for i in `seq 1 30`; do
-          mongo mongo/rocketchat --eval \"
-            rs.initiate({
-              _id: 'rs0',
-              members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
-          s=$$? && break || s=$$?;
-          echo \"Tried $$i times. Waiting 5 secs...\";
-          sleep 5;
-        done; (exit $$s)"
-    depends_on:
-      - mongo
-
-  nginx: 
-    image: nginx:latest
-    container_name: nginx
-    restart: always 
-    logging:
-      driver: json-file
-      options:
-        max-size: "1m"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./logs:/logs
+              --character-set-server=utf8mb4
+              --collation-server=utf8mb4_bin
+              --innodb_file_per_table=On
+              --wait-timeout=28800
     ports:
-      - 80:80
-
-
-  chathostAPIs:
-    image: 'node:10.15.0'
-    container_name: chathost
-    restart: always
-    working_dir: /usr/src
-    command: [ 'node', 'index.js' ]
-    depends_on:
-      - mongo
-    logging:
-      driver: json-file
-      options:
-        max-size: 50m
+      - '33306:3306'
     environment:
-      - CHATHOST_PORT=2820
-      - CHATHOST_LOGGING=console
-      - CHATHOST_MONGO=mongodb://mongo:27017/chathost
-    ports:
-      - '2820:2820/tcp'
+      - MARIADB_USER=moodleuser
+      - MARIADB_PASSWORD=moodleuser
+      - MARIADB_DATABASE=moodle
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=!1TheWell
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
-      - ./src:/usr/src
-      - ./node_modules:/usr/src/node_modules
+      - './data/mariadb:/bitnami/mariadb'
+
+  moodle:
+    image: "moodlehq/moodle-php-apache:7.4"
+    container_name: moodle
+    depends_on:
+      - mariadb
+    ports:
+      - '8090:80'
+    volumes:
+      - "../moodle:/var/www/html"
+      - "./data/moodledata:/var/www/moodledata"
+      - "./data/web/apache2_faildumps.conf:/etc/apache2/conf-enabled/apache2_faildumps.conf"
+    environment:
+      MOODLE_DOCKER_WEB_HOST: "localhost:8090"
+      MOODLE_DOCKER_DBCOLLATION: utf8mb4_bin
+      MOODLE_DOCKER_DBTYPE: mariadb
+      MOODLE_DOCKER_DBHOST: mariadb
+      MOODLE_DOCKER_DBNAME: moodle
+      MOODLE_DOCKER_DBUSER: moodleuser
+      MOODLE_DOCKER_DBPASS: "!1TheWell"
