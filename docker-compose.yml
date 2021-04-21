@@ -1,9 +1,24 @@
 version: '2'
 
 services:
+# nginx provides the web server for rocketchat, chathost APIs and resourcespace
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+    volumes:
+      - ./resources/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 8000:8000
+
+# Builds the rocketchat server 
   rocketchat:
     image: rocketchat/rocket.chat:latest
-    container_name: rocketchat    
+    container_name: rocketchat
     command: >
       bash -c
         "for i in `seq 1 30`; do
@@ -22,8 +37,6 @@ services:
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local
       - CREATE_TOKENS_FOR_USERS=true
       - MAIL_URL=smtp://smtp.email
-#       - HTTP_PROXY=http://proxy.domain.com
-#       - HTTPS_PROXY=http://proxy.domain.com
     depends_on:
       - mongo
     ports:
@@ -32,6 +45,7 @@ services:
       - "traefik.backend=rocketchat"
       - "traefik.frontend.rule=Host: your.domain.tld"
 
+# Database for rocketchat and chathost APIs
   mongo:
     image: mongo:4.0
     container_name: mongo
@@ -63,21 +77,7 @@ services:
     depends_on:
       - mongo
 
-  nginx: 
-    image: nginx:latest
-    container_name: nginx
-    restart: always 
-    logging:
-      driver: json-file
-      options:
-        max-size: "1m"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./logs:/logs
-    ports:
-      - 8000:80
-
-
+# Chathost APIs
   chathostAPIs:
     image: 'node:10.15.0'
     container_name: chathost
@@ -100,6 +100,27 @@ services:
       - ./src:/usr/src
       - ./node_modules:/usr/src/node_modules
 
+# Moodle nginx container (leverages PHP7.4 from https://github.com/wyveo/nginx-php-fpm)
+# Overwrites nginx /etc/nginx/conf.d/default.conf with ./resources/moodle/conf.d/default.conf
+  moodle:
+    image: wyveo/nginx-php-fpm:php74
+    container_name: moodle
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "1m"
+    volumes:
+      - ./resources/moodle/conf.d:/etc/nginx/conf.d/
+      - "../moodle:/usr/share/nginx/html"
+      - "./data/moodledata:/var/www/moodledata"
+      - "./resources/moodle/config.php:/var/www/moodle/config.php"
+    ports:
+      - 80:80
+    depends_on:
+      - mariadb
+
+# Database for Moodle (mysql) and resourcespace
   mariadb:
     image: mariadb:10.5
     container_name: mariadb
@@ -119,24 +140,5 @@ services:
       - MARIADB_CHARACTER_SET=utf8mb4
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
-      - './data/mariadb:/bitnami/mariadb'
+      - './data/mariadb:/var/lib/mysql'
 
-  moodle:
-    image: "moodlehq/moodle-php-apache:7.4"
-    container_name: moodle
-    depends_on:
-      - mariadb
-    ports:
-      - '80:80'
-    volumes:
-      - "../moodle:/var/www/html"
-      - "./data/moodledata:/var/www/moodledata"
-      - "./data/web/apache2_faildumps.conf:/etc/apache2/conf-enabled/apache2_faildumps.conf"
-    environment:
-      MOODLE_DOCKER_WEB_HOST: "https://moodle.derekmaxson.com"
-      MOODLE_DOCKER_DBCOLLATION: utf8mb4_bin
-      MOODLE_DOCKER_DBTYPE: mariadb
-      MOODLE_DOCKER_DBHOST: mariadb
-      MOODLE_DOCKER_DBNAME: moodle
-      MOODLE_DOCKER_DBUSER: moodleuser
-      MOODLE_DOCKER_DBPASS: "!1TheWell"
