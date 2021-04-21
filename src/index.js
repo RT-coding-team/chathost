@@ -13,7 +13,7 @@ const express = require('express'),
 
 webapp.listen(configs.port);
 
-webapp.use('/healthcheck', function health(req, res) {
+webapp.use('/chathost/healthcheck', function health(req, res) {
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Healthy`);
  	res.sendStatus(200);
 });
