@@ -112,7 +112,7 @@ services:
         max-size: "1m"
     volumes:
       - ./resources/moodle/conf.d:/etc/nginx/conf.d/
-      - "../moodle:/usr/share/nginx/html"
+      - "../moodle:/var/www/moodle"
       - "./data/moodledata:/var/www/moodledata"
       - "./resources/moodle/config.php:/var/www/moodle/config.php"
     ports:
