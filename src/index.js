@@ -13,6 +13,11 @@ const express = require('express'),
 
 webapp.listen(configs.port);
 
+webapp.use('/healthcheck', function health(req, res) {
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Healthy`);
+ 	res.sendStatus(200);
+});
+
 webapp.use(function (req, res, next) {
 	// todo: finish security later
 	if (!req.headers['x-boxid'] || !req.headers.authorization) {
