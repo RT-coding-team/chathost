@@ -10,6 +10,6 @@
 
 
 
-54.212.225.196 ansible_user=ec2-user moodle_hostname=54.212.225.196 chat_hostname=
+35.166.24.58 ansible_user=ec2-user moodle_hostname=moodle.derekmaxson.com chat_hostname=
 
 
