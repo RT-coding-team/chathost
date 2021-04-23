@@ -114,7 +114,6 @@ services:
       - ./resources/moodle/conf.d:/etc/nginx/conf.d/
       - "../moodle:/var/www/moodle"
       - "./data/moodledata:/var/www/moodledata"
-      - "./resources/moodle/config.php:/var/www/moodle/config.php"
     ports:
       - 80:80
     depends_on:
