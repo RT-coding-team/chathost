@@ -1,8 +1,24 @@
 ---
 
+- name: Install make to build node
+  yum: 
+    name: gcc-c++, make
+    state: latest
 
+- name: Update repo for Node
+  get_url: 
+    url: https://rpm.nodesource.com/setup_14.x
+    dest: /tmp/setup_14.x
+    mode: "0775"
 
+- name: Install setup script
+  shell: /tmp/setup_14.x
 
+- name: Install the latest version of Node
+  yum:
+    name: nodejs
+    state: latest
+  
 - name: Install the latest version of Git
   yum:
     name: git
@@ -11,14 +27,14 @@
 - name: Install Chathost repo
   git:
     repo: 'https://github.com/RT-coding-team/chathost.git'
-    dest: /home/ec2-user/chathost  # With git declar the final directory
+    dest: "{{ document_root }}/chathost"  # With git declar the final directory
     clone: yes
     force: yes
     update: yes
 
 - name: Set Permissions of ~/chathost
   ansible.builtin.file:
-    path: /home/ec2-user/chathost
+    path: "{{ document_root }}/chathost"
     recurse: yes
     owner: ec2-user
     group: ec2-user
@@ -26,7 +42,7 @@
 
 - name: Set data directory for Mongo
   ansible.builtin.file:
-    path: /home/ec2-user/chathost/data/db
+    path: "{{ document_root }}/chathost/data/db"
     state: directory
     owner: ec2-user
     group: ec2-user
@@ -34,31 +50,11 @@
 
 - name: Set data directory for MariaDB
   ansible.builtin.file:
-    path: /home/ec2-user/chathost/data/mariadb
+    path: "{{ document_root }}/chathost/data/mariadb"
     state: directory
     owner: ec2-user
     group: ec2-user
     mode: '777'
-
-- name: Set data directory for Moodledata
-  ansible.builtin.file:
-    path: /home/ec2-user/chathost/data/moodledata
-    state: directory
-    owner: ec2-user
-    group: ec2-user
-    mode: '777'
-
-
-- name: Download and unzip Moodle base code 3.10 latest
-  ansible.builtin.unarchive:
-    src: https://download.moodle.org/download.php/direct/stable310/moodle-latest-310.zip
-    dest: /home/ec2-user/  # With unzip, it has the ./moodle in the archive
-    remote_src: yes
-
-- name: Copy config.php to working directory
-  template:
-    src: moodle_config_php.j2
-    dest: /home/ec2-user/moodle/config.php
 
 - name: Add the user 'nginx' 
   ansible.builtin.user:
@@ -66,146 +62,40 @@
     uid: 101
     group: ec2-user
 
+- name: Set data directory for Moodledata
+  ansible.builtin.file:
+    path: "{{ document_root }}/chathost/data/moodledata"
+    state: directory
+    owner: nginx
+    group: ec2-user
+    mode: '777'
 
+- name: Download and unzip Moodle base code 3.10 latest
+  ansible.builtin.unarchive:
+    src: https://download.moodle.org/download.php/direct/stable310/moodle-latest-310.zip
+    dest: "{{ document_root }}/"  # With unzip, it has the ./moodle in the archive
+    remote_src: yes
+
+- name: Copy config.php to working directory
+  template:
+    src: moodle_config_php.j2
+    dest: "{{ document_root }}/moodle/config.php"
+
+- name: Copy nginx.conf to working directory
+  template:
+    src: nginx_conf.j2
+    dest: "{{ document_root }}/chathost/resources/nginx/nginx.conf"
+
+- name: Copy conf.d to working directory
+  template:
+    src: conf_d_default_conf.j2
+    dest: "{{ document_root }}/chathost/resources/moodlenginx/conf.d/default.conf"
 
 - name: Install node packages based on package.json.
   community.general.npm:
-    path: /home/ec2-user/chathost
+    path: "{{ document_root }}/chathost"
     
 - name: Launch Dockers (docker-compose up -d)
-  command: /usr/local/bin/docker-compose up -d
-  
+  command: 'sudo -u ec2-user {{ document_root }}/chathost/run_docker_compose.sh &'
 
 
-######################################################
-# mysql Installation
-
-#- name: Add mariadb (mysql) apt key  
-#  ansible.builtin.apt_key:
-#    url: https://mariadb.org/mariadb_release_signing_key.asc
-#    state: present
-#  ignore_errors: yes
-#
-#- name: Add the packages in sources lists
-#  shell: sh -c 'echo "deb https://mirror.nodesdirect.com/mariadb/repo/10.3/debian $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
-#  when: ansible_os_family == 'Debian'
-#  
-#- name: Install mariadb (mysql) package
-#  apt:
-#    update_cache: yes
-#    pkg: mariadb-server-10.3
-#    state: present
-#
-#- name: Start mariadb  service
-#  command: systemctl restart mysql
-#  become: true
-#
-#- name: Remove Existing Moodle database
-#  command: mysql -e 'drop database if exists moodle;'
-#  become: true
-#  when: overwrite_database
-#
-#- name: Create Empty Moodle database
-#  command: mysql -e 'CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'
-#  become: true
-#  when: overwrite_database
-#
-#- name: Create moodleuser
-#  command: mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,CREATE TEMPORARY TABLES,DROP,INDEX,ALTER ON moodle.* TO 'moodleuser'@'%' IDENTIFIED BY '!1TheWell';"
-#  become: true
-#  when: overwrite_database
-#    
-#- name: Install Default Moodle database
-#  command: ls
-#  when: overwrite_database
-#
-#- name: Add mysql remote access
-#  command: "iptables -A INPUT -p tcp --dport 3306 -j ACCEPT"
-#  become: true
-#  when: developer_mode
-#
-#######################################################
-## Moodle Software Installation
-#
-#- name: Recursively remove existing Moodle directory
-#  file:
-#    path: /var/www/moodle/
-#    state: absent
-#
-#- name: Make Moodle directory
-#  file:
-#    state: directory
-#    path: /var/www/moodle/
-#    owner: www-data
-#    group: www-data
-#    mode: 0775
-#    
-## This is from Relay Trust's Repo
-#- name: Install Moodle 3.10 repo to /var/www/moodle
-#  git:
-#    repo: 'https://github.com/RT-coding-team/the-well-moodle310.git'
-#    dest: /var/www/moodle/
-#    clone: yes
-#    update: yes
-#    version: origin/connectboxadmin
-#
-#- name: Recursively empty existing moodledata directory
-#  shell: rm -rf /var/www/moodledata/*
-#  become: true
-#  ignore_errors: yes
-#  when: overwrite_database
-#  
-#- name: Restore moodledata directory that Moodle requires for all its functions
-#  file:
-#    state: directory
-#    path: /var/www/moodledata/
-#    owner: www-data
-#    group: www-data
-#    mode: 0775
-#
-#- name: configure temporary storage for Moodle cache
-#  when: connectbox_os == "raspbian" 
-#  mount:
-#    path: '{{ item.name }}'
-#    src: 'tmpfs'
-#    fstype: 'tmpfs'
-#    opts: 'size={{ item.size }},mode=775,uid=www-data,gid=www-data'
-#    dump: '0'
-#    passno: '0'
-#    state: 'mounted'
-#  with_items:
-#    - { name: '/var/cache/moodle', size: '4M' }
-#    - { name: '/var/www/moodledata/temp', size: '499M' }
-#    - { name: '/var/www/moodledata/sessions', size: '4M' }
-#    
-#
-#- name: Copy config.php to working directory
-#  template:
-#    src: var_www_moodle_config_php.j2
-#    dest: /var/www/moodle/config.php
-#
-##  Everything in Moodle runs as web server user
-#- name: Recursively change ownership /var/www/moodle
-#  become: true
-#  file:
-#    path: /var/www/moodle
-#    state: directory
-#    recurse: yes
-#    owner: www-data
-#    group: www-data
-#    mode: 0775
-#
-## Install generic PHP test script into the moodle directory so we can know that this is ok.    
-#- name: Copy PHP info.php
-#  template:
-#    src: var_www_moodle_info_php.j2
-#    dest: /var/www/moodle/info.php
-#
-## Setup Moodle's Cron 
-#- name: Setup Moodle's Cron To Run Every Minute as Per Moodle
-#  ansible.builtin.cron:
-#    name: "moodle cron"
-#    minute: "1,16,31,46"
-#    hour: "*"
-#    user: www-data
-#    job: "/usr/bin/php /var/www/moodle/admin/cli/cron.php >/dev/null"

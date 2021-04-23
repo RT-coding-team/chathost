@@ -19,6 +19,9 @@
   become: true
   notify: restart docker
 
+- name: Give permissions to run docker as ec2-users
+  command: usermod -aG docker ec2-user
+  become: true
 
 #- name: Install Docker.
 #  package:
@@ -40,3 +43,8 @@
 
 - include_tasks: docker-users.yml
   when: docker_users | length > 0
+
+- name: Reboot device for changes to take effect
+  reboot:
+    post_reboot_delay=15
+    pre_reboot_delay=2

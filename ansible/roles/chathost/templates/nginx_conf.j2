@@ -1,0 +1,42 @@
+worker_rlimit_nofile 1024;
+
+events {
+  worker_connections  1024;  ## Default: 1024
+}
+
+http {
+	client_max_body_size 100M;
+	server_names_hash_bucket_size 128;
+	server_names_hash_max_size 512;
+
+log_format main '\$http_x_forwarded_for - \$remote_user [\$time_local] \"\$host\" \"\$request\" '
+            '\$status \$body_bytes_sent \"\$http_referer\" '
+            '\"\$http_user_agent\" \$request_time';
+
+
+server {
+    listen 8000;
+    access_log /dev/stdout main;
+
+	location /chathost/ {
+		proxy_pass      http://chathost:2820;	
+	}
+	location / {
+		proxy_pass      http://rocketchat:3000;	
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $http_host;
+
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Nginx-Proxy true;
+
+        proxy_redirect off;
+	}
+  }
+	
+}
+
+

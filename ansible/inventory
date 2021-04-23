@@ -10,6 +10,6 @@
 
 
 
-18.237.35.206 ansible_user=ec2-user hostname=18.237.35.206
+54.212.225.196 ansible_user=ec2-user moodle_hostname=54.212.225.196 chat_hostname=
 
 
