@@ -98,9 +98,7 @@ services:
       - CHATHOST_PORT=2820
       - CHATHOST_LOGGING=console
       - CHATHOST_MONGO=mongodb://mongo:27017/chathost
-      - CHATHOST_ROCKETCHAT=localhost
-      - CHATHOST_ROCKETCHATPROTOCOL=http
-      - CHATHOST_ROCKETCHATPORT=3000
+      - CHATHOST_ROCKETCHAT=http://localhost:3000
       - CHATHOST_ROCKETCHATADMIN=admin
       - CHATHOST_ROCKETCHATPASSWORD=!1TheWell
     ports:
