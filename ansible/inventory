@@ -10,6 +10,8 @@
 
 
 
-35.166.24.58 ansible_user=ec2-user moodle_hostname=moodle.derekmaxson.com chat_hostname=
+#35.166.24.58 ansible_user=ec2-user moodle_hostname=moodle.derekmaxson.com chat_hostname=
 
+# Testing
+52.88.92.68 ansible_user=ec2-user moodle_hostname=52.88.92.68 chat_hostname=
 
