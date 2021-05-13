@@ -42,7 +42,7 @@
 
 - name: Set data directory for Mongo
   ansible.builtin.file:
-    path: "{{ document_root }}/chathost/data/db"
+    path: "{{ document_root }}/data/db"
     state: directory
     owner: ec2-user
     group: ec2-user
@@ -50,7 +50,7 @@
 
 - name: Set data directory for MariaDB
   ansible.builtin.file:
-    path: "{{ document_root }}/chathost/data/mariadb"
+    path: "{{ document_root }}/data/mariadb"
     state: directory
     owner: ec2-user
     group: ec2-user
@@ -64,7 +64,7 @@
 
 - name: Set data directory for Moodledata
   ansible.builtin.file:
-    path: "{{ document_root }}/chathost/data/moodledata"
+    path: "{{ document_root }}/data/moodledata"
     state: directory
     owner: nginx
     group: ec2-user

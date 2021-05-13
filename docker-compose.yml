@@ -56,7 +56,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-     - ./data/db:/data/db
+     - ../data/db:/data/db
      #- ./data/dump:/dump
     command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
     labels:
@@ -116,7 +116,7 @@ services:
     volumes:
       - ./resources/moodlenginx/conf.d:/etc/nginx/conf.d/
       - "../moodle:/var/www/moodle"
-      - "./data/moodledata:/var/www/moodledata"
+      - "../data/moodledata:/var/www/moodledata"
       - "./resources/moodle/config.php:/var/www/moodle/config.php"
     ports:
       - 80:80
@@ -143,5 +143,5 @@ services:
       - MARIADB_CHARACTER_SET=utf8mb4
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
-      - './data/mariadb:/var/lib/mysql'
+      - '../data/mariadb:/var/lib/mysql'
 
