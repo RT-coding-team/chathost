@@ -10,7 +10,7 @@ const configs = require('./configs.js'),
 	execSync = require('child_process').execSync,	
 		
 	RocketChatClient = require('rocketchat').RocketChatClient,
-	rocketChatClient = new RocketChatClient('https', configs.rocketchat, 443, configs.rocketchatadmin, configs.rocketchatpassword, "v1");
+	rocketChatClient = new RocketChatClient(configs.rocketchatprotocol, configs.rocketchat, 443, configs.rocketchatadmin, configs.rocketchatpassword, "v1");
 
 	var data = {
 		users: {},

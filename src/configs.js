@@ -4,6 +4,7 @@ var configs = {
 	"port":2820,
 	"mongo": "mongodb://mongo:27017",
 	"rocketchat": 'chathost.derekmaxson.com',
+	"rocketchatprotocol": 'https',
 	"rocketchatadmin": "admin",
 	"rocketchatpassword": "!1TheWell"
 };
