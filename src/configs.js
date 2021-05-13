@@ -1,7 +1,11 @@
 // Pull in the default config
 var configs = {
 	"logging":"console",
-	"port":2819
+	"port":2820,
+	"mongo": "mongodb://mongo:27017",
+	"rocketchat": 'chathost.derekmaxson.com',
+	"rocketchatadmin": "admin",
+	"rocketchatpassword": "!1TheWell"
 };
 
 for (var env of Object.keys(process.env)) {

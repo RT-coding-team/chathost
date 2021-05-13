@@ -7,9 +7,10 @@ const express = require('express'),
     configs = require('./configs.js'),
 	swaggerDocument = require('./swagger.json'),
     Logger = require('./logger.js'),
+    rocketchat = require('./rocketchat.js'),
     logger = new Logger(configs.logging);
 
-
+rocketchat.init();
 
 webapp.listen(configs.port);
 
@@ -17,6 +18,7 @@ webapp.use('/chathost/healthcheck', function health(req, res) {
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Healthy`);
  	res.sendStatus(200);
 });
+webapp.use('/chathost/admin', require('./routes/admin.js'));
 
 webapp.use(function (req, res, next) {
 	// todo: finish security later
@@ -47,5 +49,5 @@ webapp.use('/chathost/messages', require('./routes/messages.js'));
 webapp.use('/chathost/attachments', require('./routes/attachments.js'));
 webapp.use('/chathost/logs', require('./routes/logs.js'));
 
-//webapp.use('/', express.static('www/'));
+webapp.use('/attachments', express.static('uploads/'));
 

@@ -8,6 +8,7 @@ const express = require('express'),
 router.get('/', async function apiDistricts(req, res) {
 	var value = await mongo.getMessageStatusValue(req.boxid);
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Last Sync: ${value}`);
+	rocketchat.prepareMessageSync(req.boxid,value); // Fire off process to prepare response 
     res.send(value);
 });
 
