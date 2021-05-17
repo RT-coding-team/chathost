@@ -15,16 +15,24 @@ const configs = require('./configs.js'),
 	};
 
 init();
-if (process.argv[2] == 'test') {
-	test();
-}
+
 
 async function init() {
-	if (!data.users.ADMIN) {
-		data.users.ADMIN = await getAdmin(configs);
-		console.log(data.users.ADMIN);
+	var serverAlive = await checkRocketChat();
+	if (!serverAlive) {
+		console.log(`FATAL`);
+		process.exit(1);
 	}
-
+	if (!data.users.ADMIN) {
+		await getAdmin();
+		if (!data.users.ADMIN) {
+			console.log(`FATAL`);
+			process.exit(1);		
+		}
+	}
+	if (process.argv[2] == 'test') {
+		test();
+	}
 /////////////////////////////
 // TODO: Sanity checks
 // 	rocketChatClient.settings.get('FileUpload_ProtectFiles', function(err,body) {
@@ -36,14 +44,13 @@ async function init() {
 }
 
 async function test() {
-	if (!data.users.ADMIN) {
-		data.users.ADMIN = await getAdmin(configs);
-		//console.log(users);
-	}
-	await getUser('derek');
+	console.log(`Running Tests...`);
+
+	var user = await getUser('derek');
+	console.log(user);
 //	var testUsername = 'user-' + moment().unix().toString();
 	var testUsername = 'derek';
-	await createUser({username:testUsername,email:`${testUsername}@email.com`,password:testUsername,name:`iam${testUsername}`,customFields:{wellId:1234}});
+	await createUser({username:testUsername,email:`${testUsername}@email.com`,password:testUsername,name:testUsername,customFields:{wellId:1234}});
 
 //console.log(testUsername);
 //	await getUser(testUsername);
@@ -64,9 +71,37 @@ process.exit(1);
 
 
 
+async function checkRocketChat() {
+    let promise = new Promise((resolve, reject) => {
+		request({
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			uri: configs.rocketchat + '/api/info',
+			method: 'GET'
+		}, function (err, res, body) {
+			if (err) {
+				console.log(`checkRocketChat: ERROR: ${err}`);
+				resolve (false);
+			}
+			else {
+				if (body && body.includes('"success":true}')) {
+					console.log(`checkRocketChat: Connected Successfully to Rocketchat`);
+					resolve (true);
+				}
+				else {
+					console.log(`checkRocketChat: ERROR: ${body}`);
+					resolve (false);
+				}
+			}
+		});
+	});
+    let result = await promise;
+    return result;
 
+}
 
-async function getAdmin(configs) {
+async function getAdmin() {
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -78,15 +113,17 @@ async function getAdmin(configs) {
 		}, function (err, res, body) {
 			body = JSON.parse(body);
 			if (body && body.data) {
-				var response = body.data.me;
-				response.keys = {
+				data.users.ADMIN = body.data.me;
+				data.users.ADMIN.keys = {
 					userId: body.data.userId,
 					authToken: body.data.authToken
 				};
-				resolve (response);
+				console.log(`getAdmin: Successful Admin Connection`);
+				resolve (true);
 			}
 			else {
-				resolve ({});
+				console.log(`getAdmin: ERROR: ${JSON.stringify(body)}`);
+				resolve (false);
 			}
 		});
 	});
@@ -95,6 +132,7 @@ async function getAdmin(configs) {
 }
  
 async function createToken(username) {
+console.log (data.users);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -131,9 +169,10 @@ async function getUser(username) {
 				'X-Auth-Token': data.users.ADMIN.keys.authToken,
 				'Content-Type': 'application/json'
 			},
-			uri: configs.rocketchat + '/api/v1/users.info?userId=username',
+			uri: configs.rocketchat + `/api/v1/users.info?username=${username}`,
 			method: 'GET'
 		}, async function (err, res, body) {
+console.log(body);
 			body = JSON.parse(body);
 			if (body && body.user) {
 				data.users[username] = body.user;
@@ -142,7 +181,7 @@ async function getUser(username) {
 				resolve (data.users[username]);		
 			}
 			else {
-				console.log(`getUser: ${username} Not Found`);
+				console.log(`getUser: A username '${username}' Not Found`);
 				resolve ({});
 			}
 		});
@@ -215,7 +254,7 @@ async function createUser(user) {
 				resolve (data.users[username]);		
 			}
 			else {
-				console.log(`createUser: ${username} Failed`);
+				console.log(`createUser: ${user.username} Failed: ${JSON.stringify(body)}`);
 				resolve ({});
 			}
 		});
