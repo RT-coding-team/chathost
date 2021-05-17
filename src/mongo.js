@@ -13,7 +13,7 @@ var db;
 console.log(url);
 MongoClient.connect(url,{ useUnifiedTopology: true}, function(err, client) {
 	assert.equal(null, err);
-	console.log("Connected successfully to server");
+	console.log(`mongoClientConnect: Connected Successfully to MongoDB`);
 	db = client.db(dbName);
 });
 
