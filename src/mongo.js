@@ -64,7 +64,7 @@ async function getTeacherSenderId(boxid,username) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('teacherSenderIds');
 		collection.find({'boxid':boxid,'username':username }).toArray(function(err, results) {
-			if (results[0].length < 1) {
+			if (results || !results[0] || results[0].length < 1) {
 				resolve[0]
 			}
 			else {
