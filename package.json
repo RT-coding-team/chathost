@@ -26,7 +26,6 @@
     "multer": "*",
     "nocache": "*",
     "request": "*",
-    "rocketchat": "^0.57.3-alpha",
     "swagger-ui-express": "*",
     "uuid": "^8.3.2",
     "winston": "*",

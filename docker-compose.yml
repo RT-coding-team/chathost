@@ -5,6 +5,9 @@ services:
   nginx:
     image: nginx:latest
     container_name: nginx
+    links:
+      - rocketchat
+      - chathost
     restart: always
     logging:
       driver: json-file
@@ -81,7 +84,7 @@ services:
       - mongo
 
 # Chathost APIs
-  chathostAPIs:
+  chathost:
     image: 'node:10.15.0'
     container_name: chathost
     restart: always
