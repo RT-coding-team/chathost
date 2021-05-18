@@ -29,9 +29,9 @@ async function init() {
 			console.log(`FATAL`);
 			process.exit(1);		
 		}
-	}
-	if (process.argv[2] == 'test') {
-		test();
+		if (process.argv[2] == 'test') {
+			test();
+		}
 	}
 /////////////////////////////
 // TODO: Sanity checks
@@ -131,8 +131,7 @@ async function getAdmin() {
     return result;
 }
  
-async function createToken(username) {
-console.log (data.users);
+async function getToken(username) {
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -147,11 +146,11 @@ console.log (data.users);
 			body = JSON.parse(body);
 			if (body && body.data) {
 				data.users[username].keys = body.data;
-				console.log(`createToken: ${username}: ${JSON.stringify(body.data)}`)
+				console.log(`getToken: ${username}: ${JSON.stringify(body.data)}`)
 				resolve (body.data);
 			}
 			else {
-				console.log(`createToken: ${username}: ERROR: ${JSON.stringify(body)}`)
+				console.log(`getToken: ${username}: ERROR: ${JSON.stringify(body)}`)
 				resolve ({});
 			}
 		});
@@ -172,11 +171,11 @@ async function getUser(username) {
 			uri: configs.rocketchat + `/api/v1/users.info?username=${username}`,
 			method: 'GET'
 		}, async function (err, res, body) {
-console.log(body);
 			body = JSON.parse(body);
 			if (body && body.user) {
+				console.log(`getUser: ${username} Cached`);
 				data.users[username] = body.user;
-				data.users[username].keys = await createToken(username);
+				data.users[username].keys = await getToken(username);
 				data.users[username].chats = await getChats(username);
 				resolve (data.users[username]);		
 			}
@@ -197,9 +196,8 @@ async function getChats(username) {
 		await getUser(username);
 	}
 	if (!data.users[username].keys) {
-		await createToken(username);
+		await getToken(username);
 	}
-console.log(data.users[username],data.users[username].keys);
 	var response = {};
     let promise = new Promise((resolve, reject) => {
 		request({
@@ -216,11 +214,12 @@ console.log(data.users[username],data.users[username].keys);
 					for (var imUsername of im.usernames) {
 						if (imUsername !== username) {
 							response[imUsername] = im['_id'];
-							console.log(`getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
+							//console.log(`getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
 						}
 					}
 				}
 				data.users[username].chats = response;
+				console.log(`getChats: ${username} Found ${Object.keys(data.users[username].chats).length} chats`);
 				resolve (response);
 			}
 			else {
@@ -249,8 +248,9 @@ async function createUser(user) {
 			if (body && body.user) {
 				var username = user.username;
 				data.users[username] = body.user;
-				data.users[username].keys = await createToken(username);
+				data.users[username].keys = await getToken(username);
 				data.users[username].chats = await getChats(username);
+				console.log(`createUser: ${user.username} Successful`);
 				resolve (data.users[username]);		
 			}
 			else {
@@ -342,29 +342,38 @@ async function sendMessage(fromUsername,toUsername,message,conversationId) {
 //curl "https://chathost.derekmaxson.com/api/v1/rooms.upload/FFBYHK7q4MH3GDoZptizqhtTLKLg9rQvh7" -F file="@/tmp/sierrareplogosmall.png;type=image/png" -H "X-Auth-Token: 2ZLwN-HMp12MQDxfAFzXxmAH6VEGI_vr6x1gkPgBdzl" -H "X-User-Id: FFBYHK7q4MH3GDoZp"
 
 async function sendMessageWithAttachment(fromUsername,toUsername,message) {
-	console.log(`sendMessage: ${fromUsername} -> ${toUsername}: with attachment: ${data.length} bytes`);
-console.log(data.users);
+console.log(message);
+	console.log(`sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: with attachment: ${message.id}`);
 	if (!data.users[fromUsername]) {
 		await getUser(fromUsername);
 	}
 	if (!data.users[toUsername]) {
 		await getUser(toUsername);
 	}
-	if (!data.users[fromUsername].chats || data.users[fromUsername].chats[toUsername]) {
+	if (!data.users[fromUsername].chats || !data.users[fromUsername].chats[toUsername]) {
 		await createChat([fromUsername,toUsername]);
 		await getChats(fromUsername);
 	}
-	console.log(data.users[fromUsername]);
+	var roomId = data.users[fromUsername].chats[toUsername];
+	if (!roomId) {
+		console.log(`sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: No valid chat room for that conversation`);
+		return false;
+	}
     let promise = new Promise((resolve, reject) => {
-		var roomId = data.users[fromUsername].chats[toUsername];
 		// Had to use curl because I could not determine how to pass the content type info in via request.js 
 		var command = `curl -s "${configs.rocketchat}/api/v1/rooms.upload/${roomId}" -F file="@/tmp/${message.attachmentId};type=${message.mimetype}" -H "X-Auth-Token: ${data.users[fromUsername].keys.authToken}" -H "X-User-Id: ${data.users[fromUsername].keys.userId}"`
-		var result = JSON.parse(execSync(command).toString());
-		if (result.success === true) {
-			resolve(true);
+		try {
+			var result = JSON.parse(execSync(command).toString());
+			if (result.success === true) {
+				resolve(true);
+			}
+			else {
+				resolve(false);
+			}
 		}
-		else {
-			resolve(false);
+		catch (err) {
+			console.log(`sendMessageWithAttachment: FAILED: ${err}`);
+			resolve (false);
 		}
 	});
     let result = await promise;
@@ -388,7 +397,7 @@ async function getMessages(boxid,username,since) {
 		await getUser(username);
 	}	
 	if (!data.users[username].keys) {
-		await createToken(username);
+		await getToken(username);
 	}
 	if (!data.users[username].chats) {
 		await getChats(username);

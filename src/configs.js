@@ -3,7 +3,7 @@ var configs = {
 	"logging":"console",
 	"port":2820,
 	"mongo": "mongodb://mongo:27017",
-	"rocketchat": 'http://cb-chathost.derekmaxson.com:3000',
+	"rocketchat": 'https://chathost.derekmaxson.com',
 	"rocketchatadmin": "admin",
 	"rocketchatpassword": "!1TheWell"
 };
