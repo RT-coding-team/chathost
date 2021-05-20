@@ -20,7 +20,7 @@ services:
 
 # Builds the rocketchat server 
   rocketchat:
-    image: rocketchat/rocket.chat:latest
+    image: rocketchat/rocket.chat:3.14.0
     container_name: rocketchat
     command: >
       bash -c
@@ -35,7 +35,7 @@ services:
       - ./uploads:/app/uploads
     environment:
       - PORT=3000
-      - ROOT_URL=http://localhost:3000
+      - ROOT_URL=https://chathost.derekmaxson.com
       - MONGO_URL=mongodb://mongo:27017/rocketchat
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local
       - CREATE_TOKENS_FOR_USERS=true
@@ -43,6 +43,7 @@ services:
       - ADMIN_USERNAME=admin
       - ADMIN_EMAIL=derekmaxson@yahoo.com
       - ADMIN_PASS=!1TheWell
+      - OVERWRITE_SETTING_API_Enable_Rate_Limiter=false
     depends_on:
       - mongo
     ports:
@@ -61,7 +62,7 @@ services:
     volumes:
      - ../data/db:/data/db
      #- ./data/dump:/dump
-    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+    command: mongod --smallfiles --oplogSize 128 --replSet rs0
     labels:
       - "traefik.enable=false"
 
