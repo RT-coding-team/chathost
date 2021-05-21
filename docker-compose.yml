@@ -44,6 +44,7 @@ services:
       - ADMIN_EMAIL=derekmaxson@yahoo.com
       - ADMIN_PASS=!1TheWell
       - OVERWRITE_SETTING_API_Enable_Rate_Limiter=false
+      - OVERWRITE_SETTING_FileUpload_ProtectFiles=false
     depends_on:
       - mongo
     ports:
