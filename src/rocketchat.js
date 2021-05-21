@@ -46,6 +46,9 @@ async function init() {
 async function test() {
 	console.log(`Running Tests...`);
 
+	//await setSetting('')
+
+process.exit(1);
 	var user = await getUser('derek');
 	console.log(user);
 //	var testUsername = 'user-' + moment().unix().toString();
@@ -269,7 +272,7 @@ async function createChat(people) {
 		var postdata = {
 			usernames:people.join()
 		};
-		console.log(JSON.stringify(postdata));
+		//console.log(JSON.stringify(postdata));
 		request({
 			headers: {
 				'X-User-Id': data.users[people[0]].keys.userId,
@@ -307,7 +310,6 @@ async function sendMessage(fromUsername,toUsername,message,conversationId) {
 		await createChat([fromUsername,toUsername]);
 		await getChats(fromUsername);
 	}
-	console.log(data.users[fromUsername]);
 	mongo.setConversationId(conversationId,data.users[fromUsername].chats[toUsername]);  // record the moodle conversationId and Rocketchat roomId so that we can use these for sending messages to Moodle
     let promise = new Promise((resolve, reject) => {
 		var postdata = {
@@ -380,6 +382,20 @@ console.log(message);
     return result;
 }
 
+async function getAttachment(path) {
+    let promise = new Promise((resolve, reject) => {
+    	console.log(`getAttachment: ${configs.rocketchat}${path}`);
+		request({
+			uri: configs.rocketchat + path
+		}, async function (err, res, body) {
+			console.log(body);
+			resolve({code: 200, mimetype: res.headers['content-type'], body: Buffer.from(body)});
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
 async function prepareMessageSync(boxid,since) {
 	// Discover all users on this boxid
 	var users = await getUserListForBox(boxid);
@@ -406,6 +422,7 @@ async function getMessages(boxid,username,since) {
 	for (var roomId of Object.values(data.users[username].chats)) {
 		console.log(`getMessages: ${username}: ${roomId}`);
 		var messages = await getRoomMessages(boxid,username,roomId,since);
+		mongo.setMessageStatusValue(boxid);
 		response = response.concat(messages);
 	}
 	return (response);
@@ -425,40 +442,47 @@ async function getRoomMessages(boxid,username,roomId,since) {
 			body = JSON.parse(body);
 			var response = [];
  			if (body && body.messages && body.messages.length > 0) {
+				console.log(`getRoomMessages: ${username}: ${roomId}: Found ${body.messages.length} messages`);
 				var messages = body.messages.sort(sortOnTimestamp);	
 				for (var message of messages) {
+					console.log(`getRoomMessages: ${username}: ${roomId}: Checking Message: ${message._id}: ${message.u.username}`);
 					if (message.u.username === username) {
-						console.log(`getRoomMessages: Skipping self-sent message: ${message._id}`);
-						continue;
+						console.log(`getRoomMessages: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
 					}
-					console.log(message);
-//					process.exit(1);
-					var conversationId = await mongo.getConversationId(message.rid);
-					var moodleMessage = {
-						id: message._id,
-						"conversation_id": conversationId,
-						subject: null,
-						message: message.msg,
-						sender: {
-							username: message.u.username,  // Sender should always be a "teacher" or admin on Rocketchat
-							id: await mongo.getTeacherSenderId(boxid,message.u.username)
-						},
-						recipient: {
-							username: username.substr(0, username.lastIndexOf("."))   // Recipient should always been on the Moodle box.
-						},
-						"created_on": moment(message.ts).unix()				
+					else {
+						console.log(message);
+						var conversationId = await mongo.getConversationId(message.rid);
+						var moodleMessage = {
+							id: message._id,
+							"conversation_id": conversationId,
+							subject: null,
+							message: message.msg,
+							sender: {
+								username: message.u.username,  // Sender should always be a "teacher" or admin on Rocketchat
+								id: await mongo.getTeacherSenderId(boxid,message.u.username)
+							},
+							recipient: {
+								username: username.substr(0, username.lastIndexOf("."))   // Recipient should always been on the Moodle box.
+							},
+							"created_on": moment(message.ts).unix()				
+						}
+						if (message.attachments) {
+							moodleMessage.message = `<attachment type="${message.attachments[0].image_type.split('/')[0]}" id="${message.attachments[0].image_url}">`;
+						}
+						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username} on conversation_id ${conversationId}`);
+						response.push(moodleMessage);
 					}
-					if (message.attachments) {
-						moodleMessage.message = `<attachment type="${message.attachments[0].image_type.split('/')[0]}" id="${message.attachments[0].image_url}">`;
-					}
-					response.push(moodleMessage);
 				}	
 				
-				console.log(`getRoomMessages: ${username}: ${roomId} ${response.length}`);
+				console.log(`getRoomMessages: ${username}: ${roomId}: Sending ${response.length} messages`);
  				resolve (response);
  			}
+ 			else if (body && body.messages && body.messages.length === 0) {
+				console.log(`getRoomMessages: ${username}: ${roomId} No Messages Found`);
+ 				resolve ([]); 			
+ 			}
  			else {
-				console.log(`getRoomMessages: ${username}: ${roomId} ERROR`);
+				console.log(`getRoomMessages: ${username}: ${roomId} ERROR: ${JSON.stringify(body)}`);
  				resolve ([]);
  			}
 		});
@@ -501,6 +525,7 @@ async function getUserListForBox(boxid) {
     return result;
 }
 
+
 function sortOnTimestamp(a, b) {
   let comparison = 0;
   if (a.ts > b.ts) {
@@ -520,5 +545,6 @@ module.exports = {
 	createChat,
 	sendMessage,
 	sendMessageWithAttachment,
+	getAttachment,
 	prepareMessageSync
 }

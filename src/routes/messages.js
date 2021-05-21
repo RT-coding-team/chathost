@@ -8,7 +8,7 @@ const express = require('express'),
 
 //  Get the messages data
 router.get('/:since', async function getMessages(req, res) {
-	var value = await mongo.getMessagesOutbound(req.boxid,req.params.since);
+	var value = await mongo.getMessageSync(req.boxid,req.params.since);
 	if (typeof value === 'number') {
 		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Error ${value}`);
 		res.sendStatus(value);

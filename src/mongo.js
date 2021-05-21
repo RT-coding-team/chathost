@@ -2,7 +2,8 @@ const configs = require('./configs.js'),
     Logger = require('./logger.js'),
     logger = new Logger(configs.logging),
 	moment = require('moment-timezone'),
-	    
+    fs = require('fs'),
+  
 	MongoClient = require('mongodb').MongoClient,
 	assert = require('assert'),
 	url = configs.mongo,
@@ -15,30 +16,34 @@ MongoClient.connect(url,{ useUnifiedTopology: true}, function(err, client) {
 	assert.equal(null, err);
 	console.log(`mongoClientConnect: Connected Successfully to MongoDB`);
 	db = client.db(dbName);
+	setUpMongo();
 });
 
-// Returns the timestamp of the MOST RECENT MESSAGE RECEIVED FROM MOODLE
+function setMessageStatusValue(boxid,username,id) {
+	const collection = db.collection('boxSyncTime');
+	collection.updateOne({boxid:boxid},{ $set: {timestamp: moment().unix()}},{upsert:true}, function(err, result) {
+  	});	
+}
+
 async function getMessageStatusValue(boxid) {
+	console.log(`getMessageStatusValue: Box: ${boxid}`);
     let promise = new Promise((resolve, reject) => {
-		const collection = db.collection('messagesDone');
-		collection.find({'boxid':boxid}).sort({timestamp:-1}).limit(1).toArray(function(err, result) {
-			if (err) {
-				resolve("2");
+		const collection = db.collection('boxSyncTime');
+		collection.find({'boxid':boxid }).toArray(function(err, results) {
+			if (!results || !results[0]) {
+				resolve('1');
 			}
 			else {
-				if (result && result[0] && result[0].timestamp) {
-					console.log(`getMessageStatusValue: Most Recent Message Received From Box: ${result[0]._id}: ${result[0].timestamp}`);
-					resolve(result[0].timestamp.toString());			
-				}
-				else {
-					resolve("1");
-				}
+				console.log(`getMessageStatusValue: Get All Messages Newer Than: ${results[0].timestamp}`);
+				resolve(results[0].timestamp.toString());
 			}
 		});
 	});
     let result = await promise;
     return result;
 }
+
+
 
 // Put the courseRoster in Mongo.  That is all
 function setCourseRoster(boxid,body,callback) {
@@ -64,8 +69,8 @@ async function getTeacherSenderId(boxid,username) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('teacherSenderIds');
 		collection.find({'boxid':boxid,'username':username }).toArray(function(err, results) {
-			if (results || !results[0] || results[0].length < 1) {
-				resolve[0]
+			if (!results || !results[0] || results[0].length < 1) {
+				resolve('0');
 			}
 			else {
 				resolve(results[0].id);
@@ -79,7 +84,7 @@ async function getTeacherSenderId(boxid,username) {
 // Put the logs in Mongo.  That is all
 function setLogs(boxid,body,callback) {
 	const collection = db.collection('logs');
-	collection.updateOne({'boxid':boxid.toString()},{ $set: {data: JSON.stringify(body),timestamp : moment().unix()}},{upsert:true}, function(err, result) {
+	collection.insertOne({'boxid':boxid.toString(),data: JSON.stringify(body),timestamp : moment().unix()}, function(err, result) {
 		if (err) {
 			callback(404);
 		}
@@ -90,11 +95,12 @@ function setLogs(boxid,body,callback) {
 }
 
 // Get all messages pending for a Moodle since timestamp (typically the value provided by getMessageStatusValue)
-async function getMessagesOutbound(boxid,since) {
-	console.log(`getMessagesOutbound: Box: ${boxid} since ${since}`);
+async function getMessageSync(boxid,since) {
+	console.log(`getMessageSync: Box: ${boxid} since ${since}`);
+	var boxidSince = `${boxid}-${since}`;
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('messageSync');
-		collection.find({'boxid':boxid,'timestamp':parseInt(since) }).toArray(function(err, results) {
+		collection.find({'_id': boxidSince }).toArray(function(err, results) {
 			if (err) {
 				resolve(500);
 			}
@@ -111,6 +117,7 @@ async function getMessagesOutbound(boxid,since) {
     return result;
 }
 
+/*
 // Write a message to later be sent to Moodle
 async function setMessageOutbound(boxid,record) {
     let promise = new Promise((resolve, reject) => {
@@ -131,7 +138,8 @@ async function setMessageOutbound(boxid,record) {
     let result = await promise;
     return result;
 }
-
+*/
+/* DELETE?
 // Write a message received from Moodle
 function queueMessagesInbound(boxid,record,callback) {
 	const collection = db.collection('messageQueue');
@@ -154,7 +162,7 @@ function queueMessagesInbound(boxid,record,callback) {
 	});
 	callback(200);
 }
-
+*/
 // Get the conversationid value from the rocketchat room id
 async function getConversationId(rocketchat) {
 	const collection = db.collection('conversations');
@@ -199,9 +207,10 @@ function messageSync(boxid,timestamp,messages) {
 	};
 	collection.insertOne(record, function(err, result) {
 		if (err) {
-			console.log(`messageSync: Error: messageId: ${boxid}: ${err}`);
+			console.log(`messageSync: Error: boxid: ${boxid}: ${err}`);
 		}
 		else {
+			console.log(`messageSync: ${boxid}: Sync prepared for ${timestamp}: ${messages.length} Messages`);
 		}
 	});
 }
@@ -259,7 +268,7 @@ async function getAttachment(attachmentId) {
 }
 
 // Receive an attachment sent by Moodle
-function setAttachmentsInbound(record,callback) {
+function setAttachmentsInbound(record,file,callback) {
 	const collection = db.collection('attachments');
 	record.timestamp = moment().unix();
 	record._id = record.idWithBoxid;
@@ -273,25 +282,53 @@ function setAttachmentsInbound(record,callback) {
 			callback(500);
 		}
 		else {
-			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Success`);
-			callback(404);
+			var upload = fs.writeFileSync(`/tmp/${record.idWithBoxid}`,file,{encoding: "base64"});
+			if (fs.existsSync(`/tmp/${record.idWithBoxid}`)) {
+				collection.updateOne({ _id: record.idWithBoxid},{ $set: {uploaded: true}},{upsert:true});	
+				db.collection('attachmentsFailed').deleteOne({ _id: record.idWithBoxid});	
+				console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Success`);
+				callback (200);
+			}
+			else {
+				collection.deleteOne({ _id: record.idWithBoxid});	
+				db.collection('attachmentsFailed').updateOne({ _id: record.idWithBoxid},{ $set: {attachmentId: record.id,boxid:record.boxid,uploaded: false}},{upsert:true});	
+				console.log(`setAttachmentsInbound: ${record.idWithBoxid}: ERROR`);
+				callback(500);
+			}
 		}
 	});
+}
+
+// See if attachment exists
+async function getAttachmentExists(id) {
+    let promise = new Promise((resolve, reject) => {
+		const collection = db.collection('attachments');
+		collection.find({_id:id}).toArray(function(err, results) {
+			if (results && results[0]) {
+				results[0].response = 200;
+				resolve(results[0]);
+			}
+			else {
+				resolve({response:404});
+			}
+		});
+	});
+    let result = await promise;
+    return result;
 }
 
 // Get all attachmentIds for attachments that didn't make it
 async function findMissingAttachmentsInbound(boxid) {
     let promise = new Promise((resolve, reject) => {
-		const collection = db.collection('messagesInbound');
-		collection.find({'boxid':boxid,'attachment.uploaded':{$ne: true} }).toArray(function(err, results) {
+		const collection = db.collection('attachmentsFailed');
+		collection.find({'boxid':boxid}).toArray(function(err, results) {
 			if (err) {
 				resolve([]);
 			}
 			else {
-				// TODO: There should be a mongo way to do get just the idWithBoxid from the record:
 				var finalResults = [];
 				for (var result of results) {
-					finalResults.push(result.attachment.idWithBoxid);
+					finalResults.push(result.attachmentId);
 				}
 				var unique = [...new Set(finalResults)];
 				resolve(unique);
@@ -302,19 +339,32 @@ async function findMissingAttachmentsInbound(boxid) {
     return result;
 }
 
+function setUpMongo() {
+	db.collection('logs').createIndex( { "createdAt": 1 }, { expireAfterSeconds: 30 } );
+	console.log(`setUpMongo: Done`);
+}
+
+function removeOldRecords() {
+	var oneMonthAgo = moment().add(-30, 'days').unix();
+	var oneMonthAgo = moment().add(-1, 'days').unix();
+	db.collection('logs').deleteMany({timestamp: {$lt: oneMonthAgo}});
+	db.collection('messageSync').deleteMany({timestamp: {$lt: oneDayAgo}});
+}
+
 module.exports = {
 	getMessageStatusValue,
+	setMessageStatusValue,
 	setCourseRoster,
-	getMessagesOutbound,
-	queueMessagesInbound,
 	messageSentToRocketChat,
 	isMessageSentToRocketChat,
 	getConversationId,
 	setConversationId,
 	messageSync,
+	getMessageSync,
 	setTeacherSenderId,
 	getTeacherSenderId,
 	getAttachment,
+	getAttachmentExists,
 	setAttachmentsInbound,
 	findMissingAttachmentsInbound,
 	setLogs

@@ -9,10 +9,9 @@ const express = require('express'),
 
 //  Put in the courseRoster data
 router.post('/', async function postRosters(req, res) {
-	mongo.setCourseRoster(req.boxid,req.body, function(result) {
+	mongo.setCourseRoster(req.boxid,req.body, async function(result) {
 		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${result}`);
-// todo make this sync
-		processRosters(req.boxid,req.body);
+		await processRosters(req.boxid,req.body);
 	    res.sendStatus(200);
 	});
 });
@@ -48,6 +47,7 @@ async function processRosters(boxid,body) {
 			}
 		}
 	}
+	return (true);
 }
 
 module.exports = router;
