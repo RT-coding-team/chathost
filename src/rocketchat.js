@@ -464,7 +464,11 @@ async function getRoomMessages(boxid,username,roomId,since) {
 							"created_on": moment(message.ts).unix()				
 						}
 						if (message.attachments) {
-							moodleMessage.message = `<attachment type="${message.file.type.split('/')[0]}" id="${message.attachments[0].title_link}">`;
+							var type = message.file.type.split('/')[0];
+							if (type !== 'video' && type !== 'audio' && type !== 'photo') {
+								type = 'document';
+							}
+							moodleMessage.message = `<attachment type="${type}" id="${message.attachments[0].title_link}">`;
 						}
 						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
 						response.push(moodleMessage);
