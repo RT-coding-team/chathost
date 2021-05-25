@@ -344,7 +344,6 @@ async function sendMessage(fromUsername,toUsername,message) {
 //curl "https://chathost.derekmaxson.com/api/v1/rooms.upload/FFBYHK7q4MH3GDoZptizqhtTLKLg9rQvh7" -F file="@/tmp/sierrareplogosmall.png;type=image/png" -H "X-Auth-Token: 2ZLwN-HMp12MQDxfAFzXxmAH6VEGI_vr6x1gkPgBdzl" -H "X-User-Id: FFBYHK7q4MH3GDoZp"
 
 async function sendMessageWithAttachment(fromUsername,toUsername,message) {
-console.log(message);
 	console.log(`sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: with attachment: ${message.id}`);
 	if (!data.users[fromUsername]) {
 		await getUser(fromUsername);
@@ -361,9 +360,10 @@ console.log(message);
 		console.log(`sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: No valid chat room for that conversation`);
 		return false;
 	}
+	var attachment = await mongo.getAttachmentExists(message.attachmentId);
     let promise = new Promise((resolve, reject) => {
 		// Had to use curl because I could not determine how to pass the content type info in via request.js 
-		var command = `curl -s "${configs.rocketchat}/api/v1/rooms.upload/${roomId}" -F file="@/tmp/${message.attachmentId};type=${message.mimetype}" -H "X-Auth-Token: ${data.users[fromUsername].keys.authToken}" -H "X-User-Id: ${data.users[fromUsername].keys.userId}"`
+		var command = `curl -s "${configs.rocketchat}/api/v1/rooms.upload/${roomId}" -F file="@/tmp/${message.attachmentId};type=${attachment.mimetype}" -H "X-Auth-Token: ${data.users[fromUsername].keys.authToken}" -H "X-User-Id: ${data.users[fromUsername].keys.userId}"`
 		try {
 			var result = JSON.parse(execSync(command).toString());
 			if (result.success === true) {
