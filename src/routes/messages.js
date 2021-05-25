@@ -34,6 +34,10 @@ router.post('/', async function postMessages(req, res) {
 		}		
 		// Check for validity of teacher:
 		var teacher = await rocketchat.getUser(message.recipient.username);
+		if (!teacher || !teacher.emails) {
+			logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: ${messageId}: Recipient (${message.recipient.username}) was not found on Rocketchat`);
+			continue;
+		}
 		for (var email of teacher.emails) {
 			if (email.address === message.recipient.email) {
 				message.recipient.validated = true;
