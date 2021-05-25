@@ -298,8 +298,8 @@ async function createChat(people) {
     return result;
 }
 
-async function sendMessage(fromUsername,toUsername,message,conversationId) {
-	console.log(`sendMessage: ${fromUsername} -> ${toUsername}: Moodle conversationId: ${conversationId}: ${message}`);
+async function sendMessage(fromUsername,toUsername,message) {
+	console.log(`sendMessage: ${fromUsername} -> ${toUsername}: ${message}`);
 	if (!data.users[fromUsername]) {
 		await getUser(fromUsername);
 	}
@@ -310,7 +310,6 @@ async function sendMessage(fromUsername,toUsername,message,conversationId) {
 		await createChat([fromUsername,toUsername]);
 		await getChats(fromUsername);
 	}
-	mongo.setConversationId(conversationId,data.users[fromUsername].chats[toUsername]);  // record the moodle conversationId and Rocketchat roomId so that we can use these for sending messages to Moodle
     let promise = new Promise((resolve, reject) => {
 		var postdata = {
 			roomId: data.users[fromUsername].chats[toUsername],
@@ -451,15 +450,12 @@ async function getRoomMessages(boxid,username,roomId,since) {
 					}
 					else {
 						console.log(message);
-						var conversationId = await mongo.getConversationId(message.rid);
 						var moodleMessage = {
 							id: message._id,
-							"conversation_id": conversationId,
 							subject: null,
 							message: message.msg,
 							sender: {
 								username: message.u.username,  // Sender should always be a "teacher" or admin on Rocketchat
-								id: await mongo.getTeacherSenderId(boxid,message.u.username)
 							},
 							recipient: {
 								username: username.substr(0, username.lastIndexOf("."))   // Recipient should always been on the Moodle box.
@@ -469,7 +465,7 @@ async function getRoomMessages(boxid,username,roomId,since) {
 						if (message.attachments) {
 							moodleMessage.message = `<attachment type="${message.attachments[0].image_type.split('/')[0]}" id="${message.attachments[0].image_url}">`;
 						}
-						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username} on conversation_id ${conversationId}`);
+						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}`);
 						response.push(moodleMessage);
 					}
 				}	
@@ -503,7 +499,7 @@ async function getUserListForBox(boxid) {
 				'X-Auth-Token': data.users.ADMIN.keys.authToken,
 				'Content-Type': 'application/json'
 			},
-			uri: configs.rocketchat + `/api/v1/users.list?count=100&query={ "username": { "$regex": ".1234" } }`
+			uri: configs.rocketchat + `/api/v1/users.list?count=100&query={ "username": { "$regex": ".${boxid}" } }`
 		}, function (err, res, body) {
 			//console.log(err,body);
 			body = JSON.parse(body);
