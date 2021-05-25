@@ -39,15 +39,21 @@ router.get('/file-upload/:folder/:attachmentId', async function getAttachment(re
 
 //  Put in the attachment data
 router.post('/', upload.any(), async function postAttachments(req, res) {
-	var body = req.body;
-	body.mimetype = req.files[0].mimetype;
-	body.size = req.files[0].size;
-	body.idWithBoxid = `${req.boxid}-${body.id}`;
-	body.boxid = req.boxid;
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${body.idWithBoxid}`);
- 	mongo.setAttachmentsInbound(body,req.files[0].buffer, function(result) {
- 	    res.sendStatus(result);
- 	});
+	if (!req.body || !req.files || !req.files[0]) {
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: FAILED to post attachment`);
+		res.sendStatus(500);
+	}
+	else {
+		var body = req.body;
+		body.mimetype = req.files[0].mimetype;
+		body.size = req.files[0].size;
+		body.idWithBoxid = `${req.boxid}-${body.id}`;
+		body.boxid = req.boxid;
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${body.idWithBoxid}`);
+		mongo.setAttachmentsInbound(body,req.files[0].buffer, function(result) {
+			res.sendStatus(result);
+		});
+	}
 });
 
 module.exports = router;
