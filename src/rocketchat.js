@@ -436,7 +436,7 @@ async function getRoomMessages(boxid,username,roomId,since) {
 				'X-Auth-Token': data.users[username].keys.authToken,
 				'Content-Type': 'application/json'
 			},
-			uri: configs.rocketchat + `/api/v1/im.history?roomId=${roomId}&count=100`//`&oldest=${moment(since*1000).format()}`
+			uri: configs.rocketchat + `/api/v1/im.history?roomId=${roomId}&count=100&oldest=${moment(since*1000).format()}`
 		}, async function (err, res, body) {
 			body = JSON.parse(body);
 			var response = [];
