@@ -7,6 +7,7 @@ const configs = require('./configs.js'),
 	url = configs.mongo,
 	dbName = "chathost",
 	request = require('request'),
+	emojione = require('emojione'),
 	execSync = require('child_process').execSync;	
 
 	var data = {
@@ -453,7 +454,7 @@ async function getRoomMessages(boxid,username,roomId,since) {
 						var moodleMessage = {
 							id: message._id,
 							subject: null,
-							message: message.msg,
+							message: emojione.shortnameToUnicode(convertEmojiTone(message.msg)),
 							sender: {
 								username: message.u.username,  // Sender should always be a "teacher" or admin on Rocketchat
 							},
@@ -465,7 +466,7 @@ async function getRoomMessages(boxid,username,roomId,since) {
 						if (message.attachments) {
 							moodleMessage.message = `<attachment type="${message.file.type.split('/')[0]}" id="${message.attachments[0].title_link}">`;
 						}
-						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}`);
+						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
 						response.push(moodleMessage);
 					}
 				}	
@@ -530,6 +531,17 @@ function sortOnTimestamp(a, b) {
     comparison = -1;
   }
   return comparison;
+}
+
+function convertEmojiTone(text) {
+	if (text.includes ('_skin_tone:')) {
+		text = text.replace(/_medium_light_skin_tone/g,'_tone2');
+		text = text.replace(/_medium_skin_tone/g,'_tone3');
+		text = text.replace(/_medium_dark_skin_tone/g,'_tone4');
+		text = text.replace(/_dark_skin_tone/g,'_tone5');
+		text = text.replace(/_light_skin_tone/g,'_tone1');
+	}
+	return (text);
 }
 
 
