@@ -45,6 +45,10 @@ async function init() {
 }
 
 async function test() {
+	prepareMessageSync('5aadd2d0235c4fefa3260a4a4e0b92b6',1620659751);
+}
+
+async function Atest() {
 	console.log(`Running Tests...`);
 
 	//await setSetting('')
@@ -468,7 +472,7 @@ async function getRoomMessages(boxid,username,roomId,since) {
 							if (type !== 'video' && type !== 'audio' && type !== 'photo') {
 								type = 'document';
 							}
-							moodleMessage.message = `<attachment type="${type}" id="${message.attachments[0].title_link}">`;
+							moodleMessage.message = `<attachment type="${type}" id="${moment(message.ts).valueOf()}" filepath="${message.attachments[0].title_link}">`;
 						}
 						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
 						response.push(moodleMessage);
