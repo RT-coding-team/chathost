@@ -20,6 +20,7 @@
     "cors": "*",
     "express": "*",
     "express-session": "*",
+    "file-type": "^16.4.0",
     "moment": "*",
     "moment-timezone": "*",
     "mongodb": "*",
