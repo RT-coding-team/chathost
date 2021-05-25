@@ -3,6 +3,7 @@ const configs = require('./configs.js'),
     logger = new Logger(configs.logging),
 	moment = require('moment-timezone'),
     fs = require('fs'),
+	FileType = require('file-type'),
   
 	MongoClient = require('mongodb').MongoClient,
 	assert = require('assert'),
@@ -268,10 +269,12 @@ async function getAttachment(attachmentId) {
 }
 
 // Receive an attachment sent by Moodle
-function setAttachmentsInbound(record,file,callback) {
+async function setAttachmentsInbound(record,file,callback) {
 	const collection = db.collection('attachments');
 	record.timestamp = moment().unix();
 	record._id = record.idWithBoxid;
+	var temp = await FileType.fromBuffer(file);
+	record.mimetype = temp.mime;
 	collection.insertOne(record, function(err, result) {
 		if (err && err.code === 11000) {
 			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Already Exists.  Not Updating`);			
