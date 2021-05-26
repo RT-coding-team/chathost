@@ -426,9 +426,9 @@ async function getMessages(boxid,username,since) {
 	for (var roomId of Object.values(data.users[username].chats)) {
 		console.log(`getMessages: ${username}: ${roomId}`);
 		var messages = await getRoomMessages(boxid,username,roomId,since);
-		mongo.setMessageStatusValue(boxid);
 		response = response.concat(messages);
 	}
+	mongo.setMessageStatusValue(boxid);
 	return (response);
 }
 
