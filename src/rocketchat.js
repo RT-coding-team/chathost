@@ -381,8 +381,8 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
 		}
 		catch (err) {
 			logger.log('error', `sendMessageWithAttachment: FAILED: ${err}`);
-			sendMessage(fromUsername,toUsername,`The attachment ${message.filename} has failed to be delievered`);
-			sendMessage(toUsername,fromUsername,`The attachment ${message.filename} has failed to be delievered`);
+			sendMessage(fromUsername,toUsername,`The file sent to you, ${message.filename}, has failed to be delievered`);
+			sendMessage(toUsername,fromUsername,`The file you sent, ${message.filename}, has failed to be delievered`);
 			resolve (false);
 		}
 	});
@@ -458,7 +458,7 @@ async function getRoomMessages(boxid,username,roomId,since) {
 						logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
 					}
 					else {
-						logger.log('info', message);
+						logger.log('info', JSON.stringify(message));
 						var moodleMessage = {
 							id: message._id,
 							subject: null,
