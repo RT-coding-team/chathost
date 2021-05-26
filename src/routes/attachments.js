@@ -22,21 +22,6 @@ router.get('/:attachmentId/exists', async function getAttachmentExists(req, res)
 	}
 });
 
-// Get missing attachments
-router.get('/missing', async function getAttachments(req, res) {
- 	var response = await mongo.findMissingAttachmentsInbound(req.boxid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.response}`);
-	res.send(response);
-});
-
-//  Get the attachment data
-router.get('/file-upload/:folder/:attachmentId', async function getAttachment(req, res) {
-	var path = `${configs.rocketchat}/file-upload/${req.params.folder}/${req.params.attachmentId}`;
-	console.log(`getAttachment: ${path}`);
-	//var response = await rocketchat.getAttachment(path)
- 	res.redirect(path);
-});
-
 //  Put in the attachment data
 router.post('/', upload.any(), async function postAttachments(req, res) {
 	if (!req.body || !req.files || !req.files[0]) {
