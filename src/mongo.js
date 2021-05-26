@@ -7,15 +7,13 @@ const configs = require('./configs.js'),
   
 	MongoClient = require('mongodb').MongoClient,
 	assert = require('assert'),
-	url = configs.mongo,
 	dbName = "chathost";
 
 var db;
 
-console.log(url);
-MongoClient.connect(url,{ useUnifiedTopology: true}, function(err, client) {
+MongoClient.connect(configs.mongo,{ useUnifiedTopology: true}, function(err, client) {
 	assert.equal(null, err);
-	console.log(`mongoClientConnect: Connected Successfully to MongoDB`);
+	logger.log('info', `mongoClientConnect: Connected Successfully to MongoDB: ${configs.mongo}`);
 	db = client.db(dbName);
 	setUpMongo();
 });
@@ -27,15 +25,16 @@ function setMessageStatusValue(boxid,username,id) {
 }
 
 async function getMessageStatusValue(boxid) {
-	console.log(`getMessageStatusValue: Box: ${boxid}`);
+	logger.log('info', `getMessageStatusValue: Box: ${boxid}`);
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('boxSyncTime');
 		collection.find({'boxid':boxid }).toArray(function(err, results) {
 			if (!results || !results[0]) {
+				logger.log('debug', `getMessageStatusValue: No Prior Sync.  Get All Messages`);
 				resolve('1');
 			}
 			else {
-				console.log(`getMessageStatusValue: Get All Messages Newer Than: ${results[0].timestamp}`);
+				logger.log('debug', `getMessageStatusValue: Get All Messages Newer Than: ${results[0].timestamp}`);
 				resolve(results[0].timestamp.toString());
 			}
 		});
@@ -51,9 +50,11 @@ function setCourseRoster(boxid,body,callback) {
 	const collection = db.collection('courseRoster');
 	collection.updateOne({'_id':boxid.toString()},{ $set: {data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {
 		if (err) {
-			callback(404);
+			logger.log('error', `setCourseRoster: FAILED: ${err}`);
+			callback(500);
 		}
 		else {
+			logger.log('info', `setCourseRoster: Success`);
 			callback(200);
 		}
   	});
@@ -64,9 +65,11 @@ function setLogs(boxid,body,callback) {
 	const collection = db.collection('logs');
 	collection.insertOne({'boxid':boxid.toString(),data: JSON.stringify(body),timestamp : moment().unix()}, function(err, result) {
 		if (err) {
-			callback(404);
+			logger.log('error', `setLogs: FAILED: ${err}`);
+			callback(500);
 		}
 		else {
+			logger.log('info', `setLogs: Success`);
 			callback(200);
 		}
   	});
@@ -74,19 +77,22 @@ function setLogs(boxid,body,callback) {
 
 // Get all messages pending for a Moodle since timestamp (typically the value provided by getMessageStatusValue)
 async function getMessageSync(boxid,since) {
-	console.log(`getMessageSync: Box: ${boxid} since ${since}`);
+	logger.log('info', `getMessageSync: Box: ${boxid} since ${since}`);
 	var boxidSince = `${boxid}-${since}`;
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('messageSync');
 		collection.find({'_id': boxidSince }).toArray(function(err, results) {
 			if (err) {
+				logger.log('error', `setLogs: FAILED: ${err}`);
 				resolve(500);
 			}
 			else if (results && results[0] && results[0].messages) {
 				collection.deleteOne({ _id: `${boxid}-${since}` }, function(err, result) {});
+				logger.log('info', `getMessageSync: Successfully retrieved sync with ${results[0].messages.length} messages`);
 				resolve(results[0].messages);
 			}
 			else {
+				logger.log('info', `getMessageSync: No messages`);	
 				resolve(404);
 			}
 		});
@@ -105,10 +111,10 @@ function messageSync(boxid,timestamp,messages) {
 	};
 	collection.insertOne(record, function(err, result) {
 		if (err) {
-			console.log(`messageSync: Error: boxid: ${boxid}: ${err}`);
+			logger.log('error', `messageSync: Error: boxid: ${boxid}: ${err}`);
 		}
 		else {
-			console.log(`messageSync: ${boxid}: Sync prepared for ${timestamp}: ${messages.length} Messages`);
+			logger.log('info', `messageSync: ${boxid}: Sync prepared for ${timestamp}: ${messages.length} Messages`);
 		}
 	});
 }
@@ -123,7 +129,7 @@ function messageSentToRocketChat(boxid,id) {
 	};
 	collection.insertOne(record, function(err, result) {
 		if (err) {
-			console.log(`messageDone: Error: messageId: ${id}: ${err}`);
+			logger.log('error', `messageDone: Error: messageId: ${id}: ${err}`);
 		}
 		else {
 		}
@@ -174,11 +180,11 @@ async function setAttachmentsInbound(record,file,callback) {
 	record.mimetype = temp.mime;
 	collection.insertOne(record, function(err, result) {
 		if (err && err.code === 11000) {
-			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Already Exists.  Not Updating`);			
+			logger.log('info', `setAttachmentsInbound: ${record.idWithBoxid}: Already Exists.  Not Updating`);			
 			callback (200);
 		}
 		else if (err) {
-			console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Error: ${err}`);
+			logger.log('error', `setAttachmentsInbound: ${record.idWithBoxid}: Error: ${err}`);
 			callback(500);
 		}
 		else {
@@ -186,13 +192,13 @@ async function setAttachmentsInbound(record,file,callback) {
 			if (fs.existsSync(`/tmp/${record.idWithBoxid}`)) {
 				collection.updateOne({ _id: record.idWithBoxid},{ $set: {uploaded: true}},{upsert:true});	
 				db.collection('attachmentsFailed').deleteOne({ _id: record.idWithBoxid});	
-				console.log(`setAttachmentsInbound: ${record.idWithBoxid}: Success`);
+				logger.log('info', `setAttachmentsInbound: ${record.idWithBoxid}: Success`);
 				callback (200);
 			}
 			else {
 				collection.deleteOne({ _id: record.idWithBoxid});	
 				db.collection('attachmentsFailed').updateOne({ _id: record.idWithBoxid},{ $set: {attachmentId: record.id,boxid:record.boxid,uploaded: false}},{upsert:true});	
-				console.log(`setAttachmentsInbound: ${record.idWithBoxid}: ERROR`);
+				logger.log('error', `setAttachmentsInbound: ${record.idWithBoxid}: ERROR`);
 				callback(500);
 			}
 		}
@@ -240,8 +246,7 @@ async function findMissingAttachmentsInbound(boxid) {
 }
 
 function setUpMongo() {
-	db.collection('logs').createIndex( { "createdAt": 1 }, { expireAfterSeconds: 30 } );
-	console.log(`setUpMongo: Done`);
+	logger.log('info', `setUpMongo: Done`);
 }
 
 function removeOldRecords() {

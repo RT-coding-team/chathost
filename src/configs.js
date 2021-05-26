@@ -8,6 +8,10 @@ var configs = {
 	"rocketchatpassword": "!1TheWell"
 };
 
+const
+    Logger = require('./logger.js'),
+    logger = new Logger(configs.logging);
+
 for (var env of Object.keys(process.env)) {
 	if (env.includes('CHATHOST_')) {
 		console.log(env);
@@ -15,6 +19,6 @@ for (var env of Object.keys(process.env)) {
 		configs[key] = process.env[env];
 	}
 }
-console.log(configs);
+logger.log('info', `configs: ${JSON.stringify(configs)}`);
 
 module.exports = configs;

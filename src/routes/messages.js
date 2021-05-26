@@ -10,7 +10,7 @@ const express = require('express'),
 router.get('/:since', async function getMessages(req, res) {
 	var value = await mongo.getMessageSync(req.boxid,req.params.since);
 	if (typeof value === 'number') {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Error ${value}`);
+		logger.log('info', `${req.boxid}: ${req.method} ${req.originalUrl}: ${value}`);
 		res.sendStatus(value);
 	}
 	else {
@@ -48,7 +48,7 @@ router.post('/', async function postMessages(req, res) {
 				message.attachment.attachmentId = `${req.boxid}-${message.attachment.id}`;
 				var result = await rocketchat.sendMessageWithAttachment(`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.attachment,message.conversation_id);  // Teachers don't have a boxid but students do
 				if (result === true) {
-					logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
+					logger.log('info', `${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
 	 				mongo.messageSentToRocketChat(req.boxid,messageId);
 				}
 				else {
@@ -58,7 +58,7 @@ router.post('/', async function postMessages(req, res) {
 			else {
 				var result = await rocketchat.sendMessage(`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.message,message.conversation_id);  // Teachers don't have a boxid but students do
 				if (result === true) {
-					logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
+					logger.log('info', `${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
 	 				mongo.messageSentToRocketChat(req.boxid,messageId);
 				}
 				else {

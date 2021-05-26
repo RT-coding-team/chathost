@@ -21,13 +21,13 @@ init();
 async function init() {
 	var serverAlive = await checkRocketChat();
 	if (!serverAlive) {
-		console.log(`FATAL`);
+		logger.log('info', `FATAL`);
 		process.exit(1);
 	}
 	if (!data.users.ADMIN) {
 		await getAdmin();
 		if (!data.users.ADMIN) {
-			console.log(`FATAL`);
+			logger.log('info', `FATAL`);
 			process.exit(1);		
 		}
 		if (process.argv[2] == 'test') {
@@ -49,20 +49,20 @@ async function test() {
 }
 
 async function Atest() {
-	console.log(`Running Tests...`);
+	logger.log('info', `Running Tests...`);
 
 	//await setSetting('')
 
 process.exit(1);
 	var user = await getUser('derek');
-	console.log(user);
+	logger.log('info', user);
 //	var testUsername = 'user-' + moment().unix().toString();
 	var testUsername = 'derek';
 	await createUser({username:testUsername,email:`${testUsername}@email.com`,password:testUsername,name:testUsername,customFields:{wellId:1234}});
 
-//console.log(testUsername);
+//logger.log('info', testUsername);
 //	await getUser(testUsername);
-	console.log(data.users);
+	logger.log('info', data.users);
 
 process.exit(1);
 
@@ -70,10 +70,10 @@ process.exit(1);
 
 //prepareMessageSync('1234',1620659751);
 // 	var value = await mongo.getMessagesOutbound('1234',1620659750);
-// 	console.log(value);
+// 	logger.log('info', value);
 // 
 // 	var value = await mongo.getMessagesOutbound('1234',1620659751);
-// 	console.log(value);
+// 	logger.log('info', value);
 }
 
 
@@ -89,16 +89,17 @@ async function checkRocketChat() {
 			method: 'GET'
 		}, function (err, res, body) {
 			if (err) {
-				console.log(`checkRocketChat: ERROR: ${err}`);
+				logger.log('info', `checkRocketChat: ERROR: ${err}`);
+				logger.log('error', `checkRocketChat: ERROR: ${err}`);		
 				resolve (false);
 			}
 			else {
 				if (body && body.includes('"success":true}')) {
-					console.log(`checkRocketChat: Connected Successfully to Rocketchat`);
+					logger.log('info', `checkRocketChat: Connected Successfully to Rocketchat`);		
 					resolve (true);
 				}
 				else {
-					console.log(`checkRocketChat: ERROR: ${body}`);
+					logger.log('error', `checkRocketChat: ERROR: ${body}`);		
 					resolve (false);
 				}
 			}
@@ -126,11 +127,11 @@ async function getAdmin() {
 					userId: body.data.userId,
 					authToken: body.data.authToken
 				};
-				console.log(`getAdmin: Successful Admin Connection`);
+				logger.log('info', `getAdmin: Successful Admin Connection`);
 				resolve (true);
 			}
 			else {
-				console.log(`getAdmin: ERROR: ${JSON.stringify(body)}`);
+				logger.log('error', `getAdmin: ERROR: ${JSON.stringify(body)}`);
 				resolve (false);
 			}
 		});
@@ -154,11 +155,11 @@ async function getToken(username) {
 			body = JSON.parse(body);
 			if (body && body.data) {
 				data.users[username].keys = body.data;
-				console.log(`getToken: ${username}: ${JSON.stringify(body.data)}`)
+				logger.log('debug', `getToken: ${username}: ${JSON.stringify(body.data)}`)
 				resolve (body.data);
 			}
 			else {
-				console.log(`getToken: ${username}: ERROR: ${JSON.stringify(body)}`)
+				logger.log('error', `getToken: ${username}: ERROR: ${JSON.stringify(body)}`)
 				resolve ({});
 			}
 		});
@@ -168,7 +169,7 @@ async function getToken(username) {
 }
 
 async function getUser(username) {
-	console.log(`getUser: ${username}`);
+	logger.log('info', `getUser: ${username}`);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -181,14 +182,14 @@ async function getUser(username) {
 		}, async function (err, res, body) {
 			body = JSON.parse(body);
 			if (body && body.user) {
-				console.log(`getUser: ${username} Cached`);
+				logger.log('debug', `getUser: ${username} Cached`);
 				data.users[username] = body.user;
 				data.users[username].keys = await getToken(username);
 				data.users[username].chats = await getChats(username);
 				resolve (data.users[username]);		
 			}
 			else {
-				console.log(`getUser: A username '${username}' Not Found`);
+				logger.log('error', `getUser: A username '${username}' Not Found`);
 				resolve ({});
 			}
 		});
@@ -199,7 +200,7 @@ async function getUser(username) {
 
 
 async function getChats(username) {
-	console.log(`getChats: ${username}: Locating Chat Rooms`);
+	logger.log('info', `getChats: ${username}: Locating Chat Rooms`);
 	if (!data.users[username]) {
 		await getUser(username);
 	}
@@ -222,16 +223,16 @@ async function getChats(username) {
 					for (var imUsername of im.usernames) {
 						if (imUsername !== username) {
 							response[imUsername] = im['_id'];
-							//console.log(`getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
+							//logger.log('info', `getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
 						}
 					}
 				}
 				data.users[username].chats = response;
-				console.log(`getChats: ${username} Found ${Object.keys(data.users[username].chats).length} chats`);
+				logger.log('debug', `getChats: ${username} Found ${Object.keys(data.users[username].chats).length} chats`);
 				resolve (response);
 			}
 			else {
-				console.log(`getChats: ${username}: ERROR: ${JSON.stringify(body)}`)
+				logger.log('error', `getChats: ${username}: ERROR: ${JSON.stringify(body)}`)
 				resolve ({});
 			}
 		});
@@ -241,6 +242,7 @@ async function getChats(username) {
 }
 
 async function createUser(user) {
+	logger.log('info', `createUser: ${user.username}`);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -258,11 +260,11 @@ async function createUser(user) {
 				data.users[username] = body.user;
 				data.users[username].keys = await getToken(username);
 				data.users[username].chats = await getChats(username);
-				console.log(`createUser: ${user.username} Successful`);
+				logger.log('debug', `createUser: ${user.username} Successful`);
 				resolve (data.users[username]);		
 			}
 			else {
-				console.log(`createUser: ${user.username} Failed: ${JSON.stringify(body)}`);
+				logger.log('error', `createUser: ${user.username} Failed: ${JSON.stringify(body)}`);
 				resolve ({});
 			}
 		});
@@ -272,12 +274,12 @@ async function createUser(user) {
 }
 
 async function createChat(people) {
-	console.log(`createChat: ${people.join()}`);
+	logger.log('debug', `createChat: ${people.join()}`);
     let promise = new Promise((resolve, reject) => {
 		var postdata = {
 			usernames:people.join()
 		};
-		//console.log(JSON.stringify(postdata));
+		//logger.log('info', JSON.stringify(postdata));
 		request({
 			headers: {
 				'X-User-Id': data.users[people[0]].keys.userId,
@@ -290,11 +292,11 @@ async function createChat(people) {
 		}, function (err, res, body) {
 			body = JSON.parse(body);
  			if (body && body.room) {
-				console.log(`createChat: ${people.join()}: roomId: ${body.room.rid}`);
+				logger.log('debug', `createChat: ${people.join()}: roomId: ${body.room.rid}`);
  				resolve (true);
  			}
  			else {
-				console.log(`createChat: ${people.join()}: FAILED`);
+				logger.log('error', `createChat: ${people.join()}: FAILED`);
  				resolve (false);
  			}
 		});
@@ -304,7 +306,7 @@ async function createChat(people) {
 }
 
 async function sendMessage(fromUsername,toUsername,message) {
-	console.log(`sendMessage: ${fromUsername} -> ${toUsername}: ${message}`);
+	logger.log('info', `sendMessage: ${fromUsername} -> ${toUsername}: ${message}`);
 	if (!data.users[fromUsername]) {
 		await getUser(fromUsername);
 	}
@@ -332,11 +334,11 @@ async function sendMessage(fromUsername,toUsername,message) {
 		}, function (err, res, body) {
 			body = JSON.parse(body);
  			if (body && body.success) {
-				console.log(`sendMessage: ${fromUsername} -> ${toUsername}: ${message}: SUCCESS`);
+				logger.log('debug', `sendMessage: ${fromUsername} -> ${toUsername}: ${message}: SUCCESS`);
  				resolve (true);
  			}
  			else {
-				console.log(`sendMessage: ${fromUsername} -> ${toUsername}: ${message}: FAILED (${JSON.stringify(body)})`);
+				logger.log('error', `sendMessage: ${fromUsername} -> ${toUsername}: ${message}: FAILED (${JSON.stringify(body)})`);
  				resolve (false);
  			}
 		});
@@ -348,7 +350,7 @@ async function sendMessage(fromUsername,toUsername,message) {
 //curl "https://chathost.derekmaxson.com/api/v1/rooms.upload/FFBYHK7q4MH3GDoZptizqhtTLKLg9rQvh7" -F file="@/tmp/sierrareplogosmall.png;type=image/png" -H "X-Auth-Token: 2ZLwN-HMp12MQDxfAFzXxmAH6VEGI_vr6x1gkPgBdzl" -H "X-User-Id: FFBYHK7q4MH3GDoZp"
 
 async function sendMessageWithAttachment(fromUsername,toUsername,message) {
-	console.log(`sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: with attachment: ${message.id}`);
+	logger.log('info', `sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: with attachment: ${message.id}`);
 	if (!data.users[fromUsername]) {
 		await getUser(fromUsername);
 	}
@@ -361,7 +363,7 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
 	}
 	var roomId = data.users[fromUsername].chats[toUsername];
 	if (!roomId) {
-		console.log(`sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: No valid chat room for that conversation`);
+		logger.log('error', `sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: No valid chat room for that conversation`);
 		return false;
 	}
 	var attachment = await mongo.getAttachmentExists(message.attachmentId);
@@ -378,7 +380,7 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
 			}
 		}
 		catch (err) {
-			console.log(`sendMessageWithAttachment: FAILED: ${err}`);
+			logger.log('error', `sendMessageWithAttachment: FAILED: ${err}`);
 			resolve (false);
 		}
 	});
@@ -388,11 +390,11 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
 
 async function getAttachment(path) {
     let promise = new Promise((resolve, reject) => {
-    	console.log(`getAttachment: ${configs.rocketchat}${path}`);
+    	logger.log('info', `getAttachment: ${configs.rocketchat}${path}`);
 		request({
 			uri: configs.rocketchat + path
 		}, async function (err, res, body) {
-			console.log(body);
+			logger.log('info', body);
 			resolve({code: 200, mimetype: res.headers['content-type'], body: Buffer.from(body)});
 		});
 	});
@@ -405,14 +407,14 @@ async function prepareMessageSync(boxid,since) {
 	var users = await getUserListForBox(boxid);
 	var messages = []
 	for (var username of users) {
-		console.log(`prepareMessageSync: ${boxid}: Checking User: ${username}`);
+		logger.log('debug', `prepareMessageSync: ${boxid}: Checking User: ${username}`);
 		messages = messages.concat(await getMessages(boxid,username,since));
 	}
 	mongo.messageSync(boxid,since,messages);
 }
 
 async function getMessages(boxid,username,since) {
-	console.log(`getMessages: ${username}`);
+	logger.log('info', `getMessages: ${username}`);
 	if (!data.users[username]) {
 		await getUser(username);
 	}	
@@ -424,7 +426,7 @@ async function getMessages(boxid,username,since) {
 	}
 	var response = [];
 	for (var roomId of Object.values(data.users[username].chats)) {
-		console.log(`getMessages: ${username}: ${roomId}`);
+		logger.log('info', `getMessages: ${username}: ${roomId}`);
 		var messages = await getRoomMessages(boxid,username,roomId,since);
 		response = response.concat(messages);
 	}
@@ -433,7 +435,7 @@ async function getMessages(boxid,username,since) {
 }
 
 async function getRoomMessages(boxid,username,roomId,since) {
-	console.log(`getRoomMessages: ${username}: ${roomId}: Since ${moment(since*1000).format()}`);
+	logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Since ${moment(since*1000).format()}`);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -446,15 +448,15 @@ async function getRoomMessages(boxid,username,roomId,since) {
 			body = JSON.parse(body);
 			var response = [];
  			if (body && body.messages && body.messages.length > 0) {
-				console.log(`getRoomMessages: ${username}: ${roomId}: Found ${body.messages.length} messages`);
+				logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Found ${body.messages.length} messages`);
 				var messages = body.messages.sort(sortOnTimestamp);	
 				for (var message of messages) {
-					console.log(`getRoomMessages: ${username}: ${roomId}: Checking Message: ${message._id}: ${message.u.username}`);
+					logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Checking Message: ${message._id}: ${message.u.username}`);
 					if (message.u.username === username) {
-						console.log(`getRoomMessages: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
+						logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
 					}
 					else {
-						console.log(message);
+						logger.log('info', message);
 						var moodleMessage = {
 							id: message._id,
 							subject: null,
@@ -477,20 +479,20 @@ async function getRoomMessages(boxid,username,roomId,since) {
 							}
 							moodleMessage.message = `<attachment type="${type}" id="${moment(message.ts).valueOf()}" filename="${message.file.name}" filepath="${message.attachments[0].title_link}">`;
 						}
-						console.log(`getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
+						logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
 						response.push(moodleMessage);
 					}
 				}	
 				
-				console.log(`getRoomMessages: ${username}: ${roomId}: Sending ${response.length} messages`);
+				logger.log('info', `getRoomMessages: ${username}: ${roomId}: Sending ${response.length} messages`);
  				resolve (response);
  			}
  			else if (body && body.messages && body.messages.length === 0) {
-				console.log(`getRoomMessages: ${username}: ${roomId} No Messages Found`);
+				logger.log('info', `getRoomMessages: ${username}: ${roomId} No Messages Found`);
  				resolve ([]); 			
  			}
  			else {
-				console.log(`getRoomMessages: ${username}: ${roomId} ERROR: ${JSON.stringify(body)}`);
+				logger.log('error', `getRoomMessages: ${username}: ${roomId} ERROR: ${JSON.stringify(body)}`);
  				resolve ([]);
  			}
 		});
@@ -513,18 +515,18 @@ async function getUserListForBox(boxid) {
 			},
 			uri: configs.rocketchat + `/api/v1/users.list?count=100&query={ "username": { "$regex": ".${boxid}" } }`
 		}, function (err, res, body) {
-			//console.log(err,body);
+			//logger.log('info', err,body);
 			body = JSON.parse(body);
  			if (body && body.users) {
 				var response = [];
 				for (var user of body.users) {
 					response.push(user.username);
 				}
-				console.log(`getUserListForBox: ${boxid}: ${JSON.stringify(response)}`);
+				logger.log('debug', `getUserListForBox: ${boxid}: ${JSON.stringify(response)}`);
  				resolve (response);
  			}
  			else {
-				console.log(`getUserListForBox: ${boxid}: Invalid`);
+				logger.log('error', `getUserListForBox: ${boxid}: Invalid`);
  				resolve ([]);
  			}
 		});

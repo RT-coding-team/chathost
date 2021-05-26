@@ -17,17 +17,17 @@ router.post('/', async function postRosters(req, res) {
 });
 
 async function processRosters(boxid,body) {
-	console.log(`process.rosters: ${boxid}`);
-	//console.log(JSON.stringify(body));
+	logger.log('info', `process.rosters: ${boxid}`);
+	//logger.log('info', JSON.stringify(body));
 	// Go through each course and find the teachers, students and establish Rocketchat accounts and welcome messages
 	for (var course of body) {
-		//console.log(course);
-		console.log(`processRosters: Course: ${course.course_name}`)
+		//logger.log('info', course);
+		logger.log('debug', `processRosters: Course: ${course.course_name}`)
 		var teachers = [];
 		// Iterate teachers, create if needed
 		for (var teacher of course.teachers) {
 			var username = teacher.username;  // Teachers don't have a boxid but students do
-			console.log(`processRosters: Teacher: ${username}`);
+			logger.log('debug', `processRosters: Teacher: ${username}`);
 			var user = await rocketchat.getUser(username);
 			teachers.push(username);
 			if (!user || !user.username) {
@@ -37,7 +37,7 @@ async function processRosters(boxid,body) {
 		// Iterate through students, create if needed, establish chatroom between teacher and student and fire a welcome message
 		for (var student of course.students) {
 			var username = `${student['username']}.${boxid}`;  // Teachers don't have a boxid but students do
-			console.log(`processRosters: Student: ${username}`);
+			logger.log('debug', `processRosters: Student: ${username}`);
 			var user = await rocketchat.getUser(username);
 			if (!user || !user.username) {
 				user = await rocketchat.createUser({username:username,email:`${username}@none.com`,password:username,name:`${student['first_name']} ${student['last_name']}`,customFields:{wellId:boxid}})
