@@ -59,29 +59,6 @@ function setCourseRoster(boxid,body,callback) {
   	});
 }
 
-function setTeacherSenderId(boxid,username,id) {
-	const collection = db.collection('teacherSenderIds');
-	collection.updateOne({'username':username},{ $set: {boxid: boxid,id : id}},{upsert:true}, function(err, result) {
-  	});	
-}
-
-async function getTeacherSenderId(boxid,username) {
-	console.log(`getTeacherSenderId: Box: ${boxid} Username ${username}`);
-    let promise = new Promise((resolve, reject) => {
-		const collection = db.collection('teacherSenderIds');
-		collection.find({'boxid':boxid,'username':username }).toArray(function(err, results) {
-			if (!results || !results[0] || results[0].length < 1) {
-				resolve('0');
-			}
-			else {
-				resolve(results[0].id);
-			}
-		});
-	});
-    let result = await promise;
-    return result;
-}
-
 // Put the logs in Mongo.  That is all
 function setLogs(boxid,body,callback) {
 	const collection = db.collection('logs');
