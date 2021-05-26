@@ -153,24 +153,6 @@ async function isMessageSentToRocketChat(id) {
     return result;
 }
 
-
-// Get an attachment requested by Moodle
-async function getAttachment(attachmentId) {
-    let promise = new Promise((resolve, reject) => {
-		const collection = db.collection('attachments');
-		collection.find({'_id':attachmentId}).toArray(function(err, results) {
-			if (results[0] && results[0].mimetype) {
-				resolve({response:200,mimetype: results[0].mimetype,file:Buffer.from(results[0].file.buffer, 'base64')});
-			}
-			else {
-				resolve({response:404,mimetype: null,file:null});
-			}
-		});
-	});
-    let result = await promise;
-    return result;
-}
-
 // Receive an attachment sent by Moodle
 async function setAttachmentsInbound(record,file,callback) {
 	const collection = db.collection('attachments');
@@ -223,28 +205,6 @@ async function getAttachmentExists(id) {
     return result;
 }
 
-// Get all attachmentIds for attachments that didn't make it
-async function findMissingAttachmentsInbound(boxid) {
-    let promise = new Promise((resolve, reject) => {
-		const collection = db.collection('attachmentsFailed');
-		collection.find({'boxid':boxid}).toArray(function(err, results) {
-			if (err) {
-				resolve([]);
-			}
-			else {
-				var finalResults = [];
-				for (var result of results) {
-					finalResults.push(result.attachmentId);
-				}
-				var unique = [...new Set(finalResults)];
-				resolve(unique);
-			}
-		});
-	});
-    let result = await promise;
-    return result;
-}
-
 function setUpMongo() {
 	logger.log('info', `setUpMongo: Done`);
 }
@@ -264,9 +224,7 @@ module.exports = {
 	isMessageSentToRocketChat,
 	messageSync,
 	getMessageSync,
-	getAttachment,
 	getAttachmentExists,
 	setAttachmentsInbound,
-	findMissingAttachmentsInbound,
 	setLogs
 };
