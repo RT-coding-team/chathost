@@ -381,6 +381,8 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
 		}
 		catch (err) {
 			logger.log('error', `sendMessageWithAttachment: FAILED: ${err}`);
+			sendMessage(fromUsername,toUsername,`The attachment ${message.filename} has failed to be delievered`);
+			sendMessage(toUsername,fromUsername,`The attachment ${message.filename} has failed to be delievered`);
 			resolve (false);
 		}
 	});
