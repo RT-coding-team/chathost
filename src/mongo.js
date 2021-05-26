@@ -164,39 +164,6 @@ function queueMessagesInbound(boxid,record,callback) {
 	callback(200);
 }
 */
-// Get the conversationid value from the rocketchat room id
-async function getConversationId(rocketchat) {
-	const collection = db.collection('conversations');
-    let promise = new Promise((resolve, reject) => {
-		collection.find({'_id':rocketchat}).toArray(function(err, results) {
-			if (results[0]) {
-				resolve(results[0].moodle);
-			}
-			else {
-				resolve(0);
-			}
-		});
-	});
-    let result = await promise;
-    return result;
-}
-
-// Set the conversationId values
-function setConversationId(rocketchat,moodle) {
-	const collection = db.collection('conversations');
-	var record = {
-		_id: rocketchat,
-		moodle: moodle,
-		timestamp: moment().unix()
-	};
-	collection.insertOne(record, function(err, result) {
-		if (err) {
-			console.log(`conversationId: Error: ${rocketchat}: ${err}`);
-		}
-		else {
-		}
-	});
-}
 
 function messageSync(boxid,timestamp,messages) {
 	const collection = db.collection('messageSync');
