@@ -49,7 +49,7 @@ async function getMessageStatusValue(boxid) {
 // Put the courseRoster in Mongo.  That is all
 function setCourseRoster(boxid,body,callback) {
 	const collection = db.collection('courseRoster');
-	collection.updateOne({'_id':boxid.toString()},{ $set: {data: JSON.stringify(body),timestamp : moment().unix()}},{upsert:true}, function(err, result) {
+	collection.updateOne({'_id':boxid.toString()},{ $set: {data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {
 		if (err) {
 			callback(404);
 		}
