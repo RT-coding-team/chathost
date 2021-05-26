@@ -118,53 +118,6 @@ async function getMessageSync(boxid,since) {
     return result;
 }
 
-/*
-// Write a message to later be sent to Moodle
-async function setMessageOutbound(boxid,record) {
-    let promise = new Promise((resolve, reject) => {
-		record.timestamp = moment().unix();
-		record.boxid = boxid;
-		const collection = db.collection('messagesOutbound');
-		collection.insertOne(record, function(err, result) {
-			if (err) {
-				console.log(`setMessageOutbound: Error: ${err}`);
-				resolve (false);
-			}
-			else {
-				console.log(`setMessageOutbound: ${record._id}: Success`);
-				resolve (true);
-			}
-		});
-	});
-    let result = await promise;
-    return result;
-}
-*/
-/* DELETE?
-// Write a message received from Moodle
-function queueMessagesInbound(boxid,record,callback) {
-	const collection = db.collection('messageQueue');
-	record.timestamp = moment().unix();
-	record.boxid = boxid;
-	if (record.attachment) {
-		record.attachment.idWithBoxid = `${boxid}-${record.attachment.id}`;
-	}
-	if (record.message.includes('<attachment ')) {
-		record.attachment.uploaded = false;
-	}
-	record._id = record.attachment.idWithBoxid;
-	collection.updateOne({'_id':record.attachment.idWithBoxid},{ $set: {data: JSON.stringify(record),timestamp : moment().unix()}},{upsert:true}, function(err, result) {
-		if (err) {
-			console.log(`queueMessagesInbound: Error: messageId: ${record.id}: ${err}`);
-		}
-		else {
-			console.log(`queueMessagesInbound: Success: messageId: ${record.id}: Message will be sent to rocketchat when attachment is sent`);
-		}
-	});
-	callback(200);
-}
-*/
-
 function messageSync(boxid,timestamp,messages) {
 	const collection = db.collection('messageSync');
 	var record = {
