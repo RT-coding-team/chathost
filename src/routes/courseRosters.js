@@ -30,7 +30,6 @@ async function processRosters(boxid,body) {
 			console.log(`processRosters: Teacher: ${username}`);
 			var user = await rocketchat.getUser(username);
 			teachers.push(username);
-			mongo.setTeacherSenderId(boxid,username,teacher.id);
 			if (!user || !user.username) {
 				logger.log('error', `processRosters: Course: ${course.id}: No Teacher Found: ${JSON.stringify(teacher)}`);
 			}
