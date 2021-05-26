@@ -472,7 +472,10 @@ async function getRoomMessages(boxid,username,roomId,since) {
 							"created_on": moment(message.ts).unix()				
 						}
 						if (message.attachments) {
-							var type = message.file.type.split('/')[0];
+							var type = 'document';  // default
+							if (message.file && message.file.type) {
+								type = message.file.type.split('/')[0];
+							}
 							if (type === 'image') {
 								type = 'photo';
 							}
