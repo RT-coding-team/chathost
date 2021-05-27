@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/admin/favicon.ico">
+
+    <title>Wi-Fi Presence By Front Porch</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/admin/public/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="/admin/public/jsgrid.min.css" />
+	<link type="text/css" rel="stylesheet" href="/admin/public/jsgrid-theme.min.css" />
+    <link rel="stylesheet" type="text/css" class="ui" href="/admin/public/semantic/semantic.min.css">
+ 	<link href="/admin/public/flat-ui.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/admin/public/jumbotron.css" rel="stylesheet">
+	<link href="/admin/public/dashboard.css" rel="stylesheet">
+    <style>
+    # {
+    	display: none;
+	}
+    </style>
+  </head>
+  <body>
+
+    <nav id="navMain" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <img src="/admin/favicon.ico" width=40><a class="navbar-brand disabled" href="/">Dashboard</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/admin">Status</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/agreements.html">Agreements</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/diagnostics.html">Diagnostics</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/support" target=sites >Documentation</a>
+          </li>
+        </ul>
+      </div>
+
+    </nav>
+
+
+    <!main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <main role="main" class="col-md-12">
+
+      <div class="Ajumbotron">
+      <BR><BR>
+
+                    <div class="ui container" id="reports">
+						<div class="section-summary" class="sectionReports">
+							<div class="ui top attached borderless menu">
+								<div class="item">
+									<div class="ui header small">
+										<i class="info circle icon"></i>
+											<div class="content">
+												System Health
+												<div class="sub header">
+													
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						<div class="ui bottom attached segment">
+							Docker: <font id="docker"></font><BR>
+							MySQL: <font id="mysql"></font><BR>
+							CPU: <font id="cpu"></font><BR>
+							Memory: <font id="memory"></font><BR>
+							Disk: <font id="disk"></font><BR>
+							Email All Churches: <a href="" id="emailAll">Email All</a>
+						</div>
+
+						<div class="section-summary" class="sectionReports">
+							<div class="ui top attached borderless menu">
+								<div class="item">
+									<div class="ui header small">
+										<i class="clone icon"></i>
+											<div class="content">
+												Cloud Instances &nbsp;&nbsp;&nbsp;&nbsp;   <span data-toggle="modal" data-target="#createModal" onclick="loadCreateModal()"><i class="plus icon"></i></span>
+												<div class="sub header">
+													
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						<div class="ui bottom attached segment">
+							<div id="currentLocationsGrid"></div>
+						</div>
+
+
+						<div class="section-summary" class="sectionReports">
+							<div class="ui top attached borderless menu">
+								<div class="item">
+									<div class="ui header small">
+										<i class="line chart icon"></i>
+											<div class="content">
+												Device Traffic
+												<div class="sub header">
+													
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						<div class="ui bottom attached segment">
+								<div class="ui bottom attached segment">
+									<div id="traffic" style="height: 600px; width: 100%;"></div>
+								</div>
+						</div>
+
+
+<!--
+						<div class="ui two column stackable grid">
+							<div class="column"> 
+								<div class="section-summary" class="sectionReports">
+									<div class="ui top attached borderless menu">
+										<div class="item">
+											<div class="ui header small">
+												<i class="pie chart icon"></i>
+													<div class="content">
+														Current Locations
+														<div class="sub header">
+															Devices Per Locations
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								<div class="ui bottom attached segment">
+									<canvas id="topChannels" width="200" height="200"></canvas>      
+								</div>
+							</div>
+							<div class="column"> 
+								<div class="section-summary">
+									<div class="ui top attached borderless menu">
+										<div class="item">
+											<div class="ui header small">
+												<i class="line chart icon"></i>
+													<div class="content">
+														Devices
+														<div class="sub header">
+															Samples From Last 24 Hours 
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								<div class="ui bottom attached segment">
+									<canvas id="devices" width="200" height="200"></canvas>      
+								</div>
+							</div>
+						</div>	
+-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+      </div>
+
+<div id="createModal" class="modal fade">
+	<div class="modal-dialog modal-confirm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="icon-box">
+					<img src="/admin/favicon.ico" width=40>
+				</div>
+				&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;
+				<h4 class="modal-title">Create New Organization</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+				<span class="form">
+					<label>Instance Name</label>
+					<input id="addChurchInstance" class="form-control">
+					<label>Primary Administrator Account Email</label>
+					<input placeholder="newuser@church.org" class="form-control" id="addChurchUserEmail"></input>
+					&nbsp;<BR>
+					<button onclick="createOrg();this.disabled=true; this.value='Creating…';" class="btn btn-sm btn-info">Create</button>
+				</span>
+			</div>
+			<div class="modal-body" id="createResult">
+			</div>
+		</div>
+	</div>
+</div>  
+
+
+<div id="detailModal" class="modal fade">
+	<div class="modal-dialog modal-confirm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="icon-box">
+					<!i class="huge wifi icon"><!/i>
+					<img src="/admin/favicon.ico" width=40>
+				</div>
+				&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;
+				<a id="instanceLink" target="" href=""><h4 class="modal-title" id="instanceName"></h4></a>
+				&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;
+                <a href="" id="emailLink"><i class="mail icon"></i></a>
+                &nbsp;
+				<a onclick="clickConfigure()"><i class="settings icon"></i></a>
+                &nbsp;
+				<a onclick="clickRestart()"><i class="sync icon"></i></a>
+                &nbsp;
+				<a onclick="clickStop()"><i class="trash icon"></i></a>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body" id="detailModalBody">
+				<h4>Details</h4>
+				<span id="showDetails"></span>
+			</div>
+			<div class="modal-body" id="usersModalBody">
+				<table id="usersTable"></table>
+				<span class="form-inline"><input type=hidden name="customer" id="addChurchUserCustomer"><input id="addChurchUserEmail" placeholder="newuser@church.org" class="form-control" name="email">&nbsp;&nbsp;<button onclick="createUser()" class="btn btn-sm btn-info">Create</button></span>
+			</div>
+			<div class="modal-body" id="confirmModalBody" style="display:none;">
+				<h4>Confirm!</h4>
+				<span id="confirmDetails"></span>
+			</div>
+		</div>
+	</div>
+</div>  
+
+ 
+   </main>
+
+    <footer class="container">
+      <p>&copy; Front Porch, Inc. 2018</p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/admin/public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+	<script type="text/javascript" src="/admin/public/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="/admin/public/jsgrid.min.js"></script>    	
+	<script type="text/javascript" src="/admin/public/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/admin/public/semantic/semantic.min.js"></script>
+    <script type="text/javascript" src="/admin/public/angular-min.js"></script>
+    <script type="text/javascript" src="/admin/public/angular-chart-min.js"></script>
+	<script type="text/javascript" src="/admin/public/flat-ui.js"></script>
+    <script type="text/javascript" src="/admin/public/chart.js"></script>
+    <script type="text/javascript" src="/admin/public/dashboard.js"></script>
+
+
+<script>
+
+function deleteUser(instance,email) {
+	console.log(instance,email);
+	$.ajax({
+		url: `/api/user/delete?customer=${instance}&email=${email}`,
+		type: "GET",
+		success: function(response) {
+			console.log ("getResponse=" + response);
+			alert("Success! " + email + " was deleted");
+			loadDetailModal(instance);
+		},
+		error: function(response) {
+			console.log ("getResponse=" + response);
+			alert("Delete User Failed");
+			loadDetailModal(instance);
+		}
+	});
+
+}
+
+function createUser() {
+	var instance = $("#addChurchUserCustomer").val();
+	var email = $("#addChurchUserEmail").val();
+	console.log(instance,email);
+	$.ajax({
+		url: `/api/user/add?customer=${instance}&email=${email}`,
+		type: "GET",
+		success: function(response) {
+			console.log ("getResponse=" + response);
+			alert("Success! A new user was made for " + email);
+			loadDetailModal(instance);
+		},
+		error: function(response) {
+			console.log ("getResponse=" + response);
+			alert("Create User Failed");
+			loadDetailModal(instance);
+		}
+  	});
+}
+
+function createOrg() {
+	var instance = $("#addChurchInstance").val();
+	var email = $("#addChurchUserEmail").val();
+	$("#createResult").append("Creating New Org . . .");
+	console.log(instance,email);
+	$.ajax({
+		url: `/api/createCustomer?customer=${instance}&email=${email}`,
+		Aurl: '/check',
+		type: "GET",
+		success: function(response) {
+			console.log ("getResponse=" + response);
+			alert("Success! A new org was made at " + instance + ".frontporch.cloud.  This may take 2 minutes to complete<BR>");
+			$("#createResult").append("New org completed. <BR>");
+			$("#createResult").append("Waiting for Docker to load for " + instance);
+		},
+		error: function(response) {
+			console.log ("getResponse=" + JSON.stringify(response));
+			console.log(response);
+			alert("Create Organzation Failed");
+			$("#createResult").append("FAILED. <BR>" + JSON.stringify(response));
+		}
+  	});
+}
+
+function clickStop() {
+	$("#usersModalBody").hide();
+	$("#detailModalBody").hide();
+	var customer = $("#instanceName").text();
+	$("#confirmDetails").html(`Are you sure you want to delete this instance for ${customer}?  After you confirm, it may take 5 minutes to fully delete.`);
+	$("#confirmDetails").append(`<BR><BR><a href="/api/deleteCustomer?customer=${customer}"><button class="btn btn-sm btn-info">Delete Instance</button></a>`);
+	$("#confirmModalBody").fadeIn();
+
+}
+
+function clickRestart() {
+	$("#usersModalBody").hide();
+	$("#detailModalBody").hide();
+	var customer = $("#instanceName").text();
+	$("#confirmDetails").html(`Are you sure you want to reboot this instance for ${customer}?`);
+	$("#confirmDetails").append(`<BR><BR><a href="/api/rebootCustomer?customer=${customer}"><button class="btn btn-sm btn-info">Reboot Instance</button></a>`);
+	$("#confirmModalBody").fadeIn();
+
+}
+
+function clickConfigure() {
+	$("#usersModalBody").hide();
+	$("#detailModalBody").hide();
+	var customer = $("#instanceName").text();
+	$("#confirmDetails").append(`<a href="/api/setRelease?customer=${customer}&release=ga"><button class="btn btn-sm btn-info">GA Release</button></a> `);
+	$("#confirmDetails").append(`<a href="/api/setRelease?customer=${customer}&release=beta"><button class="btn btn-sm btn-info">Beta Release</button></a> `);
+	$("#confirmDetails").append(`<a href="/api/setRelease?customer=${customer}&release=dev"><button class="btn btn-sm btn-info">Dev Release</button></a> `);
+	$("#confirmDetails").append('<BR><BR>');
+	$("#confirmDetails").append(`<a target="${customer}" href="/api/customer/${customer}/addFeature/tracing"><button class="btn btn-sm btn-info">Add Contact Tracing</button></a> `);
+	$("#confirmDetails").append(`<a target="${customer}" href="/api/customer/${customer}/removeFeature/tracing"><button class="btn btn-sm btn-info">Remove Contact Tracing</button></a> `);
+	$("#confirmDetails").append('<BR><BR>');
+	$("#confirmDetails").append(`<a target="${customer}" href="https://${customer}.frontporch.cloud/editConfig.html"><button class="btn btn-sm btn-info">Edit Config JSON</button></a> `);
+	$("#confirmDetails").append(`<a href="/api/viewLogs?customer=${customer}"><button class="btn btn-sm btn-info">View Last 10,000 log rows</button></a> `);
+	$("#confirmModalBody").fadeIn();
+
+}
+
+
+/*
+$("#menuDiagnostics").on("click", function() {
+    $("#diagnostics").show();
+    $("#reports").hide();
+    $("#configuration").hide();
+    $( "#menuReports" ).removeClass( "active");
+    $( "#menuConfiguration" ).removeClass( "active");
+    $( "#menuDiagnostics" ).addClass( "active");
+	$('html, body').animate({scrollTop : 0},800);
+	navMain.collapse('hide');
+});
+$( "#menuConfiguration" ).on( "click", function() {
+    $("#configuration").show();
+    $("#reports").hide();
+    $("#diagnostics").hide();
+    $( "#menuReports" ).removeClass( "active");
+    $( "#menuDiagnostics" ).removeClass( "active");
+    $( "#menuConfiguration" ).addClass( "active");
+	$('html, body').animate({scrollTop : 0},800);
+	navMain.collapse('hide');
+	$(".navbar-toggler").collapse('hide');
+	
+});
+$( "#menuReports" ).on( "click", function() {
+    $("#reports").show();
+    $("#configuration").hide();
+    $("#diagnostics").hide();
+    $( "#menuConfiguration" ).removeClass( "active");
+    $( "#menuDiagnostics" ).removeClass( "active");
+    $( "#menuReports" ).addClass( "active");
+	$('html, body').animate({scrollTop : 0},800);
+	$("#nav-main").collapse('hide');
+});
+*/
+</script>
+
+  </body>
+</html>

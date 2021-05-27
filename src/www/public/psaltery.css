@@ -1,0 +1,249 @@
+.array-action {
+    display: inline-block;
+    cursor: pointer;
+    opacity: 0.5;
+    position: relative;
+    top: 0;
+    transition: opacity .25s;
+}
+
+.array-action:hover {
+    opacity: 1;
+}
+
+.array-action:active {
+    top: 1px;
+}
+
+body,
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+/**
+ * Top Menu Overrides
+ */
+
+.ui.vertical.menu > .item,
+.ui.vertical.menu > .active.item {
+    border-radius: 0 !important;
+}
+
+.ui.simple.dropdown:hover > .menu > .item:hover > .left.menu,
+.ui.simple.dropdown > .menu > .item:active > .left.menu {
+    left: auto!important;
+}
+
+
+.ui.tiny.header .sub.header {
+    font-weight: 400;
+}
+
+.ui.container {
+}
+
+/**
+ * MEDIA QUERIES
+ *
+ * Make the container play nicer with the contents
+ */
+/*@media only screen and (min-width: 1200px) {
+    .ui.container {
+        width: 877px;
+        margin-left: 220px !important;
+        margin-right: auto !important;
+    }
+
+    .ui.container.with-rail {
+        width: auto;
+        margin-left: 220px !important; 
+        margin-right: 290px !important; 
+    }
+}
+
+@media only screen and (min-width: 1450px) {
+    .ui.container:not(.with-rail) {
+        width: 1127px;
+        margin-left: 220px !important;
+        margin-right: auto !important;
+    }
+}
+
+@media only screen and (max-width: 1199px) and (min-width: 992px) {
+    .ui.container {
+        width: 683px;
+        margin-left: 220px !important;
+        margin-right: auto !important;
+    }
+}
+
+@media only screen and (max-width: 991px) and (min-width: 768px) {
+    .ui.container {
+        width: 473px;
+        margin-left: 220px !important;
+        margin-right: auto !important;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .ui.container {
+        width: auto!important;
+        margin-left: 220px !important;
+        margin-right: 1em !important;
+    }
+}
+*/
+
+.wrapper {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    padding-top: 47px; /* FIXME */
+    height: 100%;
+}
+
+.wrapper .top-menu .logo:before {
+    display: none;
+}
+
+.wrapper .top-menu .right.menu {
+    margin-right: 1em;
+}
+
+.wrapper .top-menu .menu .item {
+    cursor: pointer;
+}
+
+.wrapper .top-menu .menu .item .floating.label {
+    top: 55%;
+    left: 95%;
+}
+
+.wrapper .pusher {
+    height: 100%;
+}
+
+.wrapper .side-menu {
+    position: relative;
+    z-index: 1;
+    background-color: #f9f9f9;
+    width: 250px;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    height: 100%;
+    /* Overrides for Semantic UI Components */
+}
+
+.wrapper .side-menu.collapsed {
+    width: 50px;
+    transition: width 0.1s ease-in;
+}
+
+.wrapper .side-menu.collapsed .ui.vertical.menu .item {
+    text-align: left !important;
+}
+
+.wrapper .side-menu .ui.vertical.menu {
+    border-radius: 0;
+    border-top: none;
+    width: 100%;
+    height: 100%;
+}
+
+.wrapper .side-menu .ui.vertical.menu .item > .left.icon {
+    display: inline-block;
+    font-size: 1em !important;
+    float: none;
+    margin: 0em 0.75em 0em 0em;
+}
+
+.wrapper .side-menu .icon.menu .item span {
+    display: none;
+}
+
+.wrapper .page {
+    position: absolute;
+    top: 0;
+    left: 50px;
+    right: 0;
+    z-index: 0;
+    height: 100%;
+    padding-top: 40px; /* FIXME: account for the menu bar */
+    display: flex;
+}
+    .wrapper .page .view-body {
+        /* allow the body content to scroll */
+        overflow: auto;
+        width: 100%;
+    }
+
+    .wrapper .page .ui.container {
+        padding-top: 2em;
+        padding-bottom: 3em;
+    }
+
+    /* clearfix */
+    .wrapper .page .ui.container:after {
+        content: ' ';
+        display: table;
+        clear: both;
+    }
+
+
+.wrapper .page .sub-menu-nav {
+    background: #707070;
+    position: relative;
+    z-index: 1;
+    width: 200px;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    overflow: auto;
+}
+
+.wrapper .page .sub-menu-nav .ui.vertical.menu {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    background: #707070;
+}
+
+
+/**
+ * Notifications
+ */
+.wrapper .notifications {
+    top: 40px;
+    padding: 5px;
+    z-index: 99 !important;
+}
+
+.wrapper .notifications.ui.vertical.menu.inverted {
+    width: 280px;
+    background: #707070;
+}
+
+.wrapper .notifications.ui.vertical.menu.inverted .item > i.icon {
+    float: none;
+}
+
+.wrapper .notifications .card.inverted {
+    background-color: #111;
+    color: #ccc;
+}
+
+.wrapper .notifications .card.inverted .header {
+    color: #eee;
+}
