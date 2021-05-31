@@ -4,7 +4,7 @@ if (window.location.pathname === "/admin/login.html") {
 }
 else {
 	console.log("authCheck");
-	authCheck();
+	//authCheck();
 }
 
 $("#hideWhenNoID1").hide();
