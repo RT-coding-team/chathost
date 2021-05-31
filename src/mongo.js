@@ -43,8 +43,6 @@ async function getMessageStatusValue(boxid) {
     return result;
 }
 
-
-
 // Put the courseRoster in Mongo.  That is all
 function setCourseRoster(boxid,body,callback) {
 	const collection = db.collection('courseRoster');
@@ -58,6 +56,23 @@ function setCourseRoster(boxid,body,callback) {
 			callback(200);
 		}
   	});
+}
+
+// Get the Roster
+async function getBoxRosters(boxid) {
+    let promise = new Promise((resolve, reject) => {
+		const collection = db.collection('courseRoster');
+		collection.find({'_id': boxid}).toArray(function(err, results) {
+			if (results && results[0]) {
+				resolve(results[0].data);
+			}
+			else {
+				resolve([]);
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
 }
 
 // Put the logs in Mongo.  That is all
@@ -205,6 +220,24 @@ async function getAttachmentExists(id) {
     return result;
 }
 
+async function getBoxInventory() {
+	// Gets all boxes active in last 90 days
+	var historyDate = moment().add(-90,'days').unix();
+    let promise = new Promise((resolve, reject) => {
+		const collection = db.collection('boxSyncTime');
+		collection.find({timestamp: {$gt: historyDate}}).toArray(function(err, results) {
+			if (results) {
+				resolve(results);
+			}
+			else {
+				resolve([]);
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
+}
+
 function setUpMongo() {
 	logger.log('info', `setUpMongo: Done`);
 }
@@ -220,11 +253,13 @@ module.exports = {
 	getMessageStatusValue,
 	setMessageStatusValue,
 	setCourseRoster,
+	getBoxRosters,
 	messageSentToRocketChat,
 	isMessageSentToRocketChat,
 	messageSync,
 	getMessageSync,
 	getAttachmentExists,
 	setAttachmentsInbound,
-	setLogs
+	setLogs,
+	getBoxInventory
 };

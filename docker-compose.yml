@@ -111,6 +111,7 @@ services:
     volumes:
       - ./src:/usr/src
       - ./node_modules:/usr/src/node_modules
+      - ./tmp:/tmp
 
 # Moodle nginx container (leverages PHP7.4 from https://github.com/wyveo/nginx-php-fpm)
 # Overwrites nginx /etc/nginx/conf.d/default.conf with ./resources/moodle/conf.d/default.conf

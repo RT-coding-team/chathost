@@ -10,8 +10,6 @@ const express = require('express'),
     rocketchat = require('./rocketchat.js'),
     logger = new Logger(configs.logging);
 
-rocketchat.init();
-
 webapp.listen(configs.port);
 
 webapp.use('/chathost/healthcheck', function health(req, res) {
@@ -19,6 +17,8 @@ webapp.use('/chathost/healthcheck', function health(req, res) {
  	res.sendStatus(200);
 });
 webapp.use('/chathost/admin', require('./routes/admin.js'));
+// General Route
+webapp.use('/chathost', express.static('www/'));
 
 webapp.use(function (req, res, next) {
 	// todo: finish security later
@@ -32,7 +32,6 @@ webapp.use(function (req, res, next) {
 	}
 });
 
-
 webapp.use('/chathost/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // TODO
 webapp.use(bodyParser.urlencoded({ extended: false }));
 webapp.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
@@ -41,13 +40,9 @@ webapp.use(bodyParser.text({ type: 'text/html' }));
 webapp.use(nocache());
 
 
-
-
 webapp.use('/chathost/messageStatus', require('./routes/messageStatus.js'));
 webapp.use('/chathost/courseRosters', require('./routes/courseRosters.js'));
 webapp.use('/chathost/messages', require('./routes/messages.js'));
 webapp.use('/chathost/attachments', require('./routes/attachments.js'));
 webapp.use('/chathost/logs', require('./routes/logs.js'));
-
-webapp.use('/attachments', express.static('uploads/'));
 
