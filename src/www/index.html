@@ -10,15 +10,16 @@
     <title>Wi-Fi Presence By Front Porch</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/admin/public/bootstrap.min.css" rel="stylesheet">
-	<link type="text/css" rel="stylesheet" href="/admin/public/jsgrid.min.css" />
-	<link type="text/css" rel="stylesheet" href="/admin/public/jsgrid-theme.min.css" />
-    <link rel="stylesheet" type="text/css" class="ui" href="/admin/public/semantic/semantic.min.css">
- 	<link href="/admin/public/flat-ui.css" rel="stylesheet">
+    <link href="public/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="public/jsgrid.min.css" />
+	<link type="text/css" rel="stylesheet" href="public/jsgrid-theme.min.css" />
+    <link rel="stylesheet" type="text/css" class="ui" href="public/semantic/semantic.min.css">
+    <link rel="stylesheet" type="text/css" class="ui" href="public/datatables.css">
+ 	<link href="public/flat-ui.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="/admin/public/jumbotron.css" rel="stylesheet">
-	<link href="/admin/public/dashboard.css" rel="stylesheet">
+    <link href="public/jumbotron.css" rel="stylesheet">
+	<link href="public/dashboard.css" rel="stylesheet">
     <style>
     # {
     	display: none;
@@ -28,23 +29,23 @@
   <body>
 
     <nav id="navMain" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <img src="/admin/favicon.ico" width=40><a class="navbar-brand disabled" href="/">Dashboard</a>
+      <img src="/admin/favicon.ico" width=40><a class="navbar-brand disabled" href="/chathost">Dashboard</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/admin">Status</a>
+            <a class="nav-link" href="https://relaytrust.org/">Course Cloud</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/admin/agreements.html">Agreements</a>
+            <a class="nav-link" href="https://relaytrust.org/">Course Creator</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/admin/diagnostics.html">Diagnostics</a>
+            <a class="nav-link" href="/">Rocketchat</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/support" target=sites >Documentation</a>
+            <a class="nav-link" href="https://relaytrust.org/" target=sites >Help</a>
           </li>
         </ul>
       </div>
@@ -76,11 +77,14 @@
 							</div>
 						<div class="ui bottom attached segment">
 							Docker: <font id="docker"></font><BR>
-							MySQL: <font id="mysql"></font><BR>
+							Rocketchat: <font id="rocketchat"></font><BR>
+							Chathost: <font id="chathost"></font><BR>
+							MongoDB: <font id="mongo"></font><BR>
+							Moodle: <font id="moodle"></font><BR>
+							MariaDB: <font id="mariadb"></font><BR>
 							CPU: <font id="cpu"></font><BR>
 							Memory: <font id="memory"></font><BR>
 							Disk: <font id="disk"></font><BR>
-							Email All Churches: <a href="" id="emailAll">Email All</a>
 						</div>
 
 						<div class="section-summary" class="sectionReports">
@@ -99,32 +103,15 @@
 								</div>
 							</div>
 						<div class="ui bottom attached segment">
-							<div id="currentLocationsGrid"></div>
+
+<table id="statusGrid" class="display" width="100%"></table>
+
+
+
 						</div>
 
 
-						<div class="section-summary" class="sectionReports">
-							<div class="ui top attached borderless menu">
-								<div class="item">
-									<div class="ui header small">
-										<i class="line chart icon"></i>
-											<div class="content">
-												Device Traffic
-												<div class="sub header">
-													
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						<div class="ui bottom attached segment">
-								<div class="ui bottom attached segment">
-									<div id="traffic" style="height: 600px; width: 100%;"></div>
-								</div>
-						</div>
-
-
+<BR><BR><BR>
 <!--
 						<div class="ui two column stackable grid">
 							<div class="column"> 
@@ -250,23 +237,25 @@
    </main>
 
     <footer class="container">
-      <p>&copy; Front Porch, Inc. 2018</p>
+      <p>&copy; Relay Trust, 2021</p>
     </footer>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="/admin/public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
+    <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
-	<script type="text/javascript" src="/admin/public/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="/admin/public/jsgrid.min.js"></script>    	
-	<script type="text/javascript" src="/admin/public/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/admin/public/semantic/semantic.min.js"></script>
-    <script type="text/javascript" src="/admin/public/angular-min.js"></script>
-    <script type="text/javascript" src="/admin/public/angular-chart-min.js"></script>
-	<script type="text/javascript" src="/admin/public/flat-ui.js"></script>
-    <script type="text/javascript" src="/admin/public/chart.js"></script>
-    <script type="text/javascript" src="/admin/public/dashboard.js"></script>
+	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="public/jsgrid.min.js"></script>    	
+	<script type="text/javascript" src="public/bootstrap.min.js"></script>
+    <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
+    <script type="text/javascript" src="public/angular-min.js"></script>
+    <script type="text/javascript" src="public/angular-chart-min.js"></script>
+	<script type="text/javascript" src="public/flat-ui.js"></script>
+    <script type="text/javascript" src="public/chart.js"></script>
+    <script type="text/javascript" src="public/datatables.js"></script>
+    <script type="text/javascript" src="public/moment.js"></script>
+    <script type="text/javascript" src="public/dashboard.js"></script>
 
 
 <script>
