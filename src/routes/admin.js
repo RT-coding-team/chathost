@@ -1,6 +1,7 @@
 const express = require('express'),
     router = express.Router()
     configs = require('../configs.js'),
+    fs = require('fs'),
     mongo = require('../mongo.js'),
     rocketchat = require('../rocketchat.js'),
     messages = require('./messages.js'),
@@ -43,6 +44,12 @@ router.get('/roster/:boxid', async function getRosters(req,res) {
 	var response = await mongo.getBoxRosters(req.params.boxid);
 	response.shift();
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Courses`);
+	res.send(response);
+});
+
+router.get('/system', async function getRosters(req,res) {
+	var response = JSON.parse(fs.readFileSync('/tmp/system.json').toString());
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Last Updated: ${response.timestamp}`);
 	res.send(response);
 });
 
