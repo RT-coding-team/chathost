@@ -64,7 +64,7 @@ async function checkMariaDB() {
 		  host     : 'localhost',
 		  port     : 33306,
 		  user     : 'moodleuser',
-		  password : execSync('cat ../docker-compose.yml | grep MARIADB_PASSWORD=').toString().replace('      - MARIADB_PASSWORD=','').replace('\n',''),
+		  password : execSync('cat ~/chathost/docker-compose.yml | grep MARIADB_PASSWORD=').toString().replace('      - MARIADB_PASSWORD=','').replace('\n',''),
 		  database : 'moodle'
 		});
 		if (connection.state === 'connected') {
