@@ -249,6 +249,15 @@ function removeOldRecords() {
 	db.collection('messageSync').deleteMany({timestamp: {$lt: oneDayAgo}});
 }
 
+function status() {
+	if (db && db.s && db.s.id) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 module.exports = {
 	getMessageStatusValue,
 	setMessageStatusValue,
@@ -261,5 +270,6 @@ module.exports = {
 	getAttachmentExists,
 	setAttachmentsInbound,
 	setLogs,
-	getBoxInventory
+	getBoxInventory,
+	status
 };
