@@ -24,7 +24,7 @@ async function run() {
 	results.cpu = await getCPU() + '%';
 	results.freeMemory = await getMEM() + '%';
 	results.freeDisk = await getDisk() + '%';
- 	results.timestamp = moment().utc().format('LLL');
+ 	results.timestamp = moment().unix();
 	console.log(results);
 	fs.writeFileSync('/tmp/system.json',JSON.stringify(results));
 	process.exit(0);

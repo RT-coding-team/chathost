@@ -47,6 +47,7 @@ var allData = {};
 
 // LOADING System
     $.getJSON( "/chathost/admin/system", function( data ) {
+    	data.updated = moment(data.timestamp * 1000).format('LLL');
 		for (var key of Object.keys(data)) {
 			console.log(key);
 			if (data[key] === true) {
