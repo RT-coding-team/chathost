@@ -18,13 +18,11 @@ router.get('/users', function getState(req, res) {
 router.get('/boxes', async function getBoxes(req, res) {
 	var response = [];
 	var boxes = await mongo.getBoxInventory();
-	for (var boxid of boxes) {
-		var box = {};
-		box.boxid = boxid;
+	for (var box of boxes) {
 		box.courses = 0;
 		box.teachers = 0;
 		box.students = 0;
-		var courses = await mongo.getBoxRosters(boxid);
+		var courses = await mongo.getBoxRosters(box.boxid);
 		if (courses && courses[0]) {	
 			box.sitename = courses[0].sitename;
 			box.siteadmin_name = courses[0].siteadmin_name;

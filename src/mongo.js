@@ -229,7 +229,7 @@ async function getBoxInventory() {
 		collection.find({timestamp: {$gt: historyDate}}).toArray(function(err, results) {
 			if (results) {
 				for (var record of results) {
-					response.push(record._id);
+					response.push({boxid:record._id, timestamp:record.timestamp});
 				}
 				resolve(response);
 			}
