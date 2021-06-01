@@ -34,8 +34,12 @@ router.get('/boxes', async function getBoxes(req, res) {
 			box.teachers = 0;
 			box.students = 0;
 			for (var course of courses) {
-				box.teachers += course.teachers.length;
-				box.students += course.students.length;
+				if (course.teachers) {
+					box.teachers += course.teachers.length;				
+				}
+				if (course.students) {
+					box.students += course.students.length;				
+				}
 			}
 		}
 		response.push(box);
