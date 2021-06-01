@@ -16,12 +16,15 @@ router.get('/users', function getState(req, res) {
 });
 
 router.get('/boxes', async function getBoxes(req, res) {
-	var response = await mongo.getBoxInventory();
-	for (var box of response) {
+	var response = [];
+	var boxes = await mongo.getBoxInventory();
+	for (var boxid of boxes) {
+		var box = {};
+		box.boxid = boxid;
 		box.courses = 0;
 		box.teachers = 0;
 		box.students = 0;
-		var courses = await mongo.getBoxRosters(box.boxid);
+		var courses = await mongo.getBoxRosters(boxid);
 		if (courses && courses[0]) {	
 			box.sitename = courses[0].sitename;
 			box.siteadmin_name = courses[0].siteadmin_name;
@@ -35,6 +38,7 @@ router.get('/boxes', async function getBoxes(req, res) {
 				box.students += course.students.length;
 			}
 		}
+		response.push(box);
 	}
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Boxes Found`);
 	res.send(response);

@@ -223,11 +223,15 @@ async function getAttachmentExists(id) {
 async function getBoxInventory() {
 	// Gets all boxes active in last 90 days
 	var historyDate = moment().add(-90,'days').unix();
+	var response = [];
     let promise = new Promise((resolve, reject) => {
-		const collection = db.collection('boxSyncTime');
+		const collection = db.collection('courseRoster');
 		collection.find({timestamp: {$gt: historyDate}}).toArray(function(err, results) {
 			if (results) {
-				resolve(results);
+				for (var record of results) {
+					response.push(record._id);
+				}
+				resolve(response);
 			}
 			else {
 				resolve([]);
