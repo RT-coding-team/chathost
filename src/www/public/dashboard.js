@@ -18,7 +18,7 @@ var allData = {};
 		console.log(data)
 		
 		var columns = [
-            { title: "Site Name", field: "sitename" },
+            { title: "Site Name", field: "sitenameWithDetails" },
             { title: "Boxid", field: "boxid"},
             { title: "CTS", field: "cts"},            
             { title: "Site Admin", field: "siteadmin_name"},      
@@ -30,6 +30,7 @@ var allData = {};
 		var final = [];
 		for (var item of data) {
 			var fitem = [];
+			item.sitenameWithDetails = `<span data-toggle="modal" data-target="#detailModal" onclick="loadDetailModal('${item.boxid}')">${item.sitename}</span>`;
 			item.date = moment(item.timestamp * 1000).format('LLL');
 			item.cts = `${item.courses}-${item.teachers}-${item.students}`;
 			for (var col of columns) {
@@ -63,3 +64,4 @@ var allData = {};
 
 
 });
+

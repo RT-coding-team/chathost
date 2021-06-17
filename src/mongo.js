@@ -4,6 +4,7 @@ const configs = require('./configs.js'),
 	moment = require('moment-timezone'),
     fs = require('fs'),
 	FileType = require('file-type'),
+  	{ v4: uuidv4 } = require('uuid'),
   
 	MongoClient = require('mongodb').MongoClient,
 	assert = require('assert'),
@@ -17,6 +18,45 @@ MongoClient.connect(configs.mongo,{ useUnifiedTopology: true}, function(err, cli
 	db = client.db(dbName);
 	setUpMongo();
 });
+
+async function checkAPIKeys(boxid,authorization) {
+	logger.log('info', `getMessageStatusValue: Box: ${boxid}`);
+    let promise = new Promise((resolve, reject) => {
+		const collection = db.collection('security');
+		collection.find({'boxid':boxid,'authorization':authorization }).toArray(function(err, results) {
+			if (results && results[0]) {
+				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync`);
+				if (results[0].deleteOthers) {
+					// todo
+				}
+				resolve (true);
+			}
+			else {
+				// If no authorization, it may be new box and we'll do auto-add
+				collection.find({'boxid':boxid }).toArray(function(err, results) {
+					if (!results || !results[0]) {
+						collection.insertOne({boxid:boxid,authorization:authorization, timestamp: moment().unix()});	
+						// If the authorization is empty or short, create a GUID and send to the box
+						if (authorization.length < 8) {
+							authorization = uuidv4();
+							putSetting(boxid,"authorization",authorization);
+						}
+						logger.log('debug', `checkAPIKeys: New Device.  Setting Up Default Security: New Key: ${authorization}`);
+						collection.insertOne({boxid:boxid,authorization:authorization,deleteOthers:true,timestamp: moment().unix() + 10}, function(err, result) {
+							resolve(true);			
+						});	
+					}
+					else {
+						logger.log('error', `checkAPIKeys: Invalid Security`);
+						resolve(false);
+					}
+				});			
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
+}
 
 function setMessageStatusValue(boxid,username,id) {
 	const collection = db.collection('boxSyncTime');
@@ -220,6 +260,125 @@ async function getAttachmentExists(id) {
     return result;
 }
 
+// See if attachment exists
+async function getLogs(boxid) {
+    let promise = new Promise((resolve, reject) => {
+		const collection = db.collection('logs');
+		collection.find({boxid:boxid}).toArray(function(err, results) {
+			if (results && results[0]) {
+				results[0].response = 200;
+				resolve(results[0]);
+			}
+			else {
+				resolve({response:404});
+			}
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
+async function getSettings(boxid) {
+    let promise = new Promise((resolve, reject) => {
+		const collection = db.collection('settings');
+		collection.find({boxid:boxid}).toArray(function(err, results) {
+			if (results && results[0]) {
+				resolve(results);
+			}
+			else {
+				resolve([]);
+			}
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
+function putSetting(boxid,key,value) {
+	const collection = db.collection('settings');
+	var record = {
+		boxid: boxid,
+		deleteId: uuidv4(),
+		timestamp: moment().unix(),
+		key: key,
+		value: value
+	};
+	collection.insertOne(record, function(err, result) {
+		if (err) {
+			logger.log('error', `putSetting: Error: ${boxid}: ${key}: ${err}`);
+		}
+		else {
+		}
+	});
+}
+
+async function deleteSetting(boxid,recordid) {
+	const collection = db.collection('settings');
+//todo
+    let promise = new Promise((resolve, reject) => {
+		collection.deleteOne({ deleteId: recordid }, function(err, result) {
+			console.log(result,typeof recordid, recordid);
+			if (err) {
+				logger.log('error', `deleteSetting: Error: ${boxid}: ${recordid}: ${err}`);
+				resolve (false);
+			}
+			else if (result.deletedCount === 0) {
+				logger.log('error', `deleteSetting: Error: ${boxid}: ${recordid}: Object Not Found`);		
+				resolve (false);
+			}
+			else {
+				resolve (true);
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
+}
+
+async function getSecurity(boxid) {
+    let promise = new Promise((resolve, reject) => {
+		var response = {};
+		db.collection('courseRoster').find({_id:boxid}).toArray(function(err,results){
+			if (results && results[0] && results[0].data && results[0].data[0] && results[0].data[0].authorization) {
+				response.lastSecurityKey = results[0].data[0].authorization;
+			}
+			db.collection('security').find({boxid:boxid}).toArray(function(err, results) {
+				if (results && results.length) {
+					response.currentSecurityKey = results[results.length-1].authorization;
+				}
+				resolve(response);
+			});
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
+function putSecurity(boxid,authorization) {
+	const collection = db.collection('security');
+	if (authorization.includes('resetKey ')) {
+		console.log(`putSecurity: ${boxid}: keyReset: true`);
+		collection.deleteMany({"boxid": boxid}, function(err,result) {
+			// Delete all keys that exist currently
+			console.log (err,result);
+		}); 
+		authorization = authorization.replace('resetKey ',''); // Remove the resetKey value before writing to DB
+	}
+	var record = {
+		boxid: boxid,
+		timestamp: moment().unix(),
+		authorization: authorization
+	};
+	collection.insertOne(record, function(err, result) {
+		if (err) {
+			logger.log('error', `putSetting: Error: ${boxid}: ${key}: ${err}`);
+		}
+		else {
+		}
+	});
+}
+
+
 async function getBoxInventory() {
 	// Gets all boxes active in last 90 days
 	var historyDate = moment().add(-90,'days').unix();
@@ -263,6 +422,7 @@ function status() {
 }
 
 module.exports = {
+	checkAPIKeys,
 	getMessageStatusValue,
 	setMessageStatusValue,
 	setCourseRoster,
@@ -274,6 +434,12 @@ module.exports = {
 	getAttachmentExists,
 	setAttachmentsInbound,
 	setLogs,
+	getLogs,
+	getSettings,
+	putSetting,
+	deleteSetting,
+	getSecurity,
+	putSecurity,
 	getBoxInventory,
 	status
 };

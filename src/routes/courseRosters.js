@@ -9,6 +9,7 @@ const express = require('express'),
 
 //  Put in the courseRoster data
 router.post('/', async function postRosters(req, res) {
+	req.body[0].authorization = req.boxauthorization;
 	mongo.setCourseRoster(req.boxid,req.body, async function(result) {
 		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${result}`);
 		await processRosters(req.boxid,req.body);

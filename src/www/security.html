@@ -66,7 +66,7 @@
 									<div class="ui header small">
 										<i class="info circle icon"></i>
 											<div class="content">
-												System Health
+												Security Settings: <span class="instanceName"></span> (<span id="boxid"></span>)
 												<div class="sub header">
 													
 												</div>
@@ -76,37 +76,21 @@
 								</div>
 							</div>
 						<div class="ui bottom attached segment">
-							Docker: <font id="stat-docker"></font><BR>
-							Rocketchat: <font id="stat-rocketchat"></font><BR>
-							Chathost: <font id="stat-chathost"></font><BR>
-							MongoDB: <font id="stat-mongo"></font><BR>
-							Moodle Course Creator: <font id="stat-moodle"></font><BR>
-							MariaDB: <font id="stat-mariadb"></font><BR>
-							CPU: <font id="stat-cpu"></font><BR>
-							Memory: <font id="stat-freeMemory"></font><BR>
-							Disk: <font id="stat-freeDisk"></font><BR>
-							Last Updated: <font id="stat-updated"></font><BR>
-						</div>
-
-						<div class="section-summary" class="sectionReports">
-							<div class="ui top attached borderless menu">
-								<div class="item">
-									<div class="ui header small">
-										<i class="clone icon"></i>
-											<div class="content">
-												Cloud Instances &nbsp;&nbsp;&nbsp;&nbsp;   <span data-toggle="modal" data-target="#createModal" onclick="loadCreateModal()"><i class="plus icon"></i></span>
-												<div class="sub header">
-													
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						<div class="ui bottom attached segment">
-
-							<table id="statusGrid" class="display" width="100%"></table>
-
+							<table>
+								<tr>
+									<td>Last Used Security Key: </td>
+									<td id="lastSecurityKey"></td>
+								</tr>
+								<tr>
+									<td>Current Security Key: </td>
+									<td id="currentSecurityKey"></td>
+								</tr>
+							</table>
+							<BR><BR>
+							Set New Security Key<BR>
+							<input class="form-control" type="password" id="securityKey">
+							<BR><BR>
+							<button onclick="setSecurityKey(false);" class="btn btn-sm btn-info">Set Security Key</button>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="setSecurityKey(true);" class="btn btn-sm btn-danger">Disable Well Device</button>
 						</div>
 
 
@@ -123,56 +107,6 @@
 
 
 
-
-<div id="detailModal" class="modal fade">
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<div class="icon-box">
-					<!i class="huge wifi icon"><!/i>
-					<img src="favicon.ico" width=40>
-				</div>
-				&nbsp;&nbsp;&nbsp;
-				&nbsp;&nbsp;&nbsp;
-				<a href="#"><h4 class="modal-title instanceName"></h4></a>
-				&nbsp;&nbsp;&nbsp;
-				&nbsp;&nbsp;&nbsp;
-                <a href="" class="instanceLink"><i class="calendar icon"></i></a>  <!todo>
-                &nbsp;
-				<a id="hrefsettings"><i class="settings icon"></i></a>
-                &nbsp;
-				<a id="hreflogs"><i class="info icon"></i></a>
-                &nbsp;
-				<a id="hrefsecurity"><i class="lock icon"></i></a>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			</div>
-			<div class="modal-body" id="detailModalBody">
-				<table width=100%>
-					<tr>
-						<td>ID</td>
-						<td id="boxid">
-					</tr>
-					<tr>
-						<td>Admin</td>
-						<td id="siteadmin_name">
-					</tr>
-					<tr>
-						<td>Email</td>
-						<td><a href="" id="emailLink"><font id="siteadmin_email"></font></a>
-					</tr>
-					<tr>
-						<td>Phone</td>
-						<td id="siteadmin_phone">
-					</tr>
-				
-				</table>
-			</div>
-		</div>
-	</div>
-</div>  
-
-
-  
    </main>
 
     <footer class="container">
@@ -194,37 +128,76 @@
     <script type="text/javascript" src="public/chart.js"></script>
     <script type="text/javascript" src="public/datatables.js"></script>
     <script type="text/javascript" src="public/moment.js"></script>
-    <script type="text/javascript" src="public/dashboard.js"></script>
-
+	
 
 <script>
 
+		var boxid = getQueryVariable('id');
+		console.log(boxid);
+		if (!boxid) {
+			alert('No Valid Box Id');
+		}
 
-	function loadDetailModal(id) {
 		$("#showDetails").text('');
-		$("#instanceNameConfirm").text('Confirm Action: ' +id );
-		$(".instanceLink").attr('href',`courses.html?id=${id}`);
-		console.log("loadDetailModal: " + id);
+		$("#instanceNameConfirm").text('Confirm Action: ' +boxid );
+		$(".instanceLink").attr('href',`courses.html?id=${boxid}`);
+		console.log("loadDetailModal: " + boxid);
 		var emailAll = "";
-		$.getJSON( "/chathost/admin/roster/" + id, function( data ) {
+		$.getJSON( "/chathost/admin/roster/" + boxid, function( data ) {
 			boxData = data[0];
 	console.log(data);
 			$(".instanceName").text(boxData.sitename);
-			$("#boxid").text(id);
-			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
-			$("#hreflogs").attr('href',`logs.html?id=${id}`);
-			$("#hrefsecurity").attr('href',`security.html?id=${id}`);
+			$("#boxid").text(boxid);
+			$("#hrefsettings").attr('href',`settings.html?id=${boxid}`);
+			$("#hreflogs").attr('href',`logs.html?id=${boxid}`);
+			$("#hrefsecurity").attr('href',`security.html?id=${boxid}`);
 			$("#emailLink").attr('href',`mailto:${boxData.siteadmin_email}`);
 			var keys = Object.keys(boxData);
 			for (var key of keys) {
 				$("#" + key).text(boxData[key]);
 			}
 		});
-		$.getJSON( "/chathost/admin/security/" + id, function( data ) {
+		$.getJSON( "/chathost/admin/security/" + boxid, function( data ) {
 			$("#lastSecurityKey").text(data.lastSecurityKey);
 			$("#currentSecurityKey").text(data.currentSecurityKey);
 		});
-	}
+
+		function setSecurityKey(doKeyReset) {
+			console.log(`setSecurityKey: Reset? ${doKeyReset}`);
+			var authorization = $("#securityKey").val();
+			if (doKeyReset) {
+				authorization = `resetKey ${boxid} ${moment().unix()} ${Math.random()}`;
+				console.log(`Resetting Key: ${authorization}`);
+			}
+			$.ajax({
+				url: `/chathost/admin/security/${boxid}/${authorization}`,
+		  		method: 'PUT',
+				success: function(response) {
+					//console.log ("getResponse=" + response);
+					alert("Success! ");
+					loadDataTable(); //todo
+				},
+				error: function(response) {
+					//console.log ("getResponse=" + response);
+					alert("Setting Failed");
+				}
+			});
+
+		}
+
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    console.log('Query variable %s not found', variable);
+}
+
+
 
 </script>
 

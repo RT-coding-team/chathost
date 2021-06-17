@@ -64,6 +64,50 @@ router.get('/messageQueue', function getState(req, res) {
 	res.send(messages.messageQueue);
 });
 
+//  Get the logs data  //todo
+router.get('/logs/:boxid', async function getLogs(req, res) {
+	var response = await mongo.getLogs(req.params.boxid);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Logs`);
+	res.send(response);
+});
+
+//  Get the logs data  //todo
+router.get('/settings/:boxid', async function getSettings(req, res) {
+	var response = await mongo.getSettings(req.params.boxid);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Settings Pending`);
+	res.send(response);
+});
+
+router.post('/settings/:boxid', function putSetting(req,res) {
+	mongo.putSetting(req.params.boxid,req.body.key,req.body.value);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.key} = ${req.body.value}`);
+	res.send({});
+});
+
+router.delete('/settings/:boxid/:recordid', async function putSetting(req,res) {
+	var result = await mongo.deleteSetting(req.params.boxid,req.params.recordid);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.params.recordid}`);
+	if (result) {
+		res.sendStatus(200);
+	}
+	else {
+		res.sendStatus(404);
+	}
+});
+
+//  Get the logs data  //todo
+router.get('/security/:boxid', async function getSecurity(req, res) {
+	var response = await mongo.getSecurity(req.params.boxid);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Logs`);
+	res.send(response);
+});
+
+router.put('/security/:boxid/:authorization', function putSecurity(req,res) {
+	mongo.putSecurity(req.params.boxid,req.params.authorization);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.key} = ${req.body.value}`);
+	res.send({});
+});
+
 router.post('/test', function getState(req, res) {
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}`);
 	//res.send(rocketchat.data);
