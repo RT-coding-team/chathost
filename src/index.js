@@ -59,4 +59,5 @@ webapp.use('/chathost/courseRosters', require('./routes/courseRosters.js'));
 webapp.use('/chathost/messages', require('./routes/messages.js'));
 webapp.use('/chathost/attachments', require('./routes/attachments.js'));
 webapp.use('/chathost/logs', require('./routes/logs.js'));
+webapp.use('/chathost/settings', require('./routes/settings.js'));
 

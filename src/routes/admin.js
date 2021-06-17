@@ -84,9 +84,9 @@ router.post('/settings/:boxid', function putSetting(req,res) {
 	res.send({});
 });
 
-router.delete('/settings/:boxid/:recordid', async function putSetting(req,res) {
-	var result = await mongo.deleteSetting(req.params.boxid,req.params.recordid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.params.recordid}`);
+router.delete('/settings/:boxid/:deleteId', async function putSetting(req,res) {
+	var result = await mongo.deleteSetting(req.params.boxid,req.params.deleteId);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.params.deleteId}`);
 	if (result) {
 		res.sendStatus(200);
 	}

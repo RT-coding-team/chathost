@@ -364,6 +364,10 @@ function putSecurity(boxid,authorization) {
 		}); 
 		authorization = authorization.replace('resetKey ',''); // Remove the resetKey value before writing to DB
 	}
+	else {
+		// Write this new valid security setting for export to Well Box
+		putSetting(boxid,'moodle-security-key',authorization);
+	}
 	var record = {
 		boxid: boxid,
 		timestamp: moment().unix(),
