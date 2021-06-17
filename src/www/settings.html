@@ -82,8 +82,11 @@
 							</div>
 							<h6>Schedule New Setting Change</h6>
 								<select class="form-control" id="key">
-									<option>SSID</option>
-									<option>Hostname</option>
+									<option value="ssid">SSID</option>
+									<option value="wpa-passkey">WPA Passkey</option>
+									<option value="hostname">Hostname (http://xxxxxxx and http://learn.xxxxxxx)</option>
+									<option value="moodle-security-key">Moodle Security Key for Chathost</option>
+									<option value="course-download">URL For Moodle Course Restore</option>
 								</select>
 								<input class="form-control" id="value">
 								<button onclick="saveSetting();" class="btn btn-sm btn-info">Update</button>
@@ -148,7 +151,7 @@
 				success: function(response) {
 					//console.log ("getResponse=" + response);
 					alert("Success! ");
-					loadDataTable(); //todo
+					location.reload();
 				},
 				error: function(response) {
 					//console.log ("getResponse=" + response);
@@ -167,7 +170,7 @@
 				success: function(response) {
 					//console.log ("getResponse=" + response);
 					alert("Success! ");
-					loadDataTable(); //todo
+					location.reload();
 				},
 				error: function(response) {
 					//console.log ("getResponse=" + response);
