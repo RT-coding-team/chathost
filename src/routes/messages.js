@@ -11,7 +11,7 @@ router.get('/:since', async function getMessages(req, res) {
 	var value = await mongo.getMessageSync(req.boxid,req.params.since);
 	if (typeof value === 'number') {
 		logger.log('info', `${req.boxid}: ${req.method} ${req.originalUrl}: ${value}`);
-		res.sendStatus(value);
+		res.send([]);
 	}
 	else {
 		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Found ${value.length} messages`);
