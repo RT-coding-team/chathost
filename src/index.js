@@ -12,10 +12,9 @@ const express = require('express'),
 
 webapp.listen(configs.port);
 
-webapp.use(bodyParser.urlencoded({ extended: false }));
 webapp.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
 webapp.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-webapp.use(bodyParser.text({ type: 'text/html' }));
+webapp.use(bodyParser.text({ type: 'text/html' , limit: '50mb'}));
 //todo
 //webapp.use(cookieParser());
 //webapp.use(cookieSession({name: 'relay',keys: ['a8e4cef6-f9c8-abec-8344-554a65c6739f'],maxAge: 30 * 24 * 60 * 60 * 1000}));
