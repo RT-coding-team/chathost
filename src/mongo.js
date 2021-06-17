@@ -116,9 +116,9 @@ async function getBoxRosters(boxid) {
 }
 
 // Put the logs in Mongo.  That is all
-function setLogs(boxid,body,callback) {
+function setLogs(boxid,body,type,callback) {
 	const collection = db.collection('logs');
-	collection.insertOne({'boxid':boxid.toString(),data: JSON.stringify(body),timestamp : moment().unix()}, function(err, result) {
+	collection.insertOne({'boxid':boxid.toString(),type:type,data: JSON.stringify(body),timestamp : moment().unix()}, function(err, result) {
 		if (err) {
 			logger.log('error', `setLogs: FAILED: ${err}`);
 			callback(500);
