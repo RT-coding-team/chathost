@@ -119,7 +119,7 @@ async function getBoxRosters(boxid) {
 function setLogs(boxid,body,type,callback) {
 	const collection = db.collection('logs');
 	var id = `${boxid.toString()}-${type}`;
-	collection.insertOne({_id:id,'boxid':boxid.toString(),type:type,data: JSON.stringify(body),timestamp : moment().unix()}, function(err, result) {
+	collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,zipData: body.zip, data: JSON.stringify(body,replacer),timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
 		if (err) {
 			logger.log('error', `setLogs: FAILED: ${err}`);
 			callback(500);
@@ -129,6 +129,13 @@ function setLogs(boxid,body,type,callback) {
 			callback(200);
 		}
   	});
+}
+
+// Removes the zip data here
+function replacer(key,value)
+{
+    if (key=="zip") return undefined;
+    else return value;
 }
 
 // Get all messages pending for a Moodle since timestamp (typically the value provided by getMessageStatusValue)
