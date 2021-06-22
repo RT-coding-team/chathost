@@ -123,23 +123,23 @@ var final = '';
 			for (var student of course.students) {
 				teachersAndStudents += `Student: ${student.first_name} ${student.last_name} (${student.username})<BR>\n`;
 			}
-		}
-		var html = `
+			var html = `
 
-			  <div class="accordion-item">
-				<h2 class="accordion-header" id="panelsStayOpen-heading${counter}">
-				  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${counter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${counter}">
-					${courseName}
-				  </button>
-				</h2>
-				<div id="panelsStayOpen-collapse${counter}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-heading${counter}">
-				  <div class="accordion-body">
-					${teachersAndStudents}
+				  <div class="accordion-item">
+					<h2 class="accordion-header" id="panelsStayOpen-heading${counter}">
+					  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${counter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${counter}">
+						${courseName}
+					  </button>
+					</h2>
+					<div id="panelsStayOpen-collapse${counter}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-heading${counter}">
+					  <div class="accordion-body">
+						${teachersAndStudents}
+					  </div>
+					</div>
 				  </div>
-				</div>
-			  </div>
-			</div>`;
-		$("#table").append(html);
+				</div>`;
+			$("#table").append(html);
+		}
 	});
 
 function getQueryVariable(variable) {
