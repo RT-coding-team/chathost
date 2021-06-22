@@ -12,7 +12,7 @@ const configs = require('./configs.js'),
 
 var db;
 
-MongoClient.connect(configs.mongo,{ useUnifiedTopology: true}, function(err, client) {
+MongoClient.connect(configs.mongo,{ useUnifiedTopology: true}, async function(err, client) {
 	assert.equal(null, err);
 	logger.log('info', `mongoClientConnect: Connected Successfully to MongoDB: ${configs.mongo}`);
 	db = client.db(dbName);
@@ -119,7 +119,7 @@ async function getBoxRosters(boxid) {
 function setLogs(boxid,body,type,callback) {
 	const collection = db.collection('logs');
 	var id = `${boxid.toString()}-${type}`;
-	collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,zipData: body.zip, data: JSON.stringify(body,replacer),timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
+	collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
 		if (err) {
 			logger.log('error', `setLogs: FAILED: ${err}`);
 			callback(500);
