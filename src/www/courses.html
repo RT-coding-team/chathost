@@ -63,13 +63,16 @@
   	<div class="container">
       <div class="row"  class="col-md-12">
           <h2 id="title"></h2>
-          <div id="courseTreeview" class=""></div>
+
+<div class="accordion" id="table">
+       
+          
     </div>
 
-<BR><BR><BR>
 
  
    </main>
+<BR><BR><BR><BR><BR>
 
     <footer class="container">
       <p>&copy; Relay Trust, 2021</p>
@@ -80,7 +83,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="public/bootstrap.min.js"></script>
+	<script type="text/javascript" src="public/bootstrap.js"></script>
     <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
     <script type="text/javascript" src="public/angular-min.js"></script>
 	<script type="text/javascript" src="public/flat-ui.js"></script>
@@ -96,6 +99,8 @@
 // Treeview stuff here
 $(function() {
 
+var final = '';
+
 	var boxid = getQueryVariable('id');
 
 	var treeData = [];
@@ -105,44 +110,37 @@ $(function() {
 
 		$('#title').text(`${data[0].sitename}: ${boxid}`)
 
-		var counters = {
-			parent: 0,
-			child: 0
-		}
+		var counter = 0;
+
 		for (var course of data) {
-			console.log(course);
-			counters.parent = counters.parent + 1;
-			var treeCourse = {
-				text: course.course_name,
-				href: `#parent${counters.parent}`,
-				nodes: []
-			};
+			console.log(`Course: ${counter}: ${course.course_name}`);
+			counter++;
+			var courseName = 'Course: ' + course.course_name;
+			var teachersAndStudents = '';
 			for (var teacher of course.teachers) {
-				counters.child = counters.child + 1;
-				treeCourse.nodes.push({
-					text: `Teacher: ${teacher.first_name} ${teacher.last_name} (${teacher.username}: <a href="mailto:${teacher.email}">${teacher.email}</a>)`,
-					href: `#child${counters.child}`,
-					tags:['0']
-				})
+				teachersAndStudents += `Teacher: ${teacher.first_name} ${teacher.last_name} (${teacher.username}: <a href="mailto:${teacher.email}">${teacher.email}</a>)<BR>\n`;
 			}
 			for (var student of course.students) {
-				counters.child = counters.child + 1;
-				treeCourse.nodes.push({
-					text: `Student: ${student.first_name} ${student.last_name} (${student.username})`,
-					href: `#child${counters.child}`,
-					tags:['0']
-				})
+				teachersAndStudents += `Student: ${student.first_name} ${student.last_name} (${student.username})<BR>\n`;
 			}
-
-			treeData.push(treeCourse);
 		}
-		console.log(treeData);
-		$('#courseTreeview').treeview({
-			data: treeData
-		});
+		var html = `
 
+			  <div class="accordion-item">
+				<h2 class="accordion-header" id="panelsStayOpen-heading${counter}">
+				  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${counter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${counter}">
+					${courseName}
+				  </button>
+				</h2>
+				<div id="panelsStayOpen-collapse${counter}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-heading${counter}">
+				  <div class="accordion-body">
+					${teachersAndStudents}
+				  </div>
+				</div>
+			  </div>
+			</div>`;
+		$("#table").append(html);
 	});
-
 
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
