@@ -119,12 +119,6 @@ async function getBoxRosters(boxid) {
 function setLogs(boxid,body,type,callback) {
 	const collection = db.collection('logs');
 	var id = `${boxid.toString()}-${type}`;
-	var data = [];
-	var rows = body.split('\n');
-	for (var row of rows) {
-		var split = row.split('\t');
-		data.push({timestamp:split[0],log:split[1]});
-	}
 	collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,data: data,timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
 		if (err) {
 			logger.log('error', `setLogs: FAILED: ${err}`);
@@ -281,7 +275,7 @@ async function getLogs(boxid) {
 		collection.find({boxid:boxid}).toArray(function(err, results) {
 			if (results && results[0]) {
 				results[0].response = 200;
-				resolve(results[0]);
+				resolve(results[0].data);
 			}
 			else {
 				resolve({response:404});
