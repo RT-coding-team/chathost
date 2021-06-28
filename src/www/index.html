@@ -94,7 +94,7 @@
 									<div class="ui header small">
 										<i class="clone icon"></i>
 											<div class="content">
-												Cloud Instances &nbsp;&nbsp;&nbsp;&nbsp;   <span data-toggle="modal" data-target="#createModal" onclick="loadCreateModal()"><i class="plus icon"></i></span>
+												Box Inventory
 												<div class="sub header">
 													
 												</div>
@@ -265,6 +265,7 @@
 			for (var key of keys) {
 				$("#" + key).text(boxData[key]);
 			}
+			$('#detailModal').modal('show');
 		});
 		$.getJSON( "/chathost/admin/security/" + id, function( data ) {
 			$("#lastSecurityKey").text(data.lastSecurityKey);
