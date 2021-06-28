@@ -64,15 +64,19 @@ async function checkMariaDB() {
 		  host     : 'localhost',
 		  port     : 3306,
 		  user     : 'root',
-		  password : execSync('cat ~/chathost/docker-compose.yml | grep MARIADB_PASSWORD=').toString().replace('      - MARIADB_PASSWORD=','').replace('\n',''),
+		  password : execSync('cat ~/chathost/docker-compose.yml | grep MYSQL_ROOT_PASSWORD=').toString().replace('      - MYSQL_ROOT_PASSWORD=','').replace('\n',''),
 		  database : 'moodle'
 		});
-		if (connection.state === 'connected') {
-			resolve (true);
-		}
-		else {
-			resolve (false);
-		}
+		connection.connect();
+		connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+			if (error) {
+				resolve (false);
+			};
+			else {
+				resolve (true);
+			}
+		});
+		connection.end();
 	});
     let result = await promise;
     return result;
