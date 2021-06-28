@@ -71,7 +71,7 @@ async function checkMariaDB() {
 		connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
 			if (error) {
 				resolve (false);
-			};
+			}
 			else {
 				resolve (true);
 			}
