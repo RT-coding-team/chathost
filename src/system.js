@@ -62,8 +62,8 @@ async function checkMariaDB() {
     let promise = new Promise((resolve, reject) => {
 		var connection = mysql.createConnection({
 		  host     : 'localhost',
-		  port     : 33306,
-		  user     : 'moodleuser',
+		  port     : 3306,
+		  user     : 'root',
 		  password : execSync('cat ~/chathost/docker-compose.yml | grep MARIADB_PASSWORD=').toString().replace('      - MARIADB_PASSWORD=','').replace('\n',''),
 		  database : 'moodle'
 		});
