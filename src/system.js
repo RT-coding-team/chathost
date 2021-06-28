@@ -92,7 +92,7 @@ async function checkURL(url) {
 				resolve (false);
 			}
 			else {
-				if (res && res.statusCode === 200) {
+				if (res && res.statusCode < 400) {
 					resolve (true);
 				}
 				else {
