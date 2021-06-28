@@ -89,6 +89,7 @@ async function checkURL(url) {
 			method: 'GET'
 		}, function (err, res, body) {
 			if (err) {
+				console.log(err);
 				resolve (false);
 			}
 			else {
