@@ -14,7 +14,7 @@ services:
       options:
         max-size: "1m"
     volumes:
-      - ./resources/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./resources/nginx/:/etc/nginx/
     ports:
       - 8000:8000
 
@@ -142,7 +142,7 @@ services:
               --innodb_file_per_table=On
               --wait-timeout=28800
     ports:
-      - '33306:3306'
+      - '3306:3306'
     environment:
       - MARIADB_USER=moodleuser
       - MARIADB_PASSWORD=moodleuser
