@@ -21,6 +21,7 @@ webapp.use(bodyParser.text({ type: 'text/html' , limit: '50mb'}));
 webapp.use(nocache());
 
 webapp.use('/chathost/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // TODO
+webapp.use('/dashboard', express.static('www/'));
 webapp.use('/chathost', express.static('www/'));
 
 webapp.use('/chathost/healthcheck', function health(req, res) {
