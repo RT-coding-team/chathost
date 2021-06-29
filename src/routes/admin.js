@@ -71,7 +71,6 @@ router.get('/logs/:boxid', async function getLogs(req, res) {
 	res.send(response);
 });
 
-//  Get the logs data  //todo
 router.get('/settings/:boxid', async function getSettings(req, res) {
 	var response = await mongo.getSettings(req.params.boxid);
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Settings Pending`);
@@ -95,7 +94,6 @@ router.delete('/settings/:boxid/:deleteId', async function putSetting(req,res) {
 	}
 });
 
-//  Get the logs data  //todo
 router.get('/security/:boxid', async function getSecurity(req, res) {
 	var response = await mongo.getSecurity(req.params.boxid);
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Logs`);
