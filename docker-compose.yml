@@ -5,6 +5,8 @@ services:
   nginx:
     image: nginx:latest
     container_name: nginx
+    depends_on:
+      - chathost
     links:
       - rocketchat
       - chathost
