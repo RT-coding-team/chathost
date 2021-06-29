@@ -60,10 +60,8 @@ webapp.get('/chathost/logout', function getAuth(req, res) {
 
 // This handles redirection to Moodle authoring
 webapp.get('/chathost/authoring', function getAuth(req, res) {
-	var prefix = req.get('host').split('.')[0] + '.';
-	var newUrl = req.get('host').replace(prefix,'moodle.');
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Redirecting to ${newUrl}`);
-	res.redirect(configs.authoring || newUrl);
+	var moodle = process.env['CHATHOST_MOODLE'];
+	res.redirect(moodle || '/dashboard');
 });
 
 // Check for authorization
