@@ -121,7 +121,8 @@ async function getMEM() {
 }
 
 async function getDisk() {
-	var string = execSync('df |grep /dev/nvme0n1p1').toString().replace(/\s+/g, ' ').trim();
+	var disk = execSync('df -hT | grep /$').toString().split(' ')[0];
+	var string = execSync(`df |grep ${disk}`).toString().replace(/\s+/g, ' ').trim();
 	var fields = string.split(' ');
 	return (100 - parseInt(fields[4].replace('%','')));
 }
