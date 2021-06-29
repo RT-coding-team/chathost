@@ -23,6 +23,9 @@ async function checkAPIKeys(boxid,authorization) {
 	logger.log('info', `getMessageStatusValue: Box: ${boxid}`);
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('security');
+		if (!boxid || ! authorization || boxid.length < 5 || authorization.length < 5) {
+			resolve(false);
+		}
 		collection.find({'boxid':boxid,'authorization':authorization }).toArray(function(err, results) {
 			if (results && results[0]) {
 				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync`);

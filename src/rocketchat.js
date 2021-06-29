@@ -34,48 +34,10 @@ async function init() {
 			test();
 		}
 	}
-/////////////////////////////
-// TODO: Sanity checks
-// 	rocketChatClient.settings.get('FileUpload_ProtectFiles', function(err,body) {
-// 		if (body && body.value !== false) {
-// 			logger.log('error', `FileUpload_ProtectFiles must be false.  Message attachments will fail`);		
-// 		}
-// 	});
-/////////////////////////////
 }
 
 async function test() {
-	prepareMessageSync('5aadd2d0235c4fefa3260a4a4e0b92b6',1620659751);
 }
-
-async function Atest() {
-	logger.log('info', `Running Tests...`);
-
-	//await setSetting('')
-
-process.exit(1);
-	var user = await getUser('derek');
-	logger.log('info', user);
-//	var testUsername = 'user-' + moment().unix().toString();
-	var testUsername = 'derek';
-	await createUser({username:testUsername,email:`${testUsername}@email.com`,password:testUsername,name:testUsername,customFields:{wellId:1234}});
-
-//logger.log('info', testUsername);
-//	await getUser(testUsername);
-	logger.log('info', data.users);
-
-process.exit(1);
-
-//var temp = await getMessages('mr-awesome.1234',1620670520);
-
-//prepareMessageSync('1234',1620659751);
-// 	var value = await mongo.getMessagesOutbound('1234',1620659750);
-// 	logger.log('info', value);
-// 
-// 	var value = await mongo.getMessagesOutbound('1234',1620659751);
-// 	logger.log('info', value);
-}
-
 
 
 
@@ -102,6 +64,33 @@ async function checkRocketChat() {
 					logger.log('error', `checkRocketChat: ERROR: ${body}`);		
 					resolve (false);
 				}
+			}
+		});
+	});
+    let result = await promise;
+    return result;
+
+}
+
+async function getLogin(username,password) {
+	logger.log('info', `getLogin: Attempting Login for ${username}`);
+    let promise = new Promise((resolve, reject) => {
+		request({
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			uri: configs.rocketchat + '/api/v1/login',
+			body: `{"user":"${username}","password":"${password}"}`,
+			method: 'POST'
+		}, function (err, res, body) {
+			body = JSON.parse(body);
+			if (body && body.data && body.data.me && (body.data.me.roles.includes('admin') || body.data.me.roles.includes('leader'))) {
+				logger.log('info', `getLogin: Successful Login For ${username}`);
+				resolve ({username:body.data.me.username});
+			}
+			else {
+				logger.log('error', `getLogin: ERROR: ${JSON.stringify(body)}`);
+				resolve ({});
 			}
 		});
 	});
@@ -566,6 +555,7 @@ function convertEmojiTone(text) {
 module.exports = {
 	init,
 	data,
+	getLogin,
 	getUser,
 	createUser,
 	createChat,
