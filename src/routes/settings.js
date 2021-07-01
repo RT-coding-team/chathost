@@ -14,7 +14,12 @@ router.get('/', async function apiDistricts(req, res) {
 
 router.delete('/:deleteId', async function postLogs(req, res) {
 	var result = await mongo.deleteSetting(req.boxid,req.params.deleteId);
-	res.sendStatus(200);
+	if (result) {
+		res.sendStatus(200);
+	}
+	else {
+		res.sendStatus(404);
+	}
 });
 
 
