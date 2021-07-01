@@ -234,7 +234,7 @@
 		console.log("loadDetailModal: " + id);
 		var emailAll = "";
 		$.getJSON( "/chathost/admin/roster/" + id, function( data ) {
-			boxData = data[0];
+			boxData = data[0] || {};
 	console.log(data);
 			$(".instanceName").text(boxData.sitename);
 			$("#boxid").text(id);
