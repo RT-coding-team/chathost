@@ -294,7 +294,7 @@ async function getLogs(boxid) {
 			if (results) {
 				for (var logfile of results) {
 					for (var log of logfile.data) {
-						if (log.log.length < 1) {
+						if (!log || !log.log || log.log.length < 1) {
 							// Skip
 							continue;
 						}
