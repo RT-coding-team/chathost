@@ -23,6 +23,8 @@ router.get('/:since', async function getMessages(req, res) {
 router.post('/', async function postMessages(req, res) {
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Received ${req.body.length} messages`);
 	//console.log(req.body);
+	var failedCount = 0;
+	var failedMessages = [];
 	// Iterate through array of messages
 	for (var message of req.body) {
 		// See if this message was already sent
@@ -52,6 +54,8 @@ router.post('/', async function postMessages(req, res) {
 	 				mongo.messageSentToRocketChat(req.boxid,messageId);
 				}
 				else {
+					failedCount++;
+					failedMessages.push(message.id);
 					logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Failed Send ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);				
 				}
 			}
@@ -63,6 +67,8 @@ router.post('/', async function postMessages(req, res) {
 				}
 				else {
 					logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Failed Send ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);				
+					failedCount++;
+					failedMessages.push(message.id);
 				}
 			}
 		}
@@ -70,7 +76,12 @@ router.post('/', async function postMessages(req, res) {
 			logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Failed on ${message.id}: Could not locate teacher by email: ${message.recipient.email}`);	
 		}
 	}
-	res.sendStatus(200);
+	if (failedCount > 0) {
+		res.status(404).send(failedMessages);
+	}
+	else {
+		res.sendStatus(200);
+	}
 });
 
 module.exports = router;
