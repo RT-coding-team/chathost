@@ -100,6 +100,9 @@ async function getMessageStatusValue(boxid) {
 // Put the courseRoster in Mongo.  That is all
 function setCourseRoster(boxid,body,callback) {
 	const collection = db.collection('courseRoster');
+	if (body && body[0] && body[0].authorization) {
+		body[0].authorization = body[0].authorization.replace('Bearer ','');
+	}
 	collection.updateOne({'_id':boxid.toString()},{ $set: {data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {
 		if (err) {
 			logger.log('error', `setCourseRoster: FAILED: ${err}`);
