@@ -110,7 +110,7 @@
 			<div class="modal-header">
 				<div class="icon-box">
 					<!i class="huge wifi icon"><!/i>
-					<img src="favicon.ico" width=40>
+					<img src="/chathost/images/favicon-relaytrust.png" width=40>
 				</div>
 				&nbsp;&nbsp;&nbsp;
 				&nbsp;&nbsp;&nbsp;
@@ -235,8 +235,7 @@
 		var emailAll = "";
 		$.getJSON( "/chathost/admin/roster/" + id, function( data ) {
 			boxData = data[0] || {};
-	console.log(data);
-			$(".instanceName").text(boxData.sitename);
+			$(".instanceName").text(boxData.sitename || id);
 			$("#boxid").text(id);
 			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
 			$("#hreflogs").attr('href',`logs.html?id=${id}`);
