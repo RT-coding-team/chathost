@@ -235,7 +235,7 @@
 		var emailAll = "";
 		$.getJSON( "/chathost/admin/roster/" + id, function( data ) {
 			boxData = data[0] || {};
-			$(".instanceName").text(boxData.sitename || id);
+			$(".instanceName").text(boxData.sitename || 'Unnamed');
 			$("#boxid").text(id);
 			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
 			$("#hreflogs").attr('href',`logs.html?id=${id}`);
