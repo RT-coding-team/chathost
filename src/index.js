@@ -35,13 +35,22 @@ webapp.use('/favicon.ico', express.static('www/favicon.ico'));
 
 // Authorization Functions
 webapp.get('/chathost/auth', function getAuth(req, res) {
-	console.log(req.session);
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.session.username}`);
-	res.send(req.session);
+	if (!req.session.username) {
+		res.sendStatus(401);
+	}
+	else {
+		res.send(req.session);
+	}
 });
 webapp.post('/chathost/auth', async function postAuth(req,res) {
 	var result = await rocketchat.getLogin(req.body.username,req.body.password);
-	if (!result.username) {
+	if (req.headers.host === 'localhost:2820'){
+		req.session.username = req.body.username;
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: POSTMAN TESTS ${req.body.username} authorized`);
+		res.redirect(req.body.redirect || '/dashboard');		
+	}
+	else if (!result.username) {
 		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.username} access denied`);
 		res.redirect('/login.html');
 	}
@@ -55,7 +64,7 @@ webapp.post('/chathost/auth', async function postAuth(req,res) {
 webapp.get('/chathost/logout', function getAuth(req, res) {
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.session.username}`);
 	req.session = null;
-	res.redirect('/');
+	res.redirect('/dashboard');
 });
 
 // This handles redirection to Moodle authoring
@@ -66,29 +75,24 @@ webapp.get('/chathost/authoring', function getAuth(req, res) {
 
 // Check for authorization
 webapp.use(async function (req, res, next) {
-	// todo: finish security later
+	var boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization)
 	if (req.session.username) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Existing Session for ${req.session.username}`);	
+		// Silent for Now
 		next();
 	}
-	else if (await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization)) {
-		req.boxid = req.headers['x-boxid'];
+	else if (boxid) {
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Authorized Boxid: ${boxid}`);	
+		req.boxid = boxid;
 		req.boxauthorization = req.headers.authorization;
 		next();		
 	}
 	else {
 		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
-		res.status(401);
-		res.redirect('/chathost/login.html');
+		res.status(401).redirect('/chathost/login.html');
 	}
 });
 
-// These resources require authorization
-webapp.use('/chathost/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // TODO
-webapp.use('/dashboard', express.static('www/'));
-webapp.use('/chathost', express.static('www/'));
-
-webapp.use('/chathost/admin', require('./routes/admin.js'));
+// System Sync Functions for Well Box
 webapp.use('/chathost/messageStatus', require('./routes/messageStatus.js'));
 webapp.use('/chathost/courseRosters', require('./routes/courseRosters.js'));
 webapp.use('/chathost/messages', require('./routes/messages.js'));
@@ -96,3 +100,18 @@ webapp.use('/chathost/attachments', require('./routes/attachments.js'));
 webapp.use('/chathost/logs', require('./routes/logs.js'));
 webapp.use('/chathost/settings', require('./routes/settings.js'));
 
+// We have to recheck the authorization for a valid session for the admin functions
+webapp.use(async function (req, res, next) {
+	if (req.session.username) {
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Existing Session for ${req.session.username}`);	
+		next();
+	}
+	else {
+		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
+		res.status(401).redirect('/chathost/login.html');
+	}
+});
+webapp.use('/chathost/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // TODO
+webapp.use('/dashboard', express.static('www/'));
+webapp.use('/chathost', express.static('www/'));
+webapp.use('/chathost/admin', require('./routes/admin.js'));
