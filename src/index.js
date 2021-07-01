@@ -84,7 +84,12 @@ webapp.use(async function (req, res, next) {
 		req.boxauthorization = req.headers.authorization;
 		next();		
 	}
+	else if (req.headers['x-boxid']) {
+		// Well box is sending credentials but they are invalid
+		res.sendStatus(401);
+	}
 	else {
+		// Probably a dashboard user that is not valid
 		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
 		res.status(401).redirect('/chathost/login.html');
 	}
