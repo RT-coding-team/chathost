@@ -1,0 +1,1620 @@
+{
+	"info": {
+		"_postman_id": "ee46e5fc-ac28-4596-99bd-af6a39134a4c",
+		"name": "chathost",
+		"description": "These APIs handle the Well Dashboard and APIs from Well boxes to the Dashboard and Rocketchat.  Note that each API is either for the UI or SYNC.  Those that execute for the UI and handled with Basic Authentication with a Bearer Token for that session and the SYNC endpoints are Bearer Token.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "UI: Get Auth UNAUTHORIZED",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success: Not Authorized\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/auth",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"auth"
+					]
+				},
+				"description": "Check to make sure that we are not authenticated."
+			},
+			"response": []
+		},
+		{
+			"name": "UI: POST auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('cookie-relaytrust', pm.cookies.get('relaytrust'));",
+							"pm.collectionVariables.set('cookie-relaytrust.sig', pm.cookies.get('relaytrust.sig'));",
+							"pm.test(\"Authorized\", function () {",
+							"    pm.collectionVariables.get(\"cookie-relaytrust\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"postman\",\n    \"password\":\"true\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/auth",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"auth"
+					]
+				},
+				"description": "Authenticate for test cases using postman account"
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Authorization Confirmed\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/auth",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"auth"
+					]
+				},
+				"description": "If prior step was successful, this will now be true."
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Boxes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/boxes",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"boxes"
+					]
+				},
+				"description": "Provides an array of all the boxes managed on this Dashboard"
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Roster",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/roster/{{boxid}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"roster",
+						"{{boxid}}"
+					]
+				},
+				"description": "Returns an array of courses for this box"
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get System Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/system",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"system"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Logs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/logs/{{boxid}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"logs",
+						"{{boxid}}"
+					]
+				},
+				"description": "Returns an array of logs for display in UI"
+			},
+			"response": []
+		},
+		{
+			"name": "UI: POST setting ONE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\":\"test1\",\n    \"value\":\"true\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/settings/{{boxid}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"settings",
+						"{{boxid}}"
+					]
+				},
+				"description": "Post a setting change that will affect the Well device after the Well can sync with the server."
+			},
+			"response": []
+		},
+		{
+			"name": "UI: POST setting TWO",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\":\"test2\",\n    \"value\":\"true\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/settings/{{boxid}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"settings",
+						"{{boxid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UI: POST setting THREE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\":\"test3\",\n    \"value\":\"true\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/settings/{{boxid}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"settings",
+						"{{boxid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Settings",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"settingToDelete\", jsonData[0].deleteId || 1);",
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/settings/{{boxid}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"settings",
+						"{{boxid}}"
+					]
+				},
+				"description": "Returns an array of pending settings that will be sent to the Well upon sync."
+			},
+			"response": []
+		},
+		{
+			"name": "UI: DELETE Settings",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/settings/{{boxid}}/{{settingToDelete}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"settings",
+						"{{boxid}}",
+						"{{settingToDelete}}"
+					]
+				},
+				"description": "Send a delete message to server to delete a specific setting.  Use the deleteId in the path with corresponding boxid."
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Security Key For Box",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/security/{{boxid}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"security",
+						"{{boxid}}"
+					]
+				},
+				"description": "Get the current security key that a Well can use to access the server"
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Put Security Key For Box",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/security/te-st-bo-x4-th-is/{{$randomAdjective}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"security",
+						"te-st-bo-x4-th-is",
+						"{{$randomAdjective}}"
+					]
+				},
+				"description": "Put a new security key into the server"
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Security Key For Test Box",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"testBoxAuthorization\", jsonData.currentSecurityKey || '');",
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/security/te-st-bo-x4-th-is/",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"security",
+						"te-st-bo-x4-th-is",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Test Security Key For Test Box By Getting Empty Messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{testBoxAuthorization}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messages/555",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messages",
+						"555"
+					]
+				},
+				"description": "This should fail."
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,401]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{testBoxAuthorization}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/logout",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Auth Confirm No Auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/auth",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: GET messagesStatus Unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciO",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messageStatus",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messageStatus"
+					]
+				},
+				"description": "Example of unauthenticated box"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST logs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"timestamp\":1624383205,\n        \"log\":\"Log Line 1\"\n    },\n    {\n        \"timestamp\":1624383211,\n        \"log\": \"Log Line 2\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/logs/system",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"logs",
+						"system"
+					]
+				},
+				"description": "Various logs may be sent from the Well to the server"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: GET settings",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"settingToDelete\", jsonData[0].deleteId || 1);",
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/settings",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"settings"
+					]
+				},
+				"description": "Returns an array of settings that Well will act upon in array order."
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: DELETE settings",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/settings/{{settingToDelete}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"settings",
+						"{{settingToDelete}}"
+					]
+				},
+				"description": "Delete a setting using the deleteId in the GET"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: GET messagesStatus",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"messageStatusResult\", responseBody);",
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messageStatus",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messageStatus"
+					]
+				},
+				"description": "Returns a timestamp for retrieving messages.  The server will begin to compile the results in the background."
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST courseRosters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\n\t\"id\": 1,\n\t\"course_name\": \"FROMDUMP:fullsitename\",\n\t\"summary\": \"\",\n\t\"created_on\": 1612889052,\n\t\"updated_on\": 1612889167,\n\t\"students\": [],\n\t\"teachers\": [],\n\t\"sitename\": \"devderek\",\n\t\"siteadmin_name\": \"Derek Maxson\",\n\t\"siteadmin_email\": \"dmaxson@frontporch.com\",\n\t\"siteadmin_phone\": \"+12092885511\"\n}, {\n\t\"id\": 2,\n\t\"course_name\": \"Cooking a Perfect Burger\",\n\t\"summary\": \"Learn to cook the perfect burger.\",\n\t\"created_on\": 1616454755,\n\t\"updated_on\": 1616454755,\n\t\"students\": [{\n\t\t\"id\": 4,\n\t\t\"username\": \"mr-awesome\",\n\t\t\"first_name\": \"Mister\",\n\t\t\"last_name\": \"Awesome\",\n\t\t\"email\": \"mr-awesome@yahoo.com\",\n\t\t\"last_accessed\": 1616721358,\n\t\t\"language\": \"en\"\n\t}, {\n\t\t\"id\": 3,\n\t\t\"username\": \"user\",\n\t\t\"first_name\": \"User\",\n\t\t\"last_name\": \"User\",\n\t\t\"email\": \"user@email.com\",\n\t\t\"last_accessed\": 1616464680,\n\t\t\"language\": \"en\"\n\t}],\n\t\"teachers\": [{\n\t\t\"id\": 2,\n\t\t\"username\": \"derek.maxson\",\n\t\t\"first_name\": \"Derek\",\n\t\t\"last_name\": \"Maxson\",\n\t\t\"email\": \"dmaxson@frontporch.com\",\n\t\t\"last_accessed\": 1616792461,\n\t\t\"language\": \"en\"\n\t}]\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/courseRosters/",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"courseRosters",
+						""
+					]
+				},
+				"description": "Post an array of course objects"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: Post Attachment (multipart)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "sunset.png"
+						},
+						{
+							"key": "filename",
+							"value": "sunset.png",
+							"type": "text"
+						},
+						{
+							"key": "filepath",
+							"value": "/",
+							"type": "text"
+						},
+						{
+							"key": "id",
+							"value": "490240422",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "photo",
+							"type": "text"
+						},
+						{
+							"key": "mimetype",
+							"value": "image/png",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/attachments",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"attachments"
+					]
+				},
+				"description": "Post an attachment as multipart file upload"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\"id\":98,\"conversation_id\":5,\"subject\":null,\"message\":\"Message Test From Postman\",\"sender\":{\"id\":\"3\",\"username\":\"mr-awesome\",\"email\":\"derek@email.com\"},\"recipient\":{\"id\":\"3\",\"username\":\"derek.maxson\",\"email\":\"dmaxson@frontporch.com\"},\"created_on\":1615406784}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messages",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messages"
+					]
+				},
+				"description": "Post an array of message objects"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST EMPTY messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messages",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST messages (with attachment)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\"id\":99,\"conversation_id\":5,\"subject\":null,\"message\":\"<attachment type=\\\"image\\\" id=\\\"490240422\\\" filepath=\\\"/\\\" filename=\\\"sunset.png\\\">\",\"sender\":{\"id\":\"3\",\"username\":\"mr-awesome\",\"email\":\"derek@email.com\"},\"recipient\":{\"id\":\"3\",\"username\":\"derek.maxson\",\"email\":\"dmaxson@frontporch.com\"},\"attachment\":{\"type\":\"photo\",\"id\":490240422,\"filepath\":\"/\",\"filename\":\"sunset.png\"},\"created_on\":1615406784}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messages",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messages"
+					]
+				},
+				"description": "Example of POST of message object containing reference to attachment"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST messages with MISSING attachment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\"id\":66,\"conversation_id\":5,\"subject\":null,\"message\":\"<attachment type=\\\"image\\\" id=\\\"666\\\" filepath=\\\"/\\\" filename=\\\"sunset.png\\\">\",\"sender\":{\"id\":\"3\",\"username\":\"user\",\"email\":\"derek@email.com\"},\"recipient\":{\"id\":\"3\",\"username\":\"derek.maxson\",\"email\":\"dmaxson@frontporch.com\"},\"attachment\":{\"type\":\"photo\",\"id\":666,\"filepath\":\"/\",\"filename\":\"sunset.png\"},\"created_on\":1615406784}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messages",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messages"
+					]
+				},
+				"description": "Example of posting a message with an attachment that has not been sent."
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: GET messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messages/{{messageStatusResult}}",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messages",
+						"{{messageStatusResult}}"
+					]
+				},
+				"description": "Returns the messages sync'd from the messageStatus operation"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: Get Attachment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/attachments/file-upload/rkL38FGkKCf2hQN3r/Clipboard%20-%20May%2024,%202021%2011:27%20AM",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"attachments",
+						"file-upload",
+						"rkL38FGkKCf2hQN3r",
+						"Clipboard%20-%20May%2024,%202021%2011:27%20AM"
+					]
+				},
+				"description": "Retrieve an attachment"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: Get Attachment/exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/attachments/490240422/exists",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"attachments",
+						"490240422",
+						"exists"
+					]
+				},
+				"description": "Returns 200 OK if attachment exists"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: Get Attachment NOT FOUND",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/attachments/000/exists",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"attachments",
+						"000",
+						"exists"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "postman",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "localhost"
+		},
+		{
+			"key": "port",
+			"value": "2820"
+		},
+		{
+			"key": "boxid",
+			"value": "aa-bb-cc-dd-ee-ff"
+		},
+		{
+			"key": "authorization",
+			"value": "postman"
+		},
+		{
+			"key": "messageStatusResult",
+			"value": ""
+		},
+		{
+			"key": "settingToDelete",
+			"value": ""
+		},
+		{
+			"key": "testBoxAuthorization",
+			"value": ""
+		},
+		{
+			"key": "cookie-relaytrust",
+			"value": ""
+		},
+		{
+			"key": "cookie-relaytrust.sig",
+			"value": ""
+		}
+	]
+}
