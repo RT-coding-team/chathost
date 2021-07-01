@@ -1,13 +1,15 @@
 # chathost
-Comprehensive Partner Support Services For The Well.  Ansible playbook for AWS EC2
+Comprehensive Partner Support Services For The Well.  Ansible playbook for AWS EC2.
 
-# Compoents
+This project is related to The Well, a raspberry pi based platform for Moodle class delivery.
+
+# Components
 * Moodle (Course Authoring)
 * MariaDB for Moodle
 * nginx for Moodle
 * Rocketchat
 * MongoDB for Rocketchat and Chathost APIs
-* Chathost APIs (nodejs)
+* Chathost APIs (Developer Info: https://github.com/RT-coding-team/chathost/tree/main/src)
 * nginx for Rocket, Chathost APIs
 * TBD: resourcespace (will use nginx and mariadb)
 
