@@ -20,21 +20,28 @@ MongoClient.connect(configs.mongo,{ useUnifiedTopology: true}, async function(er
 });
 
 async function checkAPIKeys(boxid,authorization) {
-	logger.log('info', `getMessageStatusValue: Box: ${boxid}`);
+	if (authorization) {
+		authorization = authorization.replace('Bearer ','');
+	}
+	logger.log('info', `checkAPIKeys: Token: ${authorization}`);
     let promise = new Promise((resolve, reject) => {
+		if (!authorization) {
+			resolve (false);
+		}
 		const collection = db.collection('security');
-		if (!boxid || ! authorization || boxid.length < 5 || authorization.length < 5) {
+		if (!authorization || authorization.length < 5) {
+			logger.log('error', `checkAPIKeys: Invalid Authorization Token Format`);
 			resolve(false);
 		}
-		collection.find({'boxid':boxid,'authorization':authorization }).toArray(function(err, results) {
+		collection.find({'authorization':authorization }).toArray(function(err, results) {
 			if (results && results[0]) {
 				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync`);
 				if (results[0].deleteOthers) {
 					// todo
 				}
-				resolve (true);
+				resolve (results[0].boxid);
 			}
-			else {
+			else if (boxid && boxid.length > 5) {
 				// If no authorization, it may be new box and we'll do auto-add
 				collection.find({'boxid':boxid }).toArray(function(err, results) {
 					if (!results || !results[0]) {
@@ -54,6 +61,10 @@ async function checkAPIKeys(boxid,authorization) {
 						resolve(false);
 					}
 				});			
+			}
+			else {
+				logger.log('error', `checkAPIKeys: No Valid Credentials`);
+				resolve(false);
 			}
 		});
 	});
@@ -325,10 +336,8 @@ function putSetting(boxid,key,value) {
 
 async function deleteSetting(boxid,recordid) {
 	const collection = db.collection('settings');
-//todo
     let promise = new Promise((resolve, reject) => {
 		collection.deleteOne({ deleteId: recordid }, function(err, result) {
-			console.log(result,typeof recordid, recordid);
 			if (err) {
 				logger.log('error', `deleteSetting: Error: ${boxid}: ${recordid}: ${err}`);
 				resolve (false);
