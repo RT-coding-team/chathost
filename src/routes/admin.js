@@ -48,7 +48,9 @@ router.get('/boxes', async function getBoxes(req, res) {
 
 router.get('/roster/:boxid', async function getRosters(req,res) {
 	var response = await mongo.getBoxRosters(req.params.boxid);
-	response.shift();
+	if (response.length > 1) {
+		response.shift();
+	}
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Courses`);
 	res.send(response);
 });
