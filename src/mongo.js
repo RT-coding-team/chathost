@@ -35,7 +35,7 @@ async function checkAPIKeys(boxid,authorization) {
 		}
 		collection.find({'authorization':authorization }).toArray(function(err, results) {
 			if (results && results[0]) {
-				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync`);
+				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync: ${results[0].boxid}`);
 				if (results[0].deleteOthers) {
 					// todo
 				}
@@ -287,9 +287,22 @@ async function getLogs(boxid) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('logs');
 		collection.find({boxid:boxid}).toArray(function(err, results) {
-			if (results && results[0]) {
-				results[0].response = 200;
-				resolve(results[0].data);
+			var response = [];
+			if (results) {
+				for (var logfile of results) {
+					for (var log of logfile.data) {
+						if (log.log.length < 1) {
+							// Skip
+							continue;
+						}
+						if (!log.timestamp) {
+							var date = log.log.split('[').pop().split(']')[0];
+							log.timestamp = moment(date,'DD/MMM/YYYY:HH:mm:ss Z').unix();
+						}
+					response.push(log);
+					}
+				}
+				resolve(response.sort(orderLogs));
 			}
 			else {
 				resolve({response:404});
@@ -298,6 +311,16 @@ async function getLogs(boxid) {
 	});
     let result = await promise;
     return result;
+}
+
+function orderLogs( a, b ) {
+  if ( a.timestamp < b.timestamp ){
+    return -1;
+  }
+  if ( a.timestamp > b.timestamp ){
+    return 1;
+  }
+  return 0;
 }
 
 async function getSettings(boxid) {

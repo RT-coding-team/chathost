@@ -80,7 +80,7 @@
 		var final = [];
 		for (var item of data) {
 			var fitem = [];
-			item.date = moment(item.timestamp * 1000).format('DD MMM YY HH:mm:ss');
+			item.date = moment(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss');
 			for (var col of columns) {
 				fitem.push(item[col.field] || '');
 			}
