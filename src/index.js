@@ -110,6 +110,6 @@ webapp.use(async function (req, res, next) {
 	}
 });
 
+webapp.use('/chathost/admin', require('./routes/admin.js'));
 webapp.use('/dashboard', express.static('www/'));
 webapp.use('/chathost', express.static('www/'));
-webapp.use('/chathost/admin', require('./routes/admin.js'));
