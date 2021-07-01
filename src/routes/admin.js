@@ -53,15 +53,16 @@ router.get('/roster/:boxid', async function getRosters(req,res) {
 	res.send(response);
 });
 
-router.get('/system', async function getRosters(req,res) {
-	var response = JSON.parse(fs.readFileSync('/tmp/system.json').toString());
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Last Updated: ${response.timestamp}`);
-	res.send(response);
-});
-
-//  Get the s data
-router.get('/messageQueue', function getState(req, res) {
-	res.send(messages.messageQueue);
+router.get('/system', async function getSystem(req,res) {
+	try {
+		var response = JSON.parse(fs.readFileSync('/tmp/system.json').toString() || '{}');
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Last Updated: ${response.timestamp}`);
+		res.send(response);
+	}
+	catch (err){
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${err}`);
+		res.sendStatus(404);	
+	}
 });
 
 //  Get the logs data  //todo
@@ -106,9 +107,5 @@ router.put('/security/:boxid/:authorization', function putSecurity(req,res) {
 	res.send({});
 });
 
-router.post('/test', function getState(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}`);
-	//res.send(rocketchat.data);
-});
 
 module.exports = router;
