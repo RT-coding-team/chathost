@@ -5,10 +5,8 @@ const express = require('express'),
 	session = require('express-session'),
 	cookieSession = require('cookie-session'),
     nocache = require('nocache'),
-    swaggerUi = require('swagger-ui-express'),
 	moment = require('moment-timezone'),
     configs = require('./configs.js'),
-	swaggerDocument = require('./swagger.json'),
     Logger = require('./logger.js'),
     rocketchat = require('./rocketchat.js'),
     logger = new Logger(configs.logging);
@@ -75,7 +73,7 @@ webapp.get('/chathost/authoring', function getAuth(req, res) {
 
 // Check for authorization
 webapp.use(async function (req, res, next) {
-	var boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization)
+	var boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
 	if (req.session.username) {
 		// Silent for Now
 		next();
@@ -111,7 +109,7 @@ webapp.use(async function (req, res, next) {
 		res.status(401).redirect('/chathost/login.html');
 	}
 });
-webapp.use('/chathost/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));  // TODO
+
 webapp.use('/dashboard', express.static('www/'));
 webapp.use('/chathost', express.static('www/'));
 webapp.use('/chathost/admin', require('./routes/admin.js'));
