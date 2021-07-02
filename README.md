@@ -71,5 +71,16 @@ This project is related to The Well, a raspberry pi based platform for Moodle cl
   * Video: https://www.loom.com/share/2288f2598a3a4346b9d9e52b34b00eb6?sharedAppSource=personal_library
 * In web browser, navigate to http://chat.yourorg.org/dashboard and set up Dashboard.
 
+# Usage
+* Teacher Setup
+  * Video: https://www.loom.com/share/37d28730fba6481180362c036980c0b7?sharedAppSource=personal_library
+  * A teacher account, with a valid email address should be set up in Rocketchat first.  
+  * The Well instance must be configured to sync to the same server with Rocketchat.  When the Well is connected to the Internet, it will sync every ten minutes or may be manually sync'd at http://learn.thewell/local/chat_attachments/push_messages.php?logging=display (more documentation on this sync: https://github.com/RT-coding-team/the-well-moodle310/tree/master/local/chat_attachments).
+  * Sync status can be confirmed in the Dashboard at http://yourrocketchatserver/dashboard
+  * Create a course in the Well's Moodle instance and create the teacher account.  The teacher will never access the account here.
+* Adding a Student
+  * Video: https://www.loom.com/share/70ad80239e6a4b22862b88b54fe77b8c?sharedAppSource=personal_library
+  * Add a student account to the course.  After the student has been added and the box syncs (see above), the teacher's Rocketchat account will receive an automated notification chat of the student connection.  The teacher may then reply and a chat will be sent to the student at the next sync.
+
 # Additional Resources
 https://docs.rocket.chat/installation/paas-deployments/aws
