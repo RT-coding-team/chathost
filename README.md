@@ -82,5 +82,8 @@ This project is related to The Well, a raspberry pi based platform for Moodle cl
   * Video: https://www.loom.com/share/70ad80239e6a4b22862b88b54fe77b8c?sharedAppSource=personal_library
   * Add a student account to the course.  After the student has been added and the box syncs (see above), the teacher's Rocketchat account will receive an automated notification chat of the student connection.  The teacher may then reply and a chat will be sent to the student at the next sync.
 
+# Backup
+AWS Backup has a simple backup tool for EC2 instances.  Recommend the daily, monthly or daily, monthly, yearly backup plan.  Document: https://aws.amazon.com/blogs/aws/aws-backup-ec2-instances-efs-single-file-restore-and-cross-region-backup/
+
 # Additional Resources
 https://docs.rocket.chat/installation/paas-deployments/aws
