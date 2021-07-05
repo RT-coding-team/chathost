@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/chathost/images/favicon-relaytrust.png">
+
+    <title>RelayTrust: The Well Dashboard</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="public/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="public/jsgrid.min.css" />
+	<link type="text/css" rel="stylesheet" href="public/jsgrid-theme.min.css" />
+    <link rel="stylesheet" type="text/css" class="ui" href="public/semantic/semantic.min.css">
+    <link rel="stylesheet" type="text/css" class="ui" href="public/datatables.css">
+    <link rel="stylesheet" type="text/css" class="ui" href="public/bootstrap.css">
+ 	<link href="public/flat-ui.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="public/jumbotron.css" rel="stylesheet">
+	<link href="public/dashboard.css" rel="stylesheet">
+    <style>
+    # {
+    	display: none;
+	}
+    </style>
+  </head>
+  <body>
+
+    <nav id="navMain" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    </nav>
+
+
+    <!main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <main role="main" class="col-md-12">
+
+      <div class="Ajumbotron">
+      <BR><BR>
+      <h2>Disk Images For The Well</h2>
+
+							
+  <div id="listing"></div>
+
+
+<BR><BR><BR>
+
+ 
+   </main>
+
+    <footer class="container">
+      <p>&copy; Relay Trust, 2021</p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="public/bootstrap.min.js"></script>
+    <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
+    <script type="text/javascript" src="public/angular-min.js"></script>
+	<script type="text/javascript" src="public/flat-ui.js"></script>
+    <script type="text/javascript" src="public/moment.js"></script>
+    <script type="text/javascript" src="public/datatables.js"></script>
+    <script type="text/javascript" src="public/navigation.js"></script>
+
+
+
+
+
+
+
+<script type="text/javascript">
+  var S3BL_IGNORE_PATH = true;
+  //var BUCKET_NAME = 'thewellimages';
+  var BUCKET_URL = 'https://thewellimages.s3.us-west-2.amazonaws.com';
+  //var S3B_ROOT_DIR = 'SUBDIR_L1/SUBDIR_L2/';
+  //var S3B_SORT = 'DEFAULT';
+  var EXCLUDE_FILE = 'index.html';  // change to array to exclude multiple files, regexp also supported e.g. /^(.*\/)?index.html$/ to exclude all index.html
+  //var AUTO_TITLE = true;
+  //var S3_REGION = 'us-west-2'; // for us-east-1
+</script>
+<script type="text/javascript" src="public/list.js"></script>
+
+</body>
+</html>

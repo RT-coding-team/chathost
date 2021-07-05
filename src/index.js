@@ -28,7 +28,9 @@ webapp.use('/chathost/healthcheck', function health(req, res) {
 // These resources are available without a password
 webapp.use('/chathost/login.html', express.static('www/login.html'));
 webapp.use('/chathost/public', express.static('www/public'));
+webapp.use('/chathost/images.html', express.static('www/images.html'));
 webapp.use('/chathost/images', express.static('www/images'));
+webapp.use('/chathost/navigation.html', express.static('www/navigation.html'));
 webapp.use('/favicon.ico', express.static('www/favicon.ico'));
 
 // Authorization Functions
