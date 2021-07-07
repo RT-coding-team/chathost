@@ -34,7 +34,6 @@ async function checkAPIKeys(boxid,authorization) {
 			resolve(false);
 		}
 		collection.find({boxid:boxid,authorization:authorization }).toArray(function(err, results) {
-console.log(boxid,authorization,results);
 			if (results && results[0]) {
 				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync: ${results[0].boxid}`);
 				if (results[0].deleteOthers) {
