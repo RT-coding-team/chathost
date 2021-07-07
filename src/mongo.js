@@ -33,7 +33,8 @@ async function checkAPIKeys(boxid,authorization) {
 			logger.log('error', `checkAPIKeys: Invalid Authorization Token Format`);
 			resolve(false);
 		}
-		collection.find({'authorization':authorization }).toArray(function(err, results) {
+		collection.find({boxid:boxid,authorization:authorization }).toArray(function(err, results) {
+console.log(boxid,authorization,results);
 			if (results && results[0]) {
 				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync: ${results[0].boxid}`);
 				if (results[0].deleteOthers) {
