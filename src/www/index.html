@@ -130,19 +130,23 @@
 				<table width=100%>
 					<tr>
 						<td>ID</td>
-						<td id="boxid">
+						<td id="boxid"></td>
+					</tr>
+					<tr>
+						<td>Last IP</td>
+						<td id="siteip"></td>
 					</tr>
 					<tr>
 						<td>Admin</td>
-						<td id="siteadmin_name">
+						<td id="siteadmin_name"></td>
 					</tr>
 					<tr>
 						<td>Email</td>
-						<td><a href="" id="emailLink"><font id="siteadmin_email"></font></a>
+						<td><a href="" id="emailLink"><font id="siteadmin_email"></font></a></td>
 					</tr>
 					<tr>
 						<td>Phone</td>
-						<td id="siteadmin_phone">
+						<td id="siteadmin_phone"></td>
 					</tr>
 				
 				</table>
@@ -234,6 +238,7 @@
 		console.log("loadDetailModal: " + id);
 		var emailAll = "";
 		$.getJSON( "/chathost/admin/roster/" + id, function( data ) {
+			console.log(data);
 			boxData = data[0] || {};
 			$(".instanceName").text(boxData.sitename || 'Unnamed');
 			$("#boxid").text(id);

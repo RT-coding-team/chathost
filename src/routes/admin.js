@@ -28,6 +28,7 @@ router.get('/boxes', async function getBoxes(req, res) {
 			box.siteadmin_name = courses[0].siteadmin_name;
 			box.siteadmin_email = courses[0].siteadmin_email;
 			box.siteadmin_phone = courses[0].siteadmin_phone;
+			box.siteip = courses[0].siteip;
 			box.courses = courses.length - 1;
 			box.teachers = 0;
 			box.students = 0;
@@ -48,9 +49,6 @@ router.get('/boxes', async function getBoxes(req, res) {
 
 router.get('/roster/:boxid', async function getRosters(req,res) {
 	var response = await mongo.getBoxRosters(req.params.boxid);
-	if (response.length > 1) {
-		response.shift();
-	}
 	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Courses`);
 	res.send(response);
 });

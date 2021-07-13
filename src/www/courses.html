@@ -90,6 +90,9 @@ var final = '';
 		$('#title').text(`${data[0].sitename}: ${boxid}`)
 
 		var counter = 0;
+		if (data.length > 0) {
+			data.shift();
+		}
 
 		for (var course of data) {
 			console.log(`Course: ${counter}: ${course.course_name}`);
