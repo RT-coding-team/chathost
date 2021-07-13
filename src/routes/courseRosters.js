@@ -10,9 +10,9 @@ const express = require('express'),
 //  Put in the courseRoster data
 router.post('/', async function postRosters(req, res) {
 	req.body[0].authorization = req.boxauthorization;
-	mongo.setCourseRoster(req.boxid,req.body, async function(result) {
+	mongo.setCourseRoster(req.boxid,req.body,req.headers['x-forwarded-for'] || req.socket.remoteAddress, async function(result) {
 		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${result}`);
-		await processRosters(req.boxid,req.body,req.headers['x-forwarded-for'] || req.socket.remoteAddress);
+		await processRosters(req.boxid,req.body);
 	    res.sendStatus(200);
 	});
 });
@@ -25,9 +25,6 @@ async function processRosters(boxid,body,ip) {
 		//logger.log('info', course);
 		logger.log('debug', `processRosters: Course: ${course.course_name}`)
 		var teachers = [];
-		if (course.sitename) {
-			course.siteip = ip;
-		}
 		// Iterate teachers, create if needed
 		for (var teacher of course.teachers) {
 			var username = teacher.username;  // Teachers don't have a boxid but students do

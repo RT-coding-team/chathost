@@ -98,10 +98,13 @@ async function getMessageStatusValue(boxid) {
 }
 
 // Put the courseRoster in Mongo.  That is all
-function setCourseRoster(boxid,body,callback) {
+function setCourseRoster(boxid,body,ip,callback) {
 	const collection = db.collection('courseRoster');
 	if (body && body[0] && body[0].authorization) {
 		body[0].authorization = body[0].authorization.replace('Bearer ','');
+		if (body[0].sitename) {
+			body[0].siteip = ip;
+		}
 	}
 	collection.updateOne({'_id':boxid.toString()},{ $set: {data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {
 		if (err) {
