@@ -107,5 +107,11 @@ router.put('/security/:boxid/:authorization', function putSecurity(req,res) {
 	res.send({});
 });
 
+router.delete('/security/:boxid', function putSecurity(req,res) {
+	mongo.deleteSecurity(req.params.boxid);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}`);
+	res.send({});
+});
+
 
 module.exports = router;

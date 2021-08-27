@@ -431,6 +431,15 @@ function putSecurity(boxid,authorization) {
 	});
 }
 
+function deleteSecurity(boxid) {
+	const collection = db.collection('security');
+	console.log(`deleteSecurity: ${boxid}`);
+	collection.deleteMany({"boxid": boxid}, function(err,result) {
+		// Delete all keys that exist currently
+		//console.log (err,result);
+	}); 
+}
+
 
 async function getBoxInventory() {
 	// Gets all boxes active in last 90 days
@@ -493,6 +502,7 @@ module.exports = {
 	deleteSetting,
 	getSecurity,
 	putSecurity,
+	deleteSecurity,
 	getBoxInventory,
 	status
 };

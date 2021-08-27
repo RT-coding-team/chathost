@@ -69,7 +69,7 @@
 							Set New Security Key<BR>
 							<input class="form-control" type="password" id="securityKey">
 							<BR><BR>
-							<button onclick="setSecurityKey(false);" class="btn btn-sm btn-info">Set Security Key</button>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="setSecurityKey(true);" class="btn btn-sm btn-danger">Disable Well Device</button>
+							<button onclick="setSecurityKey(false);" class="btn btn-sm btn-info">Set Security Key</button>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="clearSecurityKey();" class="btn btn-sm btn-info">Clear Security Key</button>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="setSecurityKey(true);" class="btn btn-sm btn-danger">Disable Well Device</button>
 						</div>
 
 
@@ -164,6 +164,25 @@
 			});
 
 		}
+
+		function clearSecurityKey() {
+			console.log(`clearSecurityKey`);
+			$.ajax({
+				url: `/chathost/admin/security/${boxid}`,
+		  		method: 'DELETE',
+				success: function(response) {
+					//console.log ("getResponse=" + response);
+					alert("Success! ");
+					loadDataTable(); //todo
+				},
+				error: function(response) {
+					//console.log ("getResponse=" + response);
+					alert("Failed");
+				}
+			});
+
+		}
+
 
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
