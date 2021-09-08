@@ -12,6 +12,11 @@ const express = require('express'),
     logger = new Logger(configs.logging);
 
 webapp.listen(configs.port);
+webapp.use(async function (req, res, next) {
+	req.boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
+	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Received`);
+	next();
+});
 
 webapp.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
 webapp.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
@@ -75,19 +80,18 @@ webapp.get('/chathost/authoring', function getAuth(req, res) {
 
 // Check for authorization
 webapp.use(async function (req, res, next) {
-	var boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
 	if (req.session.username) {
 		// Silent for Now
 		next();
 	}
-	else if (boxid) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Authorized Boxid: ${boxid}`);	
-		req.boxid = boxid;
+	else if (req.boxid) {
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Authorized Boxid: ${req.boxid}: req.headers.authorization`);	
 		req.boxauthorization = req.headers.authorization;
 		next();		
 	}
 	else if (req.headers['x-boxid']) {
 		// Well box is sending credentials but they are invalid
+		logger.log('error', `req.headers['x-boxid']: ${req.method} ${req.originalUrl}: Invalid Credentials`);	
 		res.sendStatus(401);
 	}
 	else {
