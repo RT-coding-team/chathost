@@ -137,18 +137,25 @@ async function getBoxRosters(boxid) {
 
 // Put the logs in Mongo.  That is all
 function setLogs(boxid,body,type,callback) {
-	const collection = db.collection('logs');
-	var id = `${boxid.toString()}-${type}`;
-	collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
-		if (err) {
-			logger.log('error', `setLogs: FAILED: ${err}`);
-			callback(500);
-		}
-		else {
-			logger.log('info', `setLogs: Success`);
-			callback(200);
-		}
-  	});
+	try {
+		const collection = db.collection('logs');
+		var id = `${boxid.toString()}-${type}`;
+		collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
+			if (err) {
+				logger.log('error', `setLogs: FAILED: ${err}`);
+				callback(500);
+			}
+			else {
+				logger.log('info', `setLogs: Success`);
+				callback(200);
+			}
+		});
+	}
+	catch (err) {
+		console.log(err);
+		logger.log('error', `setLogs: Exception: ${err}`);
+		callback (500);
+	}
 }
 
 // Removes the zip data here
