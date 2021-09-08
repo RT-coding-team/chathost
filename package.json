@@ -21,7 +21,7 @@
     "emojione": "^4.5.0",
     "express": "*",
     "express-session": "*",
-    "file-type": "^16.4.0",
+    "file-type": "*",
     "moment": "*",
     "moment-timezone": "*",
     "mongodb": "*",
@@ -30,8 +30,8 @@
     "nocache": "*",
     "request": "*",
     "swagger-ui-express": "*",
-    "uuid": "^8.3.2",
+    "uuid": "*",
     "winston": "*",
-    "winston-cloudwatch": "^2.5.2"
+    "winston-cloudwatch": "*"
   }
 }

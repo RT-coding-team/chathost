@@ -88,7 +88,7 @@ services:
 
 # Chathost APIs
   chathost:
-    image: 'node:10.15.0'
+    image: 'node:14.17.5'
     container_name: chathost
     restart: always
     working_dir: /usr/src
@@ -120,12 +120,14 @@ services:
     image: wyveo/nginx-php-fpm:php74
     container_name: moodle
     restart: always
+    command: apt update && apt -y install cron
     logging:
       driver: json-file
       options:
         max-size: "1m"
     volumes:
       - ./resources/moodlenginx/conf.d:/etc/nginx/conf.d/
+      - ./resources/moodle/cron.hourly:/etc/cron.d/cron.hourly
       - "../moodle:/var/www/moodle"
       - "../data/moodledata:/var/www/moodledata"
     ports:
