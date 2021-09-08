@@ -85,7 +85,7 @@ webapp.use(async function (req, res, next) {
 		next();
 	}
 	else if (req.boxid) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Authorized Boxid: ${req.boxid}: req.headers.authorization`);	
+		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Authorized Boxid: ${req.boxid}: ${req.headers.authorization}`);	
 		req.boxauthorization = req.headers.authorization;
 		next();		
 	}
