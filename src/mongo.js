@@ -51,7 +51,7 @@ async function checkAPIKeys(boxid,authorization) {
 							authorization = uuidv4();
 							putSetting(boxid,"authorization",authorization);
 						}
-						logger.log('debug', `checkAPIKeys: New Device.  Setting Up Default Security: New Key: ${authorization}`);
+						logger.log('debug', `checkAPIKeys: New Device. ${boxid} Setting Up Default Security: New Key: ${authorization}`);
 						collection.insertOne({boxid:boxid,authorization:authorization,deleteOthers:true,timestamp: moment().unix() + 10}, function(err, result) {
 							resolve(true);			
 						});	
@@ -153,7 +153,7 @@ function setLogs(boxid,body,type,callback) {
 	}
 	catch (err) {
 		console.log(err);
-		logger.log('error', `setLogs: Exception: ${err}`);
+		logger.log('error', `setLogs: FAILED: ${err}`);
 		callback (500);
 	}
 }
