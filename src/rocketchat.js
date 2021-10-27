@@ -388,8 +388,8 @@ async function sendMessageWithAttachment(boxid,fromUsername,toUsername,message) 
 		}
 		catch (err) {
 			logger.log('error', `boxId: ${boxid}: sendMessageWithAttachment: FAILED: ${err}`);
-			sendMessage(boxid,fromUsername,toUsername,`The file sent to you, ${message.filename}, has failed to be delievered`,boxid);
-			sendMessage(boxid,toUsername,fromUsername,`The file you sent, ${message.filename}, has failed to be delievered`,boxid);
+			//sendMessage(boxid,fromUsername,toUsername,`The file sent to you, ${message.filename}, has failed to be delievered`,boxid);
+			sendMessage(boxid,toUsername,fromUsername,`The file ${fromUsername} sent to ${toUsername}, ${message.filename}, has failed to be delievered`,boxid);
 			resolve (false);
 		}
 	});
