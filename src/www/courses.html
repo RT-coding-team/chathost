@@ -38,36 +38,20 @@
 
       <div class="Ajumbotron">
       <BR><BR>
+ 
+  	<div class="container">
+      <div class="row"  class="col-md-12">
+          <h2 id="title"></h2>
 
-                    <div class="ui container" id="reports">
-						<div class="section-summary" class="sectionReports">
-							<div class="ui top attached borderless menu">
-								<div class="item">
-									<div class="ui header large">
-												Moodle Courses For The Well
-									</div>
-								</div>
-							</div>
-						<div class="ui bottom attached segment" id="listing">
-<!--
-						  <div id="listing"></div>
--->
-						</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="accordion" id="table">
+       
+          
     </div>
 
 
-
-      </div>
-
-
-<BR><BR><BR>
-
  
    </main>
+<BR><BR><BR><BR><BR>
 
     <footer class="container">
       <p>&copy; Relay Trust, 2021</p>
@@ -78,31 +62,87 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="public/bootstrap.min.js"></script>
+	<script type="text/javascript" src="public/bootstrap.js"></script>
     <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
     <script type="text/javascript" src="public/angular-min.js"></script>
 	<script type="text/javascript" src="public/flat-ui.js"></script>
     <script type="text/javascript" src="public/moment.js"></script>
-    <script type="text/javascript" src="public/datatables.js"></script>
+  	<script type="text/javascript" src="public/treeview.js"></script>
     <script type="text/javascript" src="public/navigation.js"></script>
 
+<script>
 
 
 
 
-<! From https://github.com/rufuspollock/s3-bucket-listing>
+// Treeview stuff here
+$(function() {
 
-<script type="text/javascript">
-  var S3BL_IGNORE_PATH = true;
-  //var BUCKET_NAME = 'thewellimages';
-  var BUCKET_URL = 'https://thewellcourses.s3.us-west-2.amazonaws.com';
-  //var S3B_ROOT_DIR = 'SUBDIR_L1/SUBDIR_L2/';
-  //var S3B_SORT = 'DEFAULT';
-  var EXCLUDE_FILE = 'index.html';  // change to array to exclude multiple files, regexp also supported e.g. /^(.*\/)?index.html$/ to exclude all index.html
-  //var AUTO_TITLE = true;
-  //var S3_REGION = 'us-west-2'; // for us-east-1
+var final = '';
+
+	var boxid = getQueryVariable('id');
+
+	var treeData = [];
+
+	$.getJSON( "/chathost/admin/roster/" + boxid, function( data ) {
+		console.log(data)
+
+		$('#title').text(`${data[0].sitename}: ${boxid}`)
+
+		var counter = 0;
+		if (data.length > 0) {
+			data.shift();
+		}
+
+		for (var course of data) {
+			console.log(`Course: ${counter}: ${course.course_name}`);
+			counter++;
+			var courseName = 'Course: ' + course.course_name;
+			var teachersAndStudents = '';
+			for (var teacher of course.teachers) {
+				teachersAndStudents += `Teacher: ${teacher.first_name} ${teacher.last_name} (${teacher.username}: <a href="mailto:${teacher.email}">${teacher.email}</a>)<BR>\n`;
+			}
+			for (var student of course.students) {
+				teachersAndStudents += `Student: ${student.first_name} ${student.last_name} (${student.username})<BR>\n`;
+			}
+			var html = `
+
+				  <div class="accordion-item">
+					<h2 class="accordion-header" id="panelsStayOpen-heading${counter}">
+					  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${counter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${counter}">
+						${courseName}
+					  </button>
+					</h2>
+					<div id="panelsStayOpen-collapse${counter}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-heading${counter}">
+					  <div class="accordion-body">
+						${teachersAndStudents}
+					  </div>
+					</div>
+				  </div>
+				</div>`;
+			$("#table").append(html);
+		}
+	});
+
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    console.log('Query variable %s not found', variable);
+}
+
+
+});
+
+
+
+
 </script>
-<script type="text/javascript" src="public/list.js"></script>
 
-</body>
+  </body>
 </html>
