@@ -11,7 +11,7 @@ const express = require('express'),
 router.post('/', async function postRosters(req, res) {
 	req.body[0].authorization = req.boxauthorization;
 	mongo.setCourseRoster(req.boxid,req.body,req.headers['x-forwarded-for'] || req.socket.remoteAddress, async function(result) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${result}`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${result}`);
 		await processRosters(req.boxid,req.body);
 	    res.sendStatus(200);
 	});

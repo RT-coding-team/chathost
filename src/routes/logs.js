@@ -13,7 +13,7 @@ const upload = multer({limits: { fileSize: 1000000000 }}); // This is set to 1Gi
 //  Put in the log data
 router.post('/:type', async function postLogs(req, res) {
 	mongo.setLogs(req.boxid,req.body,req.params.type, function(result) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${result}`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${result}`);
 	    res.sendStatus(result);
 	});
 });

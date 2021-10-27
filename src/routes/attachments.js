@@ -12,7 +12,7 @@ const upload = multer({limits: { fileSize: 1000000000 }}); // This is set to 1Gi
 //  Get the attachment status
 router.get('/:attachmentId/exists', async function getAttachmentExists(req, res) {
  	var response = await mongo.getAttachmentExists(`${req.boxid}-${req.params.attachmentId}`);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.response}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.response}`);
 	if (response.response === 200) {
 		res.type(response.mimetype);
 	 	res.sendStatus(response.response);
@@ -25,7 +25,7 @@ router.get('/:attachmentId/exists', async function getAttachmentExists(req, res)
 //  Put in the attachment data
 router.post('/', upload.any(), async function postAttachments(req, res) {
 	if (!req.body || !req.files || !req.files[0]) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: FAILED to post attachment`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: FAILED to post attachment`);
 		res.sendStatus(500);
 	}
 	else {
@@ -34,7 +34,7 @@ router.post('/', upload.any(), async function postAttachments(req, res) {
 		body.size = req.files[0].size;
 		body.idWithBoxid = `${req.boxid}-${body.id}`;
 		body.boxid = req.boxid;
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${body.idWithBoxid}`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${body.idWithBoxid}`);
 		mongo.setAttachmentsInbound(body,req.files[0].buffer, function(result) {
 			res.sendStatus(result);
 		});

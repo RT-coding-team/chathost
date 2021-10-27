@@ -10,18 +10,18 @@ const express = require('express'),
 router.get('/:since', async function getMessages(req, res) {
 	var value = await mongo.getMessageSync(req.boxid,req.params.since);
 	if (typeof value === 'number') {
-		logger.log('info', `${req.boxid}: ${req.method} ${req.originalUrl}: ${value}`);
+		logger.log('info', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${value}`);
 		res.send([]);
 	}
 	else {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Found ${value.length} messages`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Found ${value.length} messages`);
 		res.send(value);
 	}
 });
 
 //  Put in the message data
 router.post('/', async function postMessages(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Received ${req.body.length} messages`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Received ${req.body.length} messages`);
 	//console.log(req.body);
 	var failedCount = 0;
 	var failedMessages = [];
@@ -31,13 +31,13 @@ router.post('/', async function postMessages(req, res) {
 		var messageId = `${req.boxid}-${message.id}`;
 		var messageSent = await mongo.isMessageSentToRocketChat(messageId);
 		if (messageSent) {
-			logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${messageId}: Already Sent Message`);
+			logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${messageId}: Already Sent Message`);
 			continue;
 		}		
 		// Check for validity of teacher:
 		var teacher = await rocketchat.getUser(message.recipient.username);
 		if (!teacher || !teacher.emails) {
-			logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: ${messageId}: Recipient (${message.recipient.username}) was not found on Rocketchat`);
+			logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${messageId}: Recipient (${message.recipient.username}) was not found on Rocketchat`);
 			continue;
 		}
 		for (var email of teacher.emails) {
@@ -50,30 +50,30 @@ router.post('/', async function postMessages(req, res) {
 				message.attachment.attachmentId = `${req.boxid}-${message.attachment.id}`;
 				var result = await rocketchat.sendMessageWithAttachment(`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.attachment,message.conversation_id);  // Teachers don't have a boxid but students do
 				if (result === true) {
-					logger.log('info', `${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
+					logger.log('info', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
 	 				mongo.messageSentToRocketChat(req.boxid,messageId);
 				}
 				else {
 					failedCount++;
 					failedMessages.push(message.id);
-					logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Failed Send ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);				
+					logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Failed Send ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);				
 				}
 			}
 			else {
 				var result = await rocketchat.sendMessage(`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.message,message.conversation_id);  // Teachers don't have a boxid but students do
 				if (result === true) {
-					logger.log('info', `${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
+					logger.log('info', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
 	 				mongo.messageSentToRocketChat(req.boxid,messageId);
 				}
 				else {
-					logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Failed Send ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);				
+					logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Failed Send ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);				
 					failedCount++;
 					failedMessages.push(message.id);
 				}
 			}
 		}
 		else {
-			logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Failed on ${message.id}: Could not locate teacher by email: ${message.recipient.email}`);	
+			logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Failed on ${message.id}: Could not locate teacher by email: ${message.recipient.email}`);	
 		}
 	}
 	if (failedCount > 0) {

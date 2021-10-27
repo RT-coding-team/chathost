@@ -11,7 +11,7 @@ const express = require('express'),
 
 //  Get the s data
 router.get('/users', function getState(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: `);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: `);
 	res.send(rocketchat.data);
 });
 
@@ -43,24 +43,24 @@ router.get('/boxes', async function getBoxes(req, res) {
 		}
 		response.push(box);
 	}
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Boxes Found`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Boxes Found`);
 	res.send(response);
 });
 
 router.get('/roster/:boxid', async function getRosters(req,res) {
 	var response = await mongo.getBoxRosters(req.params.boxid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Courses`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Courses`);
 	res.send(response);
 });
 
 router.get('/system', async function getSystem(req,res) {
 	try {
 		var response = JSON.parse(fs.readFileSync('/tmp/system.json').toString() || '{}');
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Last Updated: ${response.timestamp}`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Last Updated: ${response.timestamp}`);
 		res.send(response);
 	}
 	catch (err){
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${err}`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${err}`);
 		res.sendStatus(404);	
 	}
 });
@@ -68,25 +68,25 @@ router.get('/system', async function getSystem(req,res) {
 //  Get the logs data  //todo
 router.get('/logs/:boxid', async function getLogs(req, res) {
 	var response = await mongo.getLogs(req.params.boxid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Logs`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Logs`);
 	res.send(response);
 });
 
 router.get('/settings/:boxid', async function getSettings(req, res) {
 	var response = await mongo.getSettings(req.params.boxid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Settings Pending`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Settings Pending`);
 	res.send(response);
 });
 
 router.post('/settings/:boxid', function putSetting(req,res) {
 	mongo.putSetting(req.params.boxid,req.body.key,req.body.value);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.key} = ${req.body.value}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.key} = ${req.body.value}`);
 	res.send({});
 });
 
 router.delete('/settings/:boxid/:deleteId', async function putSetting(req,res) {
 	var result = await mongo.deleteSetting(req.params.boxid,req.params.deleteId);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.params.deleteId}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.params.deleteId}`);
 	if (result) {
 		res.sendStatus(200);
 	}
@@ -97,19 +97,19 @@ router.delete('/settings/:boxid/:deleteId', async function putSetting(req,res) {
 
 router.get('/security/:boxid', async function getSecurity(req, res) {
 	var response = await mongo.getSecurity(req.params.boxid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Logs`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Logs`);
 	res.send(response);
 });
 
 router.put('/security/:boxid/:authorization', function putSecurity(req,res) {
 	mongo.putSecurity(req.params.boxid,req.params.authorization);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.key} = ${req.body.value}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.key} = ${req.body.value}`);
 	res.send({});
 });
 
 router.delete('/security/:boxid', function putSecurity(req,res) {
 	mongo.deleteSecurity(req.params.boxid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}`);
 	res.send({});
 });
 

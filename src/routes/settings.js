@@ -8,7 +8,7 @@ const express = require('express'),
 
 router.get('/', async function apiDistricts(req, res) {
 	var response = await mongo.getSettings(req.boxid);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Settings Available: ${response.length}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Settings Delivered: ${response.length}`);
     res.send(response);
 });
 
