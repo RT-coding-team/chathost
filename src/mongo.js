@@ -23,19 +23,19 @@ async function checkAPIKeys(boxid,authorization) {
 	if (authorization) {
 		authorization = authorization.replace('Bearer ','');
 	}
-	logger.log('info', `checkAPIKeys: Token: ${authorization}`);
+	//logger.log('info', `checkAPIKeys: boxid: ${boxid} -- Token: ${authorization}`);
     let promise = new Promise((resolve, reject) => {
 		if (!authorization) {
 			resolve (false);
 		}
 		const collection = db.collection('security');
 		if (!authorization || authorization.length < 5) {
-			logger.log('error', `checkAPIKeys: Invalid Authorization Token Format`);
+			//logger.log('error', `checkAPIKeys: Invalid Authorization Token Format`);
 			resolve(false);
 		}
 		collection.find({boxid:boxid,authorization:authorization }).toArray(function(err, results) {
 			if (results && results[0]) {
-				logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync: ${results[0].boxid}`);
+				//logger.log('debug', `checkAPIKeys: Existing Device Authorized For Sync: ${results[0].boxid}`);
 				if (results[0].deleteOthers) {
 					// todo
 				}
@@ -51,19 +51,19 @@ async function checkAPIKeys(boxid,authorization) {
 							authorization = uuidv4();
 							putSetting(boxid,"authorization",authorization);
 						}
-						logger.log('debug', `checkAPIKeys: New Device. ${boxid} Setting Up Default Security: New Key: ${authorization}`);
+						//logger.log('debug', `checkAPIKeys: New Device. ${boxid} Setting Up Default Security: New Key: ${authorization}`);
 						collection.insertOne({boxid:boxid,authorization:authorization,deleteOthers:true,timestamp: moment().unix() + 10}, function(err, result) {
 							resolve(true);			
 						});	
 					}
 					else {
-						logger.log('error', `checkAPIKeys: Invalid Security`);
+						//logger.log('error', `checkAPIKeys: Invalid Security`);
 						resolve(false);
 					}
 				});			
 			}
 			else {
-				logger.log('error', `checkAPIKeys: No Valid Credentials`);
+				//logger.log('error', `checkAPIKeys: No Valid Credentials`);
 				resolve(false);
 			}
 		});
@@ -301,7 +301,7 @@ async function getLogs(boxid) {
 		const collection = db.collection('logs');
 		collection.find({boxid:boxid}).toArray(function(err, results) {
 			var response = [];
-			if (results) {
+			if (results && results[0] && results[0].data && typeof results[0].data === 'array') {
 				for (var logfile of results) {
 					for (var log of logfile.data) {
 						if (!log || !log.log || log.log.length < 1) {
