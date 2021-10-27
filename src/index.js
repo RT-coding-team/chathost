@@ -13,12 +13,21 @@ const express = require('express'),
 
 webapp.listen(configs.port);
 webapp.use(async function (req, res, next) {
-	req.boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Received`);
-	next();
+	if (req.headers['x-boxid']) {
+		req.boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
+		logger.log('debug', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${req.headers.authorization.replace('Bearer ','')}: Authorized? ${req.boxid === req.headers['x-boxid']}`);
+		next();
+	}
+	else {
+		next();
+	}
 });
 
 webapp.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
+webapp.use (function (error, req, res, next){
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Invalid JSON data: ${error}`);
+    res.sendStatus(500);
+});
 webapp.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 webapp.use(bodyParser.text({ type: 'text/html' , limit: '50mb'}));
 webapp.use(cookieParser());
@@ -26,7 +35,7 @@ webapp.use(cookieSession({name: 'relaytrust',keys: ['81143184-d876-11eb-b8bc-024
 
 
 webapp.use('/chathost/healthcheck', function health(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Healthy`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Healthy`);
  	res.sendStatus(200);
 });
 
@@ -40,7 +49,7 @@ webapp.use('/favicon.ico', express.static('www/favicon.ico'));
 
 // Authorization Functions
 webapp.get('/chathost/auth', function getAuth(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.session.username}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Check For Auth: ${req.session.username}`);
 	if (!req.session.username) {
 		res.sendStatus(401);
 	}
@@ -52,22 +61,22 @@ webapp.post('/chathost/auth', async function postAuth(req,res) {
 	var result = await rocketchat.getLogin(req.body.username,req.body.password);
 	if (req.headers.host === 'localhost:2820'){
 		req.session.username = req.body.username;
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: POSTMAN TESTS ${req.body.username} authorized`);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: POSTMAN TESTS ${req.body.username} authorized`);
 		res.redirect(req.body.redirect || '/dashboard');		
 	}
 	else if (!result.username) {
-		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.username} access denied`);
+		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.username} access denied`);
 		res.redirect('/login.html');
 	}
 	else {
 		req.session.username = result.username;
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.username} authorized`);
-		console.log(req.session);
+		logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.username} authorized`);
+		//console.log(req.session);
 		res.redirect(req.body.redirect || '/dashboard');	
 	}
 });
 webapp.get('/chathost/logout', function getAuth(req, res) {
-	logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: ${req.session.username}`);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.session.username}`);
 	req.session = null;
 	res.redirect('/dashboard');
 });
@@ -85,18 +94,19 @@ webapp.use(async function (req, res, next) {
 		next();
 	}
 	else if (req.boxid) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Authorized Boxid: ${req.boxid}: ${req.headers.authorization}`);	
+		//logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Authorized Boxid: ${req.boxid}: ${req.headers.authorization}`);	
 		req.boxauthorization = req.headers.authorization;
 		next();		
 	}
 	else if (req.headers['x-boxid']) {
 		// Well box is sending credentials but they are invalid
-		logger.log('error', `req.headers['x-boxid']: ${req.method} ${req.originalUrl}: Invalid Credentials`);	
+		//logger.log('error', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Invalid Credentials`);	
 		res.sendStatus(401);
 	}
 	else {
 		// Probably a dashboard user that is not valid
-		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
+		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
+		//console.log(req.headers);
 		res.status(401).redirect('/chathost/login.html');
 	}
 });
@@ -112,11 +122,11 @@ webapp.use('/chathost/settings', require('./routes/settings.js'));
 // We have to recheck the authorization for a valid session for the admin functions
 webapp.use(async function (req, res, next) {
 	if (req.session.username) {
-		logger.log('debug', `${req.boxid}: ${req.method} ${req.originalUrl}: Existing Session for ${req.session.username}`);	
+		//logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Existing Session for ${req.session.username}`);	
 		next();
 	}
 	else {
-		logger.log('error', `${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
+		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
 		res.status(401).redirect('/chathost/login.html');
 	}
 });
