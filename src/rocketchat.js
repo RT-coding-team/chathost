@@ -206,7 +206,13 @@ async function getChats(username) {
 			},
 			uri: configs.rocketchat + '/api/v1/im.list'
 		}, function (err, res, body) {
-			body = JSON.parse(body);
+			try {
+				body = JSON.parse(body);
+			}
+			catch (err){
+				console.log(`getChats: Error: ${err}`);
+				body = {};
+			}
 			if (body && body.ims) {
 				for (var im of body.ims) {
 					for (var imUsername of im.usernames) {
@@ -243,7 +249,13 @@ async function createUser(user) {
 			body: JSON.stringify(user),
 			method: 'POST'
 		}, async function (err, res, body) {
-			body = JSON.parse(body);
+			try {
+				body = JSON.parse(body);
+			}
+			catch (err){
+				console.log(`createUser: Error: ${err}`);
+				body = {};
+			}
 			if (body && body.user) {
 				var username = user.username;
 				data.users[username] = body.user;
@@ -279,7 +291,13 @@ async function createChat(people) {
 			body: JSON.stringify(postdata),
 			method: 'POST'
 		}, function (err, res, body) {
-			body = JSON.parse(body);
+			try {
+				body = JSON.parse(body);
+			}
+			catch (err){
+				console.log(`createChat: Error: ${err}`);
+				body = {};
+			}
  			if (body && body.room) {
 				logger.log('debug', `createChat: ${people.join()}: roomId: ${body.room.rid}`);
  				resolve (true);
@@ -436,7 +454,13 @@ async function getRoomMessages(boxid,username,roomId,since) {
 			},
 			uri: configs.rocketchat + `/api/v1/im.history?roomId=${roomId}&count=100&oldest=${moment(since*1000).tz('America/Los_Angeles').format()}`
 		}, async function (err, res, body) {
-			body = JSON.parse(body);
+			try {
+				body = JSON.parse(body);
+			}
+			catch (err){
+				console.log(`getRoomMessages: Error: ${err}`);
+				body = {};
+			}
 			var response = [];
  			if (body && body.messages && body.messages.length > 0) {
 				logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Found ${body.messages.length} messages`);
@@ -510,7 +534,13 @@ async function getUserListForBox(boxid) {
 			uri: configs.rocketchat + `/api/v1/users.list?count=100&query={ "username": { "$regex": ".${boxid}" } }`
 		}, function (err, res, body) {
 			//logger.log('info', err,body);
-			body = JSON.parse(body);
+			try {
+				body = JSON.parse(body);
+			}
+			catch (err){
+				console.log(`getUserListForBox: Error: ${err}`);
+				body = {};
+			}
  			if (body && body.users) {
 				var response = [];
 				for (var user of body.users) {
