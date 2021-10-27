@@ -35,7 +35,7 @@ router.post('/', async function postMessages(req, res) {
 			continue;
 		}		
 		// Check for validity of teacher:
-		var teacher = await rocketchat.getUser(message.recipient.username);
+		var teacher = await rocketchat.getUser(req.boxid,message.recipient.username);
 		if (!teacher || !teacher.emails) {
 			logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${messageId}: Recipient (${message.recipient.username}) was not found on Rocketchat`);
 			continue;
@@ -48,7 +48,7 @@ router.post('/', async function postMessages(req, res) {
 		if (message.recipient.validated) {
 			if (message.attachment) {
 				message.attachment.attachmentId = `${req.boxid}-${message.attachment.id}`;
-				var result = await rocketchat.sendMessageWithAttachment(`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.attachment,message.conversation_id);  // Teachers don't have a boxid but students do
+				var result = await rocketchat.sendMessageWithAttachment(req.boxid,`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.attachment,message.conversation_id);  // Teachers don't have a boxid but students do
 				if (result === true) {
 					logger.log('info', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
 	 				mongo.messageSentToRocketChat(req.boxid,messageId);
@@ -60,7 +60,7 @@ router.post('/', async function postMessages(req, res) {
 				}
 			}
 			else {
-				var result = await rocketchat.sendMessage(`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.message,message.conversation_id);  // Teachers don't have a boxid but students do
+				var result = await rocketchat.sendMessage(req.boxid,`${message.sender.username}.${req.boxid}`,`${message.recipient.username}`,message.message,message.conversation_id);  // Teachers don't have a boxid but students do
 				if (result === true) {
 					logger.log('info', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Successfully Sent ${messageId} from ${message.sender.username}.${req.boxid} to ${message.recipient.username}`);
 	 				mongo.messageSentToRocketChat(req.boxid,messageId);

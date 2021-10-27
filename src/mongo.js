@@ -79,16 +79,16 @@ function setMessageStatusValue(boxid,username,id) {
 }
 
 async function getMessageStatusValue(boxid) {
-	logger.log('info', `getMessageStatusValue: Box: ${boxid}`);
+	logger.log('info', `boxId: ${boxid}: getMessageStatusValue: Box: ${boxid}`);
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('boxSyncTime');
 		collection.find({'boxid':boxid }).toArray(function(err, results) {
 			if (!results || !results[0]) {
-				logger.log('debug', `getMessageStatusValue: No Prior Sync.  Get All Messages`);
+				logger.log('debug', `boxId: ${boxid}: getMessageStatusValue: No Prior Sync.  Get All Messages`);
 				resolve('1');
 			}
 			else {
-				logger.log('debug', `getMessageStatusValue: Get All Messages Newer Than: ${results[0].timestamp}`);
+				logger.log('debug', `boxId: ${boxid}: getMessageStatusValue: Get All Messages Newer Than: ${results[0].timestamp}`);
 				resolve(results[0].timestamp.toString());
 			}
 		});
@@ -108,11 +108,11 @@ function setCourseRoster(boxid,body,ip,callback) {
 	}
 	collection.updateOne({'_id':boxid.toString()},{ $set: {data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {
 		if (err) {
-			logger.log('error', `setCourseRoster: FAILED: ${err}`);
+			logger.log('error', `boxId: ${boxid}: setCourseRoster: FAILED: ${err}`);
 			callback(500);
 		}
 		else {
-			logger.log('info', `setCourseRoster: Success`);
+			logger.log('info', `boxId: ${boxid}: setCourseRoster: Success`);
 			callback(200);
 		}
   	});
@@ -142,18 +142,18 @@ function setLogs(boxid,body,type,callback) {
 		var id = `${boxid.toString()}-${type}`;
 		collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
 			if (err) {
-				logger.log('error', `setLogs: FAILED: ${err}`);
+				logger.log('error', `boxId: ${boxid}: setLogs: FAILED: ${err}`);
 				callback(500);
 			}
 			else {
-				logger.log('info', `setLogs: Success`);
+				logger.log('info', `boxId: ${boxid}: setLogs: Success`);
 				callback(200);
 			}
 		});
 	}
 	catch (err) {
 		console.log(err);
-		logger.log('error', `setLogs: FAILED: ${err}`);
+		logger.log('error', `boxId: ${boxid}: setLogs: FAILED: ${err}`);
 		callback (500);
 	}
 }
@@ -167,22 +167,22 @@ function replacer(key,value)
 
 // Get all messages pending for a Moodle since timestamp (typically the value provided by getMessageStatusValue)
 async function getMessageSync(boxid,since) {
-	logger.log('info', `getMessageSync: Box: ${boxid} since ${since}`);
+	logger.log('info', `boxId: ${boxid}: getMessageSync: Box: ${boxid} since ${since}`);
 	var boxidSince = `${boxid}-${since}`;
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('messageSync');
 		collection.find({'_id': boxidSince }).toArray(function(err, results) {
 			if (err) {
-				logger.log('error', `setLogs: FAILED: ${err}`);
+				logger.log('error', `boxId: ${boxid}: getMessageSync: FAILED: ${err}`);
 				resolve(500);
 			}
 			else if (results && results[0] && results[0].messages) {
 				collection.deleteOne({ _id: `${boxid}-${since}` }, function(err, result) {});
-				logger.log('info', `getMessageSync: Successfully retrieved sync with ${results[0].messages.length} messages`);
+				logger.log('info', `boxId: ${boxid}: getMessageSync: Successfully retrieved sync with ${results[0].messages.length} messages`);
 				resolve(results[0].messages);
 			}
 			else {
-				logger.log('info', `getMessageSync: No messages`);	
+				logger.log('info', `boxId: ${boxid}: getMessageSync: No messages`);	
 				resolve(404);
 			}
 		});
@@ -201,10 +201,10 @@ function messageSync(boxid,timestamp,messages) {
 	};
 	collection.insertOne(record, function(err, result) {
 		if (err) {
-			logger.log('error', `messageSync: Error: boxid: ${boxid}: ${err}`);
+			logger.log('error', `boxId: ${boxid}: messageSync: Error: boxid: ${boxid}: ${err}`);
 		}
 		else {
-			logger.log('info', `messageSync: ${boxid}: Sync prepared for ${timestamp}: ${messages.length} Messages`);
+			logger.log('info', `boxId: ${boxid}: messageSync: ${boxid}: Sync prepared for ${timestamp}: ${messages.length} Messages`);
 		}
 	});
 }
@@ -219,7 +219,7 @@ function messageSentToRocketChat(boxid,id) {
 	};
 	collection.insertOne(record, function(err, result) {
 		if (err) {
-			logger.log('error', `messageDone: Error: messageId: ${id}: ${err}`);
+			logger.log('error', `boxId: ${boxid}: messageDone: Error: messageId: ${id}: ${err}`);
 		}
 		else {
 		}
@@ -363,7 +363,7 @@ function putSetting(boxid,key,value) {
 	};
 	collection.insertOne(record, function(err, result) {
 		if (err) {
-			logger.log('error', `putSetting: Error: ${boxid}: ${key}: ${err}`);
+			logger.log('error', `boxId: ${boxid}: putSetting: Error: ${boxid}: ${key}: ${err}`);
 		}
 		else {
 		}
@@ -375,11 +375,11 @@ async function deleteSetting(boxid,recordid) {
     let promise = new Promise((resolve, reject) => {
 		collection.deleteOne({ deleteId: recordid }, function(err, result) {
 			if (err) {
-				logger.log('error', `deleteSetting: Error: ${boxid}: ${recordid}: ${err}`);
+				logger.log('error', `boxId: ${boxid}: deleteSetting: Error: ${boxid}: ${recordid}: ${err}`);
 				resolve (false);
 			}
 			else if (result.deletedCount === 0) {
-				logger.log('error', `deleteSetting: Error: ${boxid}: ${recordid}: Object Not Found`);		
+				logger.log('error', `boxId: ${boxid}: deleteSetting: Error: ${boxid}: ${recordid}: Object Not Found`);		
 				resolve (false);
 			}
 			else {
@@ -413,7 +413,7 @@ async function getSecurity(boxid) {
 function putSecurity(boxid,authorization) {
 	const collection = db.collection('security');
 	if (authorization.includes('resetKey ')) {
-		console.log(`putSecurity: ${boxid}: keyReset: true`);
+		console.log(`boxId: ${boxid}: putSecurity: ${boxid}: keyReset: true`);
 		collection.deleteMany({"boxid": boxid}, function(err,result) {
 			// Delete all keys that exist currently
 			console.log (err,result);
@@ -431,7 +431,7 @@ function putSecurity(boxid,authorization) {
 	};
 	collection.insertOne(record, function(err, result) {
 		if (err) {
-			logger.log('error', `putSetting: Error: ${boxid}: ${key}: ${err}`);
+			logger.log('error', `boxId: ${boxid}: putSetting: Error: ${boxid}: ${key}: ${err}`);
 		}
 		else {
 		}

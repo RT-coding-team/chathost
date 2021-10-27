@@ -129,7 +129,7 @@ async function getAdmin() {
     return result;
 }
  
-async function getToken(username) {
+async function getToken(boxid,username) {
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -144,11 +144,11 @@ async function getToken(username) {
 			body = JSON.parse(body);
 			if (body && body.data) {
 				data.users[username].keys = body.data;
-				logger.log('debug', `getToken: ${username}: ${JSON.stringify(body.data)}`)
+				logger.log('debug', `boxId: ${boxid}: getToken: ${username}: ${JSON.stringify(body.data)}`)
 				resolve (body.data);
 			}
 			else {
-				logger.log('error', `getToken: ${username}: ERROR: ${JSON.stringify(body)}`)
+				logger.log('error', `boxId: ${boxid}: getToken: ${username}: ERROR: ${JSON.stringify(body)}`)
 				resolve ({});
 			}
 		});
@@ -157,8 +157,8 @@ async function getToken(username) {
     return result;
 }
 
-async function getUser(username) {
-	logger.log('info', `getUser: ${username}`);
+async function getUser(boxid,username) {
+	logger.log('info', `boxId: ${boxid}: getUser: ${username}`);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -171,14 +171,14 @@ async function getUser(username) {
 		}, async function (err, res, body) {
 			body = JSON.parse(body);
 			if (body && body.user) {
-				logger.log('debug', `getUser: ${username} Cached`);
+				logger.log('debug', `boxId: ${boxid}: getUser: ${username} Cached`);
 				data.users[username] = body.user;
-				data.users[username].keys = await getToken(username);
-				data.users[username].chats = await getChats(username);
+				data.users[username].keys = await getToken(boxid,username);
+				data.users[username].chats = await getChats(boxid,username);
 				resolve (data.users[username]);		
 			}
 			else {
-				logger.log('error', `getUser: A username '${username}' Not Found`);
+				logger.log('error', `boxId: ${boxid}: getUser: A username '${username}' Not Found`);
 				resolve ({});
 			}
 		});
@@ -188,8 +188,8 @@ async function getUser(username) {
 }
 
 
-async function getChats(username) {
-	logger.log('info', `getChats: ${username}: Locating Chat Rooms`);
+async function getChats(boxid,username) {
+	logger.log('info', `boxId: ${boxid}: getChats: ${username}: Locating Chat Rooms`);
 	if (!data.users[username]) {
 		await getUser(username);
 	}
@@ -210,7 +210,7 @@ async function getChats(username) {
 				body = JSON.parse(body);
 			}
 			catch (err){
-				console.log(`getChats: Error: ${err}`);
+				console.log(`boxId: ${boxid}: getChats: Error: ${err}`);
 				body = {};
 			}
 			if (body && body.ims) {
@@ -218,16 +218,16 @@ async function getChats(username) {
 					for (var imUsername of im.usernames) {
 						if (imUsername !== username) {
 							response[imUsername] = im['_id'];
-							//logger.log('info', `getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
+							//logger.log('info', `boxId: ${boxid}: getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
 						}
 					}
 				}
 				data.users[username].chats = response;
-				logger.log('debug', `getChats: ${username} Found ${Object.keys(data.users[username].chats).length} chats`);
+				logger.log('debug', `boxId: ${boxid}: getChats: ${username} Found ${Object.keys(data.users[username].chats).length} chats`);
 				resolve (response);
 			}
 			else {
-				logger.log('error', `getChats: ${username}: ERROR: ${JSON.stringify(body)}`)
+				logger.log('error', `boxId: ${boxid}: getChats: ${username}: ERROR: ${JSON.stringify(body)}`)
 				resolve ({});
 			}
 		});
@@ -236,7 +236,7 @@ async function getChats(username) {
     return result;
 }
 
-async function createUser(user) {
+async function createUser(boxid,user) {
 	logger.log('info', `createUser: ${user.username}`);
     let promise = new Promise((resolve, reject) => {
 		request({
@@ -253,7 +253,7 @@ async function createUser(user) {
 				body = JSON.parse(body);
 			}
 			catch (err){
-				console.log(`createUser: Error: ${err}`);
+				console.log(`boxId: ${boxid}: createUser: Error: ${err}`);
 				body = {};
 			}
 			if (body && body.user) {
@@ -261,11 +261,11 @@ async function createUser(user) {
 				data.users[username] = body.user;
 				data.users[username].keys = await getToken(username);
 				data.users[username].chats = await getChats(username);
-				logger.log('debug', `createUser: ${user.username} Successful`);
+				logger.log('debug', `boxId: ${boxid}: createUser: ${user.username} Successful`);
 				resolve (data.users[username]);		
 			}
 			else {
-				logger.log('error', `createUser: ${user.username} Failed: ${JSON.stringify(body)}`);
+				logger.log('error', `boxId: ${boxid}: createUser: ${user.username} Failed: ${JSON.stringify(body)}`);
 				resolve ({});
 			}
 		});
@@ -274,8 +274,8 @@ async function createUser(user) {
     return result;
 }
 
-async function createChat(people) {
-	logger.log('debug', `createChat: ${people.join()}`);
+async function createChat(people,boxid) {
+	logger.log('debug', `boxId: ${boxid}: createChat: ${people.join()}`);
     let promise = new Promise((resolve, reject) => {
 		var postdata = {
 			usernames:people.join()
@@ -295,15 +295,15 @@ async function createChat(people) {
 				body = JSON.parse(body);
 			}
 			catch (err){
-				console.log(`createChat: Error: ${err}`);
+				console.log(`boxId: ${boxid}: createChat: Error: ${err}`);
 				body = {};
 			}
  			if (body && body.room) {
-				logger.log('debug', `createChat: ${people.join()}: roomId: ${body.room.rid}`);
+				logger.log('debug', `boxId: ${boxid}: createChat: ${people.join()}: roomId: ${body.room.rid}`);
  				resolve (true);
  			}
  			else {
-				logger.log('error', `createChat: ${people.join()}: FAILED`);
+				logger.log('error', `boxId: ${boxid}: createChat: ${people.join()}: FAILED`);
  				resolve (false);
  			}
 		});
@@ -312,8 +312,8 @@ async function createChat(people) {
     return result;
 }
 
-async function sendMessage(fromUsername,toUsername,message) {
-	logger.log('info', `sendMessage: ${fromUsername} -> ${toUsername}: ${message}`);
+async function sendMessage(boxid,fromUsername,toUsername,message) {
+	logger.log('info', `boxId: ${boxid}: sendMessage: ${fromUsername} -> ${toUsername}: ${message}`);
 	if (!data.users[fromUsername]) {
 		await getUser(fromUsername);
 	}
@@ -341,11 +341,11 @@ async function sendMessage(fromUsername,toUsername,message) {
 		}, function (err, res, body) {
 			body = JSON.parse(body);
  			if (body && body.success) {
-				logger.log('debug', `sendMessage: ${fromUsername} -> ${toUsername}: ${message}: SUCCESS`);
+				logger.log('debug', `boxId: ${boxid}: sendMessage: ${fromUsername} -> ${toUsername}: ${message}: SUCCESS`);
  				resolve (true);
  			}
  			else {
-				logger.log('error', `sendMessage: ${fromUsername} -> ${toUsername}: ${message}: FAILED (${JSON.stringify(body)})`);
+				logger.log('error', `boxId: ${boxid}: sendMessage: ${fromUsername} -> ${toUsername}: ${message}: FAILED (${JSON.stringify(body)})`);
  				resolve (false);
  			}
 		});
@@ -356,8 +356,8 @@ async function sendMessage(fromUsername,toUsername,message) {
 
 //curl "https://chathost.derekmaxson.com/api/v1/rooms.upload/FFBYHK7q4MH3GDoZptizqhtTLKLg9rQvh7" -F file="@/tmp/sierrareplogosmall.png;type=image/png" -H "X-Auth-Token: 2ZLwN-HMp12MQDxfAFzXxmAH6VEGI_vr6x1gkPgBdzl" -H "X-User-Id: FFBYHK7q4MH3GDoZp"
 
-async function sendMessageWithAttachment(fromUsername,toUsername,message) {
-	logger.log('info', `sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: with attachment: ${message.id}`);
+async function sendMessageWithAttachment(boxid,fromUsername,toUsername,message) {
+	logger.log('info', `boxId: ${boxid}: sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: with attachment: ${message.id}`);
 	if (!data.users[fromUsername]) {
 		await getUser(fromUsername);
 	}
@@ -370,7 +370,7 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
 	}
 	var roomId = data.users[fromUsername].chats[toUsername];
 	if (!roomId) {
-		logger.log('error', `sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: No valid chat room for that conversation`);
+		logger.log('error', `boxId: ${boxid}: sendMessageWithAttachment: ${fromUsername} -> ${toUsername}: No valid chat room for that conversation`);
 		return false;
 	}
 	var attachment = await mongo.getAttachmentExists(message.attachmentId);
@@ -387,9 +387,9 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
 			}
 		}
 		catch (err) {
-			logger.log('error', `sendMessageWithAttachment: FAILED: ${err}`);
-			sendMessage(fromUsername,toUsername,`The file sent to you, ${message.filename}, has failed to be delievered`);
-			sendMessage(toUsername,fromUsername,`The file you sent, ${message.filename}, has failed to be delievered`);
+			logger.log('error', `boxId: ${boxid}: sendMessageWithAttachment: FAILED: ${err}`);
+			sendMessage(boxid,fromUsername,toUsername,`The file sent to you, ${message.filename}, has failed to be delievered`,boxid);
+			sendMessage(boxid,toUsername,fromUsername,`The file you sent, ${message.filename}, has failed to be delievered`,boxid);
 			resolve (false);
 		}
 	});
@@ -397,9 +397,9 @@ async function sendMessageWithAttachment(fromUsername,toUsername,message) {
     return result;
 }
 
-async function getAttachment(path) {
+async function getAttachment(boxid,path) {
     let promise = new Promise((resolve, reject) => {
-    	logger.log('info', `getAttachment: ${configs.rocketchat}${path}`);
+    	logger.log('info', `boxId: ${boxid}: getAttachment: ${configs.rocketchat}${path}`);
 		request({
 			uri: configs.rocketchat + path
 		}, async function (err, res, body) {
@@ -416,26 +416,26 @@ async function prepareMessageSync(boxid,since) {
 	var users = await getUserListForBox(boxid);
 	var messages = []
 	for (var username of users) {
-		logger.log('debug', `prepareMessageSync: ${boxid}: Checking User: ${username}`);
+		logger.log('debug', `boxId: ${boxid}: prepareMessageSync: Checking User: ${username}`);
 		messages = messages.concat(await getMessages(boxid,username,since));
 	}
 	mongo.messageSync(boxid,since,messages);
 }
 
 async function getMessages(boxid,username,since) {
-	logger.log('info', `getMessages: ${username}`);
+	logger.log('info', `boxId: ${boxid}: getMessages: ${username}`);
 	if (!data.users[username]) {
-		await getUser(username);
+		await getUser(boxid,username);
 	}	
 	if (!data.users[username].keys) {
-		await getToken(username);
+		await getToken(boxid,username);
 	}
 	if (!data.users[username].chats) {
-		await getChats(username);
+		await getChats(boxid,username);
 	}
 	var response = [];
 	for (var roomId of Object.values(data.users[username].chats)) {
-		logger.log('info', `getMessages: ${username}: ${roomId}`);
+		logger.log('info', `boxId: ${boxid}: getMessages: ${username}: ${roomId}`);
 		var messages = await getRoomMessages(boxid,username,roomId,since);
 		response = response.concat(messages);
 	}
@@ -444,7 +444,7 @@ async function getMessages(boxid,username,since) {
 }
 
 async function getRoomMessages(boxid,username,roomId,since) {
-	logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Since ${moment(since*1000).format()}`);
+	logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Since ${moment(since*1000).format()}`);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -458,17 +458,17 @@ async function getRoomMessages(boxid,username,roomId,since) {
 				body = JSON.parse(body);
 			}
 			catch (err){
-				console.log(`getRoomMessages: Error: ${err}`);
+				console.log(`boxId: ${boxid}: getRoomMessages: Error: ${err}`);
 				body = {};
 			}
 			var response = [];
  			if (body && body.messages && body.messages.length > 0) {
-				logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Found ${body.messages.length} messages`);
+				logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Found ${body.messages.length} messages`);
 				var messages = body.messages.sort(sortOnTimestamp);	
 				for (var message of messages) {
-					logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Checking Message: ${message._id}: ${message.u.username}`);
+					logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Checking Message: ${message._id}: ${message.u.username}`);
 					if (message.u.username === username) {
-						logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
+						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
 					}
 					else {
 						logger.log('info', JSON.stringify(message));
@@ -497,20 +497,20 @@ async function getRoomMessages(boxid,username,roomId,since) {
 							}
 							moodleMessage.message = `<attachment type="${type}" id="${moment(message.ts).valueOf()}" filename="${message.file.name}" filepath="${message.attachments[0].title_link}">`;
 						}
-						logger.log('debug', `getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
+						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
 						response.push(moodleMessage);
 					}
 				}	
 				
-				logger.log('info', `getRoomMessages: ${username}: ${roomId}: Sending ${response.length} messages`);
+				logger.log('info', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Sending ${response.length} messages`);
  				resolve (response);
  			}
  			else if (body && body.messages && body.messages.length === 0) {
-				logger.log('info', `getRoomMessages: ${username}: ${roomId} No Messages Found`);
+				logger.log('info', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId} No Messages Found`);
  				resolve ([]); 			
  			}
  			else {
-				logger.log('error', `getRoomMessages: ${username}: ${roomId} ERROR: ${JSON.stringify(body)}`);
+				logger.log('error', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId} ERROR: ${JSON.stringify(body)}`);
  				resolve ([]);
  			}
 		});
@@ -538,7 +538,7 @@ async function getUserListForBox(boxid) {
 				body = JSON.parse(body);
 			}
 			catch (err){
-				console.log(`getUserListForBox: Error: ${err}`);
+				console.log(`boxId: ${boxid}: getUserListForBox: Error: ${err}`);
 				body = {};
 			}
  			if (body && body.users) {
@@ -546,11 +546,11 @@ async function getUserListForBox(boxid) {
 				for (var user of body.users) {
 					response.push(user.username);
 				}
-				logger.log('debug', `getUserListForBox: ${boxid}: ${JSON.stringify(response)}`);
+				logger.log('debug', `boxId: ${boxid}: getUserListForBox:  ${JSON.stringify(response)}`);
  				resolve (response);
  			}
  			else {
-				logger.log('error', `getUserListForBox: ${boxid}: Invalid`);
+				logger.log('error', `boxId: ${boxid}: getUserListForBox: Invalid`);
  				resolve ([]);
  			}
 		});
