@@ -15,7 +15,7 @@ webapp.listen(configs.port);
 webapp.use(async function (req, res, next) {
 	if (req.headers['x-boxid']) {
 		req.boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
-		logger.log('debug', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${req.headers.authorization.replace('Bearer ','')}: Authorized? ${req.boxid === req.headers['x-boxid']}`);
+		logger.log('debug', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${req.headers.authorization.replace('Bearer ','')}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Authorized? ${req.boxid === req.headers['x-boxid']}`);
 		next();
 	}
 	else {
@@ -65,7 +65,7 @@ webapp.post('/chathost/auth', async function postAuth(req,res) {
 		res.redirect(req.body.redirect || '/dashboard');		
 	}
 	else if (!result.username) {
-		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.body.username} access denied`);
+		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress} access denied`);
 		res.redirect('/login.html');
 	}
 	else {
@@ -100,7 +100,7 @@ webapp.use(async function (req, res, next) {
 	}
 	else if (req.headers['x-boxid']) {
 		// Well box is sending credentials but they are invalid
-		//logger.log('error', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Invalid Credentials`);	
+		logger.log('error', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Invalid Credentials`);	
 		res.sendStatus(401);
 	}
 	else {
@@ -126,7 +126,7 @@ webapp.use(async function (req, res, next) {
 		next();
 	}
 	else {
-		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
+		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Unauthorized Request: Invalid Authorization Credentials`);
 		res.status(401).redirect('/chathost/login.html');
 	}
 });
