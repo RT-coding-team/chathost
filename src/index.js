@@ -25,7 +25,7 @@ webapp.use(async function (req, res, next) {
 
 webapp.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
 webapp.use (function (error, req, res, next){
-	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Invalid JSON data: ${error}`);
+	logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Invalid JSON data: ${error}`);
     res.sendStatus(500);
 });
 webapp.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
