@@ -123,6 +123,8 @@
                 &nbsp;
 				<a id="hreflogs"><i class="info icon"></i></a>
                 &nbsp;
+				<a id="hrefopenwell"><i class="newspaper icon"></i></a>
+                &nbsp;
 				<a id="hrefsecurity"><i class="lock icon"></i></a>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
@@ -245,6 +247,7 @@
 			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
 			$("#hreflogs").attr('href',`logs.html?id=${id}`);
 			$("#hrefsecurity").attr('href',`security.html?id=${id}`);
+			$("#hrefopenwell").attr('href',`openwell.html?id=${id}`);
 			$("#emailLink").attr('href',`mailto:${boxData.siteadmin_email}`);
 			var keys = Object.keys(boxData);
 			for (var key of keys) {
