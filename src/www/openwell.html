@@ -168,7 +168,7 @@ function loadDataTable() {
 		var packageLatest = {};
 		var packageArray = [];
 		for (var package of data) {
-			package.filepath.replace('http://','https://');
+			package.filepath = package.filepath.replace('http://','https://');
 			console.log(package);
 			if (!packageLatest[package.package]) {
 				packageArray.push(package);
