@@ -163,7 +163,7 @@ function loadBoxInfo() {
 
 function loadDataTable() {
 	console.log('loadDataTable: Start');
-	$.getJSON( "http://bolt.thewellcloud.cloud:8080/exporter/api/files.json", function( data ) {
+	$.getJSON( "https://bolt.thewellcloud.cloud/exporter/api/files.json", function( data ) {
 		console.log(data);
 		var packageLatest = {};
 		var packageArray = [];
