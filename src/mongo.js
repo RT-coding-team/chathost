@@ -21,17 +21,17 @@ MongoClient.connect(configs.mongo,{ useUnifiedTopology: true}, async function(er
 
 async function checkAPIKeys(boxid,authorization) {
 	if (authorization) {
-		authorization = authorization.replace('Bearer ','');
+		authorization = authorization.replace('Bearer ','').replace('Bearer','');
 	}
 	//logger.log('info', `checkAPIKeys: boxid: ${boxid} -- Token: ${authorization}`);
     let promise = new Promise((resolve, reject) => {
 		if (!authorization) {
-			resolve (false);
+			return resolve (false);
 		}
 		const collection = db.collection('security');
 		if (!authorization || authorization.length < 5) {
 			//logger.log('error', `checkAPIKeys: Invalid Authorization Token Format`);
-			resolve(false);
+			return resolve(false);
 		}
 		collection.find({boxid:boxid,authorization:authorization }).toArray(function(err, results) {
 			if (results && results[0]) {

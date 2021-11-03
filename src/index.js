@@ -15,7 +15,7 @@ webapp.listen(configs.port);
 webapp.use(async function (req, res, next) {
 	if (req.headers['x-boxid']) {
 		req.boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
-		logger.log('debug', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${req.headers.authorization.replace('Bearer ','')}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Authorized? ${req.boxid === req.headers['x-boxid']}`);
+		logger.log('debug', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${req.headers.authorization.replace('Bearer ','')}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Authorized? ${req.boxid}`);
 		next();
 	}
 	else {
