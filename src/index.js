@@ -13,9 +13,10 @@ const express = require('express'),
 
 webapp.listen(configs.port);
 webapp.use(async function (req, res, next) {
-	if (req.headers['x-boxid']) {
-		req.boxid = await mongo.checkAPIKeys(req.headers['x-boxid'],req.headers.authorization);
-		logger.log('debug', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${req.headers.authorization.replace('Bearer ','')}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Authorized? ${req.boxid}`);
+	if (req.headers.authorization) {
+		var headers = req.headers.authorization.replace('Bearer ', '').split(' ');
+		req.boxid = await mongo.checkAPIKeys(headers[0],headers[1]);
+		logger.log('debug', `boxId: ${headers[0]}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${headers[1]}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Authorized? ${req.boxid}`);
 		next();
 	}
 	else {
@@ -37,6 +38,15 @@ webapp.use(cookieSession({name: 'relaytrust',keys: ['81143184-d876-11eb-b8bc-024
 webapp.use('/chathost/healthcheck', function health(req, res) {
 	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Healthy`);
  	res.sendStatus(200);
+});
+
+webapp.use('/chathost/check', function check(req,res) {
+	if (req.boxid) {
+		res.sendStatus(200);
+	}
+	else {
+		res.sendStatus(401);
+	}
 });
 
 // These resources are available without a password
