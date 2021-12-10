@@ -16,7 +16,11 @@ webapp.use(async function (req, res, next) {
 	if (req.headers.authorization) {
 		var headers = req.headers.authorization.replace('Bearer ', '').split('|');
 		req.boxid = await mongo.checkAPIKeys(headers[0],headers[1]);
-		logger.log('debug', `boxId: ${headers[0]}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${headers[1]}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Authorized? ${req.boxid}`);
+		var isAuthorized = "No";
+		if (req.boxid) {
+			isAuthorized = "Yes";
+		}
+		logger.log('debug', `boxId: ${headers[0]}: ${req.method} ${req.originalUrl}: Check for Boxid and Auth: ${req.boxid}: ${headers[1]}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Authorized? ${isAuthorized}`);
 		next();
 	}
 	else {
