@@ -120,8 +120,6 @@ services:
     image: wyveo/nginx-php-fpm:php74
     container_name: moodle
     restart: always
-    become: true
-    command: /etc/nginx/startup.sh
     logging:
       driver: json-file
       options:
