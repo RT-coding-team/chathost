@@ -126,10 +126,10 @@ services:
         max-size: "1m"
     volumes:
       - ./resources/moodlenginx/conf.d:/etc/nginx/conf.d/
-      - ./resources/moodle-startup/:/etc/
+      - ./resources/moodle-startup/:/etc/startup/
       - "../moodle:/var/www/moodle"
       - "../data/moodledata:/var/www/moodledata"
-    command: /etc/startup.sh
+    command: /etc/startup/startup.sh
     ports:
       - 80:80
     depends_on:

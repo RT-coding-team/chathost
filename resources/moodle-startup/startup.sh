@@ -2,4 +2,4 @@
 
 apt update
 apt install -y cron
-crontab /etc/cronfile
+crontab /etc/startup/cronfile
