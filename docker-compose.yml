@@ -125,8 +125,7 @@ services:
       options:
         max-size: "1m"
     volumes:
-      - ./resources/moodlenginx/conf.d:/etc/nginx/conf.d/
-      - ./resources/moodlenginx/startup.sh:/etc/nginx/startup.sh
+      - ./resources/moodlenginx/:/etc/nginx/
       - "../moodle:/var/www/moodle"
       - "../data/moodledata:/var/www/moodledata"
     ports:
