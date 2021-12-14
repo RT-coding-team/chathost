@@ -128,7 +128,6 @@ services:
       - ./resources/moodlenginx/:/etc/nginx/
       - "../moodle:/var/www/moodle"
       - "../data/moodledata:/var/www/moodledata"
-    command: /etc/nginx/startup.sh
     ports:
       - 80:80
     depends_on:
