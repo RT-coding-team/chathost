@@ -120,14 +120,15 @@ services:
     image: wyveo/nginx-php-fpm:php74
     container_name: moodle
     restart: always
-    command: apt update && apt -y install cron
+    become: true
+    command: /etc/nginx/startup.sh
     logging:
       driver: json-file
       options:
         max-size: "1m"
     volumes:
       - ./resources/moodlenginx/conf.d:/etc/nginx/conf.d/
-      - ./resources/moodle/cron.hourly:/etc/cron.d/cron.hourly
+      - ./resources/moodlenginx/startup.sh:/etc/nginx/startup.sh
       - "../moodle:/var/www/moodle"
       - "../data/moodledata:/var/www/moodledata"
     ports:

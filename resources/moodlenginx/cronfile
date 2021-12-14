@@ -1,0 +1,3 @@
+# Cron for Moodle container
+
+1,16,31,46 * * * * /usr/bin/php /var/www/moodle/admin/cli/cron.php >/tmp/cron.log 2>&1
