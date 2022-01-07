@@ -170,29 +170,34 @@ async function getToken(boxid,username) {
 async function getUser(boxid,username) {
 	logger.log('info', `boxId: ${boxid}: getUser: ${username}`);
     let promise = new Promise((resolve, reject) => {
-		request({
-			headers: {
-				'X-User-Id': data.users.ADMIN.keys.userId,
-				'X-Auth-Token': data.users.ADMIN.keys.authToken,
-				'Content-Type': 'application/json'
-			},
-			uri: configs.rocketchat + `/api/v1/users.info?username=${username}`,
-			method: 'GET'
-		}, async function (err, res, body) {
-			body = JSON.parse(body);
-			if (body && body.user) {
-				logger.log('debug', `boxId: ${boxid}: getUser: ${username} Cached`);
-				data.users[username] = body.user;
-				data.users[username].keys = await getToken(boxid,username);
-				data.users[username].chats = await getChats(boxid,username);
-				data.users[username].groupChats = await getGroups(boxid,username);
-				resolve (data.users[username]);		
-			}
-			else {
-				logger.log('error', `boxId: ${boxid}: getUser: A username '${username}' Not Found`);
-				resolve ({});
-			}
-		});
+		if (data.users[username]) {
+			resolve (data.users[username]);		
+		}
+		else {		
+			request({
+				headers: {
+					'X-User-Id': data.users.ADMIN.keys.userId,
+					'X-Auth-Token': data.users.ADMIN.keys.authToken,
+					'Content-Type': 'application/json'
+				},
+				uri: configs.rocketchat + `/api/v1/users.info?username=${username}`,
+				method: 'GET'
+			}, async function (err, res, body) {
+				body = JSON.parse(body);
+				if (body && body.user) {
+					logger.log('debug', `boxId: ${boxid}: getUser: ${username} Cached`);
+					data.users[username] = body.user;
+					data.users[username].keys = await getToken(boxid,username);
+					data.users[username].chats = await getChats(boxid,username);
+					data.users[username].groupChats = await getGroups(boxid,username);
+					resolve (data.users[username]);		
+				}
+				else {
+					logger.log('error', `boxId: ${boxid}: getUser: A username '${username}' Not Found`);
+					resolve ({});
+				}
+			});
+		}
 	});
     let result = await promise;
     return result;
