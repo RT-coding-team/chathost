@@ -489,6 +489,9 @@ async function getMessages(boxid,username,since) {
 	if (!data.users[username].chats) {
 		await getChats(boxid,username);
 	}
+	if (!data.users[username].groupChats) {
+		await getGroups(boxid,username);
+	}
 	var response = [];
 	for (var roomId of Object.values(data.users[username].chats)) {
 		logger.log('info', `boxId: ${boxid}: getMessages: ${username}: ${roomId}`);
