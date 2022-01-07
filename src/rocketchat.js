@@ -321,8 +321,8 @@ async function createUser(boxid,user) {
 			if (body && body.user) {
 				var username = user.username;
 				data.users[username] = body.user;
-				data.users[username].keys = await getToken(username);
-				data.users[username].chats = await getChats(username);
+				data.users[username].keys = await getToken(boxid,username);
+				data.users[username].chats = await getChats(boxid,username);
 				logger.log('debug', `boxId: ${boxid}: createUser: ${user.username} Successful`);
 				resolve (data.users[username]);		
 			}
@@ -384,7 +384,7 @@ async function sendMessage(boxid,fromUsername,toUsername,message) {
 	}
 	if (!data.users[fromUsername].chats || !data.users[fromUsername].chats[toUsername]) {
 		await createChat([fromUsername,toUsername]);
-		await getChats(fromUsername);
+		await getChats(boxid,fromUsername);
 	}
     let promise = new Promise((resolve, reject) => {
 		var postdata = {
@@ -428,7 +428,7 @@ async function sendMessageWithAttachment(boxid,fromUsername,toUsername,message) 
 	}
 	if (!data.users[fromUsername].chats || !data.users[fromUsername].chats[toUsername]) {
 		await createChat([fromUsername,toUsername]);
-		await getChats(fromUsername);
+		await getChats(boxid,fromUsername);
 	}
 	var roomId = data.users[fromUsername].chats[toUsername];
 	if (!roomId) {
