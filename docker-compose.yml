@@ -42,8 +42,8 @@ services:
       - CREATE_TOKENS_FOR_USERS=true
       - MAIL_URL=smtp://smtp.email
       - ADMIN_USERNAME=admin
-      - ADMIN_EMAIL=derekmaxson@yahoo.com
-      - ADMIN_PASS=!1TheWell
+      - ADMIN_EMAIL=${ADMINEMAIL}
+      - ADMIN_PASS=${MASTERPASSWORD}
       - OVERWRITE_SETTING_API_Enable_Rate_Limiter=false
       - OVERWRITE_SETTING_FileUpload_ProtectFiles=false
     depends_on:
@@ -106,7 +106,7 @@ services:
       - CHATHOST_MONGO=mongodb://mongo:27017/chathost
       - CHATHOST_ROCKETCHAT=http://rocketchat:3000
       - CHATHOST_ROCKETCHATADMIN=admin
-      - CHATHOST_ROCKETCHATPASSWORD=!1TheWell
+      - CHATHOST_ROCKETCHATPASSWORD=${masterpassword}
     ports:
       - '2820:2820/tcp'
     volumes:
@@ -147,10 +147,10 @@ services:
       - '3306:3306'
     environment:
       - MARIADB_USER=moodleuser
-      - MARIADB_PASSWORD=moodleuser
+      - MARIADB_PASSWORD=${MOODLEPASSWORD}
       - MARIADB_DATABASE=moodle
       - ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_ROOT_PASSWORD=!1TheWell
+      - MYSQL_ROOT_PASSWORD=${MASTERPASSWORD}
       - MARIADB_CHARACTER_SET=utf8mb4
       - MARIADB_COLLATE=utf8mb4_unicode_ci
     volumes:
