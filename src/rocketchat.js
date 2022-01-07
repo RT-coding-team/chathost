@@ -232,9 +232,9 @@ async function getChats(boxid,username) {
 			if (body && body.ims) {
 				for (var im of body.ims) {
 					for (var imUsername of im.usernames) {
-						if (imUsername !== username) {
+						if (imUsername !== username && im.usersCount === 2) {
 							response[imUsername] = im['_id'];
-							//logger.log('info', `boxId: ${boxid}: getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
+							logger.log('info', `boxId: ${boxid}: getChats: ${username} -> ${imUsername}: ${response[imUsername]}`);
 						}
 					}
 				}
