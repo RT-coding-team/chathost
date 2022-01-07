@@ -36,7 +36,16 @@ async function init() {
 	}
 }
 
+
 async function test() {
+	var boxid='0a-74-4e-36-e1-77';
+	var username='1.0a-74-4e-36-e1-77';
+	data.users[username] = {};
+	data.users[username].keys = await getToken(boxid,username);
+	await getUser(boxid,username);
+	await getMessages(boxid,username,0);
+	//await getGroups(boxid,username);
+	console.log(data.users)
 }
 
 
@@ -175,6 +184,7 @@ async function getUser(boxid,username) {
 				data.users[username] = body.user;
 				data.users[username].keys = await getToken(boxid,username);
 				data.users[username].chats = await getChats(boxid,username);
+				data.users[username].groupChats = await getGroups(boxid,username);
 				resolve (data.users[username]);		
 			}
 			else {
@@ -228,6 +238,52 @@ async function getChats(boxid,username) {
 			}
 			else {
 				logger.log('error', `boxId: ${boxid}: getChats: ${username}: ERROR: ${JSON.stringify(body)}`)
+				resolve ({});
+			}
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
+async function getGroups(boxid,username) {
+	logger.log('info', `boxId: ${boxid}: getGroups: ${username}: Locating Groups`);
+	if (!data.users[username]) {
+		await getUser(username);
+	}
+	if (!data.users[username].keys) {
+		await getToken(username);
+	}
+	var response = {};
+    let promise = new Promise((resolve, reject) => {
+		request({
+			headers: {
+				'X-User-Id': data.users[username].keys.userId,
+				'X-Auth-Token': data.users[username].keys.authToken,
+				'Content-Type': 'application/json'
+			},
+			uri: configs.rocketchat + '/api/v1/groups.list'
+		}, function (err, res, body) {
+			try {
+				body = JSON.parse(body);
+			}
+			catch (err){
+				console.log(`boxId: ${boxid}: getGroups: Error: ${err}`);
+				body = {};
+			}
+			if (body && body.groups) {
+				for (var group of body.groups) {
+					if (group.u.username !== username && group.lastMessage) {
+						response[group.name] = group.lastMessage.rid;
+						logger.log('info', `boxId: ${boxid}: getGroups: ${group.name}: ${username} -> ${group.u.username}: ${response[group.name]}`);
+					}
+				}
+				data.users[username].groupChats = response;
+				logger.log('debug', `boxId: ${boxid}: getGroups: ${username} Found ${Object.keys(data.users[username].groupChats).length} groupChats`);
+				resolve (response);
+			}
+			else {
+				logger.log('error', `boxId: ${boxid}: getGroups: ${username}: ERROR: ${JSON.stringify(body)}`)
 				resolve ({});
 			}
 		});
@@ -436,15 +492,20 @@ async function getMessages(boxid,username,since) {
 	var response = [];
 	for (var roomId of Object.values(data.users[username].chats)) {
 		logger.log('info', `boxId: ${boxid}: getMessages: ${username}: ${roomId}`);
-		var messages = await getRoomMessages(boxid,username,roomId,since);
+		var messages = await getRoomMessages('im',boxid,username,roomId,since);
+		response = response.concat(messages);
+	}
+	for (var roomId of Object.values(data.users[username].groupChats)) {
+		logger.log('info', `boxId: ${boxid}: getMessages: ${username}: ${roomId}`);
+		var messages = await getRoomMessages('groups',boxid,username,roomId,since);
 		response = response.concat(messages);
 	}
 	mongo.setMessageStatusValue(boxid);
 	return (response);
 }
 
-async function getRoomMessages(boxid,username,roomId,since) {
-	logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Since ${moment(since*1000).format()}`);
+async function getRoomMessages(roomType,boxid,username,roomId,since) {
+	logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId}: Since ${moment(since*1000).format()}`);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -452,7 +513,7 @@ async function getRoomMessages(boxid,username,roomId,since) {
 				'X-Auth-Token': data.users[username].keys.authToken,
 				'Content-Type': 'application/json'
 			},
-			uri: configs.rocketchat + `/api/v1/im.history?roomId=${roomId}&count=100&oldest=${moment(since*1000).tz('America/Los_Angeles').format()}`
+			uri: configs.rocketchat + `/api/v1/${roomType}.history?roomId=${roomId}&count=100&oldest=${moment(since*1000).tz('America/Los_Angeles').format()}`
 		}, async function (err, res, body) {
 			try {
 				body = JSON.parse(body);
@@ -463,12 +524,12 @@ async function getRoomMessages(boxid,username,roomId,since) {
 			}
 			var response = [];
  			if (body && body.messages && body.messages.length > 0) {
-				logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Found ${body.messages.length} messages`);
+				logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId}: Found ${body.messages.length} messages`);
 				var messages = body.messages.sort(sortOnTimestamp);	
 				for (var message of messages) {
-					logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Checking Message: ${message._id}: ${message.u.username}`);
+					logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId}: Checking Message: ${message._id}: ${message.u.username}`);
 					if (message.u.username === username) {
-						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
+						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId}: Skipping self-sent message: ${message._id}`);
 					}
 					else {
 						logger.log('info', JSON.stringify(message));
@@ -497,20 +558,21 @@ async function getRoomMessages(boxid,username,roomId,since) {
 							}
 							moodleMessage.message = `<attachment type="${type}" id="${moment(message.ts).valueOf()}" filename="${message.file.name}" filepath="${message.attachments[0].title_link}">`;
 						}
-						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
+						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
+						logger.log('debug', `message: ${JSON.stringify(moodleMessage)}`);
 						response.push(moodleMessage);
 					}
 				}	
 				
-				logger.log('info', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId}: Sending ${response.length} messages`);
+				logger.log('info', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId}: Sending ${response.length} messages`);
  				resolve (response);
  			}
  			else if (body && body.messages && body.messages.length === 0) {
-				logger.log('info', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId} No Messages Found`);
+				logger.log('info', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId} No Messages Found`);
  				resolve ([]); 			
  			}
  			else {
-				logger.log('error', `boxId: ${boxid}: getRoomMessages: ${username}: ${roomId} ERROR: ${JSON.stringify(body)}`);
+				logger.log('error', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId} ERROR: ${JSON.stringify(body)}`);
  				resolve ([]);
  			}
 		});
