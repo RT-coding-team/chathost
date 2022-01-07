@@ -44,6 +44,7 @@ async function test() {
 	data.users[username].keys = await getToken(boxid,username);
 	await getUser(boxid,username);
 	await getMessages(boxid,username,0);
+	//prepareMessageSync(boxid,1641581709)
 	//await getGroups(boxid,username);
 	console.log(data.users)
 }
@@ -254,7 +255,7 @@ async function getGroups(boxid,username) {
 	if (!data.users[username].keys) {
 		await getToken(username);
 	}
-	var response = {};
+	var response = [];
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -274,7 +275,7 @@ async function getGroups(boxid,username) {
 			if (body && body.groups) {
 				for (var group of body.groups) {
 					if (group.u.username !== username && group.lastMessage) {
-						response[group.name] = group.lastMessage.rid;
+						response.push(group.lastMessage.rid);
 						logger.log('info', `boxId: ${boxid}: getGroups: ${group.name}: ${username} -> ${group.u.username}: ${response[group.name]}`);
 					}
 				}
@@ -498,7 +499,7 @@ async function getMessages(boxid,username,since) {
 		var messages = await getRoomMessages('im',boxid,username,roomId,since);
 		response = response.concat(messages);
 	}
-	for (var roomId of Object.values(data.users[username].groupChats)) {
+	for (var roomId of data.users[username].groupChats) {
 		logger.log('info', `boxId: ${boxid}: getMessages: ${username}: ${roomId}`);
 		var messages = await getRoomMessages('groups',boxid,username,roomId,since);
 		response = response.concat(messages);
@@ -562,7 +563,7 @@ async function getRoomMessages(roomType,boxid,username,roomId,since) {
 							moodleMessage.message = `<attachment type="${type}" id="${moment(message.ts).valueOf()}" filename="${message.file.name}" filepath="${message.attachments[0].title_link}">`;
 						}
 						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${roomType}: ${username}: ${roomId}: Sending message: ${message._id} from ${message.u.username}: ${moodleMessage.message}`);
-						logger.log('debug', `message: ${JSON.stringify(moodleMessage)}`);
+						logger.log('debug', `boxId: ${boxid}: getRoomMessages: ${roomType}: Message: ${JSON.stringify(moodleMessage)}`);
 						response.push(moodleMessage);
 					}
 				}	
