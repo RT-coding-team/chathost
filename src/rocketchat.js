@@ -281,7 +281,7 @@ async function getGroups(boxid,username) {
 				for (var group of body.groups) {
 					if (group.u.username !== username && group.lastMessage) {
 						response.push(group.lastMessage.rid);
-						logger.log('info', `boxId: ${boxid}: getGroups: ${group.name}: ${username} -> ${group.u.username}: ${response[group.name]}`);
+						logger.log('info', `boxId: ${boxid}: getGroups: ${group.name}: ${username} -> ${group.u.username}: ${group.lastMessage.rid]}`);
 					}
 				}
 				data.users[username].groupChats = response;
