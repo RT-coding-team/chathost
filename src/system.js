@@ -22,8 +22,8 @@ async function run() {
  	results.mongo = await checkMongo();
  	results.mariadb = await checkMariaDB();
 	results.cpu = await getCPU() + '%';
-	results.freeMemory = await getMEM() + '%';
-	results.freeDisk = await getDisk() + '%';
+	results.memory = await getMEM() + '%';
+	results.disk = await getDisk() + '%';
  	results.timestamp = moment().unix();
 	console.log(results);
 	fs.writeFileSync('/tmp/system.json',JSON.stringify(results));
@@ -117,13 +117,13 @@ async function getCPU() {
 
 async function getMEM() {
 	console.log(os.freemem(),os.totalmem())
-	return Math.round(os.freemem() / os.totalmem() * 100);
+	return Math.round((os.totalmem()- os.freemem()) / os.totalmem() * 100);
 }
 
 async function getDisk() {
 	var disk = execSync('df -hT | grep /$').toString().split(' ')[0];
 	var string = execSync(`df |grep ${disk}`).toString().replace(/\s+/g, ' ').trim();
 	var fields = string.split(' ');
-	return (100 - parseInt(fields[4].replace('%','')));
+	return (parseInt(fields[4].replace('%','')));
 }
 
