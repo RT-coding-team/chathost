@@ -19,6 +19,7 @@ async function run() {
  	results.rocketchat = await checkURL('http://localhost:3000');
  	results.chathost = await checkURL('http://localhost:2820/chathost/healthCheck');
  	results.moodle = await checkURL('http://localhost');
+ 	results.bolt = await checkURL('http://localhost:8080');
  	results.mongo = await checkMongo();
  	results.mariadb = await checkMariaDB();
 	results.cpu = await getCPU() + '%';
