@@ -47,6 +47,13 @@ router.get('/boxes', async function getBoxes(req, res) {
 	res.send(response);
 });
 
+router.delete('/boxes/:boxid', async function getSecurity(req, res) {
+	mongo.deleteCourseRoster(req.params.boxid);
+	mongo.deleteSecurity(req.params.boxid);
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Done`);
+	res.sendStatus(200);
+});
+
 router.get('/roster/:boxid', async function getRosters(req,res) {
 	var response = await mongo.getBoxRosters(req.params.boxid);
 	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Courses`);

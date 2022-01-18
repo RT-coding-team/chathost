@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/chathost/images/favicon-relaytrust.png">
+
+    <title>RelayTrust: The Well Dashboard</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="public/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="public/jsgrid.min.css" />
+	<link type="text/css" rel="stylesheet" href="public/jsgrid-theme.min.css" />
+    <link rel="stylesheet" type="text/css" class="ui" href="public/semantic/semantic.min.css">
+    <link rel="stylesheet" type="text/css" class="ui" href="public/datatables.css">
+ 	<link href="public/flat-ui.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="public/jumbotron.css" rel="stylesheet">
+	<link href="public/dashboard.css" rel="stylesheet">
+    <style>
+    # {
+    	display: none;
+	}
+    </style>
+  </head>
+  <body>
+
+    <nav id="navMain" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    </div>
+
+    </nav>
+
+
+    <!main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <main role="main" class="col-md-12">
+
+      <div class="Ajumbotron">
+      <BR><BR>
+
+                    <div class="ui container" id="reports">
+						<div class="section-summary" class="sectionReports">
+							<div class="ui top attached borderless menu">
+								<div class="item">
+									<div class="ui header small">
+										<i class="info circle icon"></i>
+											<div class="content">
+												Delete Box
+												<div class="sub header">
+													
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						<div class="ui bottom attached segment">
+							<h6>Put in the MAC address of the box to delete (aa-bb-cc-dd-ee-ff)</h6>
+								<input class="form-control" id="boxid">
+								<BR><BR>
+								<button onclick="saveSetting();" class="btn btn-sm btn-info">Update</button>
+							
+						</div>
+
+
+<BR><BR><BR>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+      </div>
+
+
+
+   </main>
+
+    <footer class="container">
+      <p>&copy; Relay Trust, 2021</p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="public/jsgrid.min.js"></script>    	
+	<script type="text/javascript" src="public/bootstrap.min.js"></script>
+    <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
+    <script type="text/javascript" src="public/angular-min.js"></script>
+    <script type="text/javascript" src="public/angular-chart-min.js"></script>
+	<script type="text/javascript" src="public/flat-ui.js"></script>
+    <script type="text/javascript" src="public/chart.js"></script>
+    <script type="text/javascript" src="public/datatables.js"></script>
+    <script type="text/javascript" src="public/moment.js"></script>
+    <script type="text/javascript" src="public/navigation.js"></script>
+
+
+<script>
+		
+		function saveSetting() {
+			var boxid = $("#boxid").val();
+			alert(`ARE YOU SURE?  This action will remove the details of box: ${boxid}! If you wish to cancel, close this browser window now.`);
+			$.ajax({
+				url: `/chathost/admin/boxes/${boxid}`,
+		  		method: 'DELETE',
+				success: function(response) {
+					//console.log ("getResponse=" + response);
+					alert("Success! ");
+					location.replace(`/dashboard/index.html`);
+				},
+				error: function(response) {
+					console.log ("getResponse=" + response);
+					alert("Setting Failed");
+				}
+			});
+		}
+
+</script>
+
+  </body>
+</html>

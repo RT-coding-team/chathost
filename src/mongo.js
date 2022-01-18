@@ -438,6 +438,15 @@ function putSecurity(boxid,authorization) {
 	});
 }
 
+function deleteCourseRoster(boxid) {
+	const collection = db.collection('courseRoster');
+	console.log(`deleteCourseRoser: ${boxid}`);
+	collection.deleteMany({"_id": boxid}, function(err,result) {
+		// Delete all keys that exist currently
+		//console.log (err,result);
+	}); 
+}
+
 function deleteSecurity(boxid) {
 	const collection = db.collection('security');
 	console.log(`deleteSecurity: ${boxid}`);
@@ -510,6 +519,7 @@ module.exports = {
 	getSecurity,
 	putSecurity,
 	deleteSecurity,
+	deleteCourseRoster,
 	getBoxInventory,
 	status
 };
