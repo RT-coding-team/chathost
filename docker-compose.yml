@@ -1,24 +1,6 @@
 version: '2'
 
 services:
-# nginx provides the web server for rocketchat, chathost APIs and resourcespace
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    depends_on:
-      - chathost
-    links:
-      - rocketchat
-      - chathost
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: "1m"
-    volumes:
-      - ./resources/nginx/:/etc/nginx/
-    ports:
-      - 8000:8000
 
 # Builds the rocketchat server 
   rocketchat:
