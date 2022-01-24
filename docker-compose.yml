@@ -90,7 +90,7 @@ services:
       - CHATHOST_ROCKETCHATADMIN=admin
       - CHATHOST_ROCKETCHATPASSWORD=${MASTERPASSWORD}
       - CHATHOST_MOODLE=https://moodle.${URL}
-      - CHATHOST_MOODLE=https://bolt.${URL}
+      - CHATHOST_BOLT=https://bolt.${URL}
     ports:
       - '2820:2820/tcp'
     volumes:
