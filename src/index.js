@@ -96,9 +96,15 @@ webapp.get('/chathost/logout', function getAuth(req, res) {
 });
 
 // This handles redirection to Moodle authoring
-webapp.get('/chathost/authoring', function getAuth(req, res) {
+webapp.get('/chathost/link/authoring', function getAuth(req, res) {
 	var moodle = process.env['CHATHOST_MOODLE'];
 	res.redirect(moodle || '/dashboard');
+});
+
+// This handles redirection to Moodle authoring
+webapp.get('/chathost/link/cloud', function getAuth(req, res) {
+	var bolt = process.env['CHATHOST_BOLT'];
+	res.redirect(bolt || '/dashboard');
 });
 
 // Check for authorization
