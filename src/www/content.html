@@ -47,7 +47,7 @@
 									<div class="ui header small">
 										<i class="info circle icon"></i>
 											<div class="content">
-												Select OpenWell Content
+												Select Device Content
 												<div class="sub header">
 												</div>
 											</div>
@@ -57,13 +57,13 @@
 							</div>
 						<div class="ui bottom attached segment">
 							<h6>Available Packages</h6>
-								Select a package of OpenWell content from the following packages. The package will be automatically downloaded during a sync when the device is available online.  This package will overwrite any existing package.<BR><BR>
+								Select a package of content from the following packages. The package will be automatically downloaded during a sync when the device is available online.  This package will overwrite any existing package.<BR><BR>
 							<div id="pending">
 								<table id="pendingGrid" class="display" width="100%"></table>
 							</div>
-							<h6>Deliver Package To This Device</h6>
-							<div class="content">
-								<b id="boxname" class="strong"></b>: <span id="boxid"></span><BR>
+							<div class="content" id="deliverRegion" style="display:none;">
+								<h6>Deliver Package To This Device</h6>
+								Selected Device: <span id="boxid"></span><BR>
 								Selected Package: <span id="package">None</span>
 							</div>
 								<BR>
@@ -101,9 +101,7 @@
 	<script type="text/javascript" src="public/bootstrap.min.js"></script>
     <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
     <script type="text/javascript" src="public/angular-min.js"></script>
-    <script type="text/javascript" src="public/angular-chart-min.js"></script>
 	<script type="text/javascript" src="public/flat-ui.js"></script>
-    <script type="text/javascript" src="public/chart.js"></script>
     <script type="text/javascript" src="public/datatables.js"></script>
     <script type="text/javascript" src="public/moment.js"></script>
     <script type="text/javascript" src="public/navigation.js"></script>
@@ -112,8 +110,9 @@
 <script>
 	var boxid = getQueryVariable('id');
 
+	//getAndCombineContent();
 	loadDataTable();
-	loadBoxInfo();
+	//loadBoxInfo();
 
 function loadBoxInfo() {
 			$.ajax({
@@ -132,8 +131,10 @@ function loadBoxInfo() {
 		console.log(`selecting: ${id}`);
 
 			//alert(id);
+			$("#boxid").text(boxid)
 			$("#package").text(id);
 			$("#button").show();
+			$("#deliverRegion").show();
 		}
 
 		function saveSetting() {
@@ -161,43 +162,79 @@ function loadBoxInfo() {
 
 		}
 
-function loadDataTable() {
+async function loadDataTable() {
 	console.log('loadDataTable: Start');
-	$.getJSON( "https://bolt.thewellcloud.cloud/exporter/api/files.json", function( data ) {
-		console.log(data);
-		var packageLatest = {};
-		var packageArray = [];
-		for (var package of data) {
-			package.filepath = package.filepath.replace('http://','https://');
-			console.log(package);
-			if (!packageLatest[package.package]) {
-				packageArray.push(package);
-				packageLatest[package.package] = true;
-			}
+	packageArray = await getAndCombineContent();
+	packageArray.sort((a, b) => (a.package > b.package) ? 1 : -1)
+	var columns = [
+		{ title: "Type", field: "type" },
+		{ title: "Package", field: "package" },
+		{ title: "URL", field: "filepath"},
+		{ title: "Actions", field: "action"}            
+	];
+	
+	var final = [];
+	for (var item of packageArray) {
+		var fitem = [];
+		item.date = moment(item.timestamp * 1000).format('LLL');
+		item.action = `<span onclick="copy('${item.filepath}')"><i class="copy icon"></i></span>&nbsp;&nbsp;`;
+		if (boxid) {
+			item.action += `<span onclick="selectPackage('${item.filepath}')"><i class="download icon"></i></span>`;
 		}
-		packageArray.sort((a, b) => (a.package > b.package) ? 1 : -1)
-		var columns = [
-            { title: "Date", field: "date" },
-            { title: "Package", field: "package" },
-            { title: "Action", field: "action"}            
-        ];
-		
-		var final = [];
-		for (var item of packageArray) {
-			var fitem = [];
-			item.date = moment(item.timestamp * 1000).format('LLL');
-			item.action = `<span onclick="selectPackage('${item.filepath}')"><i class="download icon"></i></span>`;
-			for (var col of columns) {
-				fitem.push(item[col.field] || '');
-			}
-			final.push(fitem);
+		for (var col of columns) {
+			fitem.push(item[col.field] || '');
 		}
-		
-		$('#pendingGrid').DataTable( {
-			data: final,
-			columns: columns
+		final.push(fitem);
+	}
+	
+	$('#pendingGrid').DataTable( {
+		data: final,
+		columns: columns
+	});
+}
+
+async function getAndCombineContent() {
+    let promise = new Promise((resolve, reject) => {
+		$.getJSON( "https://bolt.thewellcloud.cloud/exporter/api/files.json", function(data){
+			var packageLatest = {};
+			var packageArray = [];
+			for (var package of data) {
+				console.log(package);
+				package.type = "Content";
+				package.filepath = package.filepath.replace('http://','https://');
+				package.unique = package.package;
+				if (package.is_slim) {
+					package.type = "Content-Slim";
+					package.unique = `${package.package}-slim`;
+				}
+				console.log(package);
+				if (!packageLatest[package.unique]) {
+					packageArray.push(package);
+					packageLatest[package.unique] = true;
+				}
+			}
+			$.getJSON( "https://bolt.thewellcloud.cloud/content-api/courses.json", function(data){
+				var packageLatest = {};
+				for (var package of data) {
+					console.log(package);
+					package.type = "Moodle";
+					package.filepath = package.filepath.replace('http://','https://');
+					package.package = package.title;
+					package.unique = package.title;
+					console.log(package);
+					if (!packageLatest[package.unique]) {
+						packageArray.push(package);
+						packageLatest[package.unique] = true;
+					}
+				}
+				console.log(packageArray);
+				resolve(packageArray);
+			});
+
 		});
 	});
+    let result = await promise;
+    return result;	
 }
 
 function getQueryVariable(variable) {
@@ -212,6 +249,17 @@ function getQueryVariable(variable) {
     console.log('Query variable %s not found', variable);
 }
 
+function copy(input) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(input).then(() => {
+      console.log('Copied to clipboard successfully:' + input);
+    }, (err) => {
+      console.log('Failed to copy the text to clipboard.', err);
+    });
+  } else if (window.clipboardData) {
+    window.clipboardData.setData("Text", input);
+  }
+}
 </script>
 
   </body>
