@@ -11,7 +11,7 @@ This project is related to The Well, a raspberry pi based platform for Moodle cl
 * MongoDB for Rocketchat and Chathost APIs
 * Chathost APIs (Developer Info: https://github.com/RT-coding-team/chathost/tree/main/src)
 * nginx for Rocket, Chathost APIs
-* TBD: resourcespace (will use nginx and mariadb)
+* BoltCMS for content management
 
 # Building on AWS EC2
 * Quickstart Video: https://www.loom.com/share/48ad3da736d045198bc96c00d0efea3c?sharedAppSource=personal_library
@@ -36,22 +36,16 @@ This project is related to The Well, a raspberry pi based platform for Moodle cl
 * After clicking "Confirm & Request" select the arrow and click the button called "Create Record In Route 53"
 * Wait a while.  AWS takes hours to process an ACM.  You can proceed with Load Balancer but you will need to only create the HTTP load balancer and add the HTTPS configuration later.
 
-# Create AWS Classic Load Balancer
-* Quickstart Video: https://www.loom.com/share/7ddf3eaa1e5a4ec098eca459bb8ea724?sharedAppSource=personal_library
-* Select the Previous Generation Classic Load Balancer
-* Give the Elastic Load Balancer (ELB) a name
-* Create ELB inside VPC and select all subnets
-* Set the Instance port to 8000
-* (Optionally may configure an SSL certificate to enable SSL)
-* Assign same security group used on EC2 creation
-* Step 4: Set Ping Path to /chathost/healthcheck
-* Step 5: Select instance created above
-* Step 7: Review and Create
+# Create AWS Applications Load Balancer
+* Quickstart Video 1: https://www.loom.com/share/e74550e9a4c842278cd00cd95008967f
+* Quickstart Video 2: https://www.loom.com/share/72949591909640a3b340ce01f43eb8d7
+* Follow the videos to point the load balancer at the chathost EC2 instance created above.
 
 # DNS
 * Quickstart Video: https://www.loom.com/share/a75228bff4474a9c887cbd7eaf5f3411?sharedAppSource=personal_library
 * Set hostname like moodle.yourorg.org to point to the IP of the EC2 instance
 * Set hostname like chat.yourorg.org to point to the ELB address
+* Set hostname like bolt.yourorg.org to point to the ELB address
 * These settings may take some time to propagate on the Internet and work as planned
 
 # Configuration via ansible
