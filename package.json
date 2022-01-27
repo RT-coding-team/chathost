@@ -21,7 +21,7 @@
     "emojione": "^4.5.0",
     "express": "*",
     "express-session": "*",
-    "file-type": "*",
+    "file-type": "16.4.0",
     "moment": "*",
     "moment-timezone": "*",
     "mongodb": "*",
