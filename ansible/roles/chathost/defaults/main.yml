@@ -1,6 +1,4 @@
 ---
-local_moodle: "~/moodle"
-
 document_root: "/home/ec2-user"
 
 # the version of nvm to use
