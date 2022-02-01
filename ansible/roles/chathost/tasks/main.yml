@@ -62,40 +62,9 @@
     uid: 101
     group: ec2-user
 
-- name: Set data directory for Moodledata
-  ansible.builtin.file:
-    path: "{{ document_root }}/data/moodledata"
-    state: directory
-    owner: nginx
-    group: ec2-user
-    mode: '777'
-
-- name: Download and unzip Moodle base code 3.10 latest
-  ansible.builtin.unarchive:
-    src: https://download.moodle.org/download.php/direct/stable310/moodle-latest-310.zip
-    dest: "{{ document_root }}/"  # With unzip, it has the ./moodle in the archive
-    remote_src: yes
-
-- name: Copy config.php to working directory
-  template:
-    src: moodle_config_php.j2
-    dest: "{{ document_root }}/moodle/config.php"
-
-- name: Copy nginx.conf to working directory
-  template:
-    src: nginx_conf.j2
-    dest: "{{ document_root }}/chathost/resources/nginx/nginx.conf"
-
-- name: Copy conf.d to working directory
-  template:
-    src: conf_d_default_conf.j2
-    dest: "{{ document_root }}/chathost/resources/moodlenginx/conf.d/default.conf"
-
 - name: Install node packages based on package.json.
   community.general.npm:
     path: "{{ document_root }}/chathost"
-    
+
 - name: Launch Dockers (docker-compose up -d)
   command: 'sudo -u ec2-user {{ document_root }}/chathost/run_docker_compose.sh &'
-
-
