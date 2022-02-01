@@ -1,0 +1,35 @@
+# In all environments, the following files are loaded if they exist,
+# the latter taking precedence over the former:
+#
+#  * .env                contains default values for the environment variables needed by the app
+#  * .env.local          uncommitted file with local overrides
+#  * .env.$APP_ENV       committed environment-specific defaults
+#  * .env.$APP_ENV.local uncommitted environment-specific overrides
+#
+# Real environment variables win over .env files.
+#
+# USE THIS FILE FOR SECRETS THAT WILL NOT BE COMMITTED. YOU CAN ALSO USE THIS FOR DATABASE CONFIGURATIONS.
+#
+# Run "composer dump-env prod" to compile .env files for production use (requires symfony/flex >=1.2).
+# https://symfony.com/doc/current/best_practices.html#use-environment-variables-for-infrastructure-configuration
+
+
+###> symfony/framework-bundle ###
+#APP_ENV=dev
+#APP_DEBUG=1
+APP_SECRET=c2474c94fffd1b8c8f3913c3846f24dd
+###< symfony/framework-bundle ###
+
+# MYSQL / MariaDB
+DATABASE_URL=mysql://bolt:{{ password }}@db:3306/bolt
+#DATABASE_URL=mysql://root:!1TheWell@mariadb:3306/bolt
+
+###> symfony/mailer ###
+MAILER_DSN=smtp://mailcatcher:1080
+###< symfony/mailer ###
+
+###> nelmio/cors-bundle ###
+CORS_ALLOW_ORIGIN=*
+###< nelmio/cors-bundle ###
+
+
