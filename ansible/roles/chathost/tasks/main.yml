@@ -48,14 +48,6 @@
     group: ec2-user
     mode: '777'
 
-- name: Set data directory for MariaDB
-  ansible.builtin.file:
-    path: "{{ document_root }}/data/mariadb"
-    state: directory
-    owner: ec2-user
-    group: ec2-user
-    mode: '777'
-
 - name: Add the user 'nginx' 
   ansible.builtin.user:
     name: nginx
@@ -66,5 +58,22 @@
   community.general.npm:
     path: "{{ document_root }}/chathost"
 
+- name: Copy env to chathost directory
+  template:
+    src: env
+    dest: "{{ document_root }}/chathost/.env"
+    
 - name: Launch Dockers (docker-compose up -d)
   command: 'sudo -u ec2-user {{ document_root }}/chathost/run_docker_compose.sh &'
+
+- name: Check chathost container before continuing
+  wait_for:
+    host: "localhost"
+    port: 2820
+
+- name: Set cron for system health to run every minute
+  ansible.builtin.cron:
+    name: "system.js"
+    minute: "*"
+    user: ec2-user
+    job: "/usr/bin/node {{ document_root }}/chathost/src/system.js >/tmp/systemjs.log 2&>1"
