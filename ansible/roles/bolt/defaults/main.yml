@@ -1,0 +1,9 @@
+---
+local_moodle: "~/moodle"
+
+document_root: "/home/ec2-user"
+
+# the version of nvm to use
+nvm_version: 0.34.0
+# the version of node you want to install/use
+node_version: 15.11.0

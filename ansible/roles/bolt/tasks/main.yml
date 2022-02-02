@@ -1,0 +1,61 @@
+---
+##################
+# MM Builder using BoltCMS
+
+- name: Install mmbuilder repo
+  git:
+    repo: 'https://github.com/RT-coding-team/mediabuilder.git'
+    dest: "{{ document_root }}/mediabuilder"  # With git declar the final directory
+    clone: yes
+    force: yes
+    update: yes
+
+- name: Set Permissions of ~/mediabuilder
+  ansible.builtin.file:
+    path: "{{ document_root }}/mediabuilder"
+    recurse: yes
+    owner: ec2-user
+    group: ec2-user
+    mode: '777'
+
+- name: Copy env to mediabuilder directory
+  template:
+    src: env
+    dest: "{{ document_root }}/mediabuilder/.env"
+    
+- name: Copy nginx template
+  template:
+    src: exporter.yaml
+    dest: "{{ document_root }}/mediabuilder/config/bolt/"
+
+- name: Launch Dockers (docker-compose up -d)
+  command: 'sudo -u ec2-user {{ document_root }}/mediabuilder/run_docker_compose.sh &'
+
+- name: Enable Amazon Extras for nginx
+  command: amazon-linux-extras enable nginx1
+  become: true
+  
+- name: Install nginx
+  yum:
+    name: nginx
+    state: latest
+
+- name: Copy nginx template
+  template:
+    src: nginx.conf
+    dest: "/etc/nginx/nginx.conf"
+
+- name: Register nginx as service
+  service:
+    name: nginx
+    state: started
+    enabled: true
+    
+#    systemctl enable nginx
+
+- name: Reload nginx
+  command: /sbin/nginx -s reload
+
+- name: Show final instruction
+  debug:
+    msg: "To finish Bolt setup, run this command on the server to initialize the database and create an admin user.  When asked if you want to Add fixtures, say NO.  Here's the command: docker exec -it php bin/console bolt:setup"

@@ -1,0 +1,57 @@
+# Custom settings for our exporter
+# public_path: The path in the public directory where we store exports (do not include /public/) It should begin and end with a forward slash.
+# file_date_suffix: A date suffix appended to all file archives. See https://www.php.net/manual/en/datetime.format.php
+# supported_languages: All languages supported by the Media Interface
+# interface: The interface translations for the Media Interface.  Duplicate the en for each supported lang.  Use the bolt_locale_code
+# for the key of each language
+exporter:
+  site_url: "https://bolt.{{ url }}/"
+  public_path: "/files/exports/"
+  file_date_suffix: "m-d-Y-H-i"
+  logo_public_path: "/files/logo.png"
+  supported_languages:
+    - text: English
+      bolt_locale_code: en
+      codes: ['en-US', 'en']
+      default: true
+    - text: Español
+      bolt_locale_code: es
+      codes: ['es']
+      default: false
+  interface:
+    en:
+      APP_NAME: 'OpenWell'
+      APP_LOGO: 'imgs/logo.png'
+      CATEGORIES_TITLE: 'Categories'
+      EPISODES_TEXT: 'Episodes'
+      LANGUAGE_BUTTON: 'Language'
+      OTHER_MEDIA_TITLE: 'Other Media'
+      MEDIA_TYPE:
+        AUDIO: 'Audio'
+        DOCUMENT: 'Document'
+        EPUB: 'EPUB'
+        PDF: 'PDF'
+        VIDEO: 'Video'
+      MISSING_MEDIA_TITLE: 'Media is missing!'
+      MISSING_MEDIA_TEXT: 'Something went wrong! The media is missing!'
+      RECOMMENDED_TITLE: 'For You'
+      RECOMMENDED_TEXT: 'Recommended'
+      UNSUPPORTED_TEXT: 'Sorry, your browser does not support videos.'
+    es:
+      APP_NAME: 'OpenWell'
+      APP_LOGO: 'imgs/logo.png'
+      CATEGORIES_TITLE: 'Categorías'
+      EPISODES_TEXT: 'Episodios'
+      LANGUAGE_BUTTON: 'Idioma'
+      OTHER_MEDIA_TITLE: 'Otros medios'
+      MEDIA_TYPE:
+        AUDIO: 'Audio'
+        DOCUMENT: 'Documento'
+        EPUB: 'EPUB'
+        PDF: 'PDF'
+        VIDEO: 'Video'
+      MISSING_MEDIA_TITLE: '¡Faltan los medios!'
+      MISSING_MEDIA_TEXT: '¡Algo salió mal! ¡Faltan los medios!'
+      RECOMMENDED_TITLE: 'Para ti'
+      RECOMMENDED_TEXT: 'Recomendada'
+      UNSUPPORTED_TEXT: 'Lo sentimos, su navegador no admite videos.'
