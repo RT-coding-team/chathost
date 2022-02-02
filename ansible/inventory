@@ -8,10 +8,10 @@
 
 
 
+ec2-34-209-13-79.us-west-2.compute.amazonaws.com ansible_user=ec2-user password=PASSWORD url=thewellcloud.cloud email=abk@relaytrust.org
 
 
-#35.166.24.58 ansible_user=ec2-user moodle_hostname=moodle.derekmaxson.com chat_hostname=
 
-# Testing
-52.88.92.68 ansible_user=ec2-user moodle_hostname=52.88.92.68 chat_hostname=
+
+
 
