@@ -18,10 +18,8 @@ async function run() {
  	results.docker = await checkDocker();
  	results.rocketchat = await checkURL('http://localhost:3000');
  	results.chathost = await checkURL('http://localhost:2820/chathost/healthCheck');
- 	results.moodle = await checkURL('http://localhost');
  	results.bolt = await checkURL('http://localhost:8080');
  	results.mongo = await checkMongo();
- 	results.mariadb = await checkMariaDB();
 	results.cpu = await getCPU() + '%';
 	results.memory = await getMEM() + '%';
 	results.disk = await getDisk() + '%';
@@ -57,30 +55,6 @@ async function checkDocker() {
 	else {
 		return false;
 	}
-}
-
-async function checkMariaDB() {
-    let promise = new Promise((resolve, reject) => {
-		var connection = mysql.createConnection({
-		  host     : 'localhost',
-		  port     : 3306,
-		  user     : 'root',
-		  password : execSync('cat ~/chathost/docker-compose.yml | grep MYSQL_ROOT_PASSWORD=').toString().replace('      - MYSQL_ROOT_PASSWORD=','').replace('\n',''),
-		  database : 'moodle'
-		});
-		connection.connect();
-		connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-			if (error) {
-				resolve (false);
-			}
-			else {
-				resolve (true);
-			}
-		});
-		connection.end();
-	});
-    let result = await promise;
-    return result;
 }
 
 async function checkURL(url) {
