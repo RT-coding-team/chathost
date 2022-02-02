@@ -6,10 +6,11 @@
   when: ansible_os_family == 'Debian'
 
 - name: Install Docker from AWS repo
-  command: amazon-linux-extras install docker
   become: true
-  notify: restart docker
-
+  yum:
+    name: docker
+    state: latest
+    
 - name: Give permissions to run docker as ec2-users
   command: usermod -aG docker ec2-user
   become: true
