@@ -58,9 +58,10 @@ This project is related to The Well, a raspberry pi based platform for Moodle cl
 * This will install needed components and launch.  Takes about 15 minutes
 * Verify Install: Video: https://www.loom.com/share/7dff0ba499f340ee83ecb9e92c6ec350?sharedAppSource=personal_library
 
+# Backup
+AWS Backup has a simple backup tool for EC2 instances.  Recommend the daily, monthly or daily, monthly, yearly backup plan.  Document: https://aws.amazon.com/blogs/aws/aws-backup-ec2-instances-efs-single-file-restore-and-cross-region-backup/
+
 # Startup
-* In web browser, navigate to http://moodle.yourorg.org and set up Moodle.
-  * Video: https://www.loom.com/share/73283a126bef4c8cb02a90ddc9751d8b?sharedAppSource=personal_library
 * In web browser, navigate to http://chat.yourorg.org and set up Rocketchat.
   * Video: https://www.loom.com/share/2288f2598a3a4346b9d9e52b34b00eb6?sharedAppSource=personal_library
 * In web browser, navigate to http://chat.yourorg.org/dashboard and set up Dashboard.
@@ -77,9 +78,6 @@ This project is related to The Well, a raspberry pi based platform for Moodle cl
 * Adding a Student
   * Video: https://www.loom.com/share/70ad80239e6a4b22862b88b54fe77b8c?sharedAppSource=personal_library
   * Add a student account to the course.  After the student has been added and the box syncs (see above), the teacher's Rocketchat account will receive an automated notification chat of the student connection.  The teacher may then reply and a chat will be sent to the student at the next sync.
-
-# Backup
-AWS Backup has a simple backup tool for EC2 instances.  Recommend the daily, monthly or daily, monthly, yearly backup plan.  Document: https://aws.amazon.com/blogs/aws/aws-backup-ec2-instances-efs-single-file-restore-and-cross-region-backup/
 
 # Additional Resources
 https://docs.rocket.chat/installation/paas-deployments/aws
