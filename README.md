@@ -65,6 +65,7 @@ This project is related to The Well, a raspberry pi based platform for Moodle cl
   * Video: https://www.loom.com/share/2288f2598a3a4346b9d9e52b34b00eb6?sharedAppSource=personal_library
 * In web browser, navigate to http://chat.yourorg.org/dashboard and set up Dashboard.
   * You must create user accounts in RocketChat (https://www.youtube.com/watch?v=4sTXuZ2q2Hg) and these users MUST have the roles of at least Leader or Admin to be allowed to connect to Dashboard.
+  * Video Intro for Dashboard: https://www.loom.com/share/58b8307e643443e2b9f8c7a847b586a6?sharedAppSource=personal_library
 
 # Usage
 * Teacher Setup
