@@ -211,6 +211,9 @@ async function getAndCombineContent() {
 					package.type = "Content-Slim";
 					package.unique = `${package.package}-slim`;
 				}
+				else {
+					continue;
+				}
 				console.log(package);
 				if (!packageLatest[package.unique]) {
 					packageArray.push(package);
