@@ -64,6 +64,7 @@
 							<div class="content" id="deliverRegion" style="display:none;">
 								<h6>Deliver Package To This Device</h6>
 								Selected Device: <span id="boxid"></span><BR>
+								Content Type: <span id="type"></span><BR>
 								Selected Package: <span id="package">None</span>
 							</div>
 								<BR>
@@ -127,21 +128,24 @@ function loadBoxInfo() {
 			});
 
 }
-		function selectPackage(id) {
-		console.log(`selecting: ${id}`);
+		function selectPackage(url,type) {
+			console.log(`selecting: ${type}: ${url}`);
 
-			//alert(id);
-			$("#boxid").text(boxid)
-			$("#package").text(id);
+			$("#boxid").text(boxid);
+			$("#type").text(type);
+			$("#package").text(url);
 			$("#button").show();
 			$("#deliverRegion").show();
 		}
 
 		function saveSetting() {
 			var data = {
-				key: "openwell-download",
+				key: "openwelldownload",
 				value: $('#package').text()
 			};
+			if ($('#type').text() === 'Moodle') {
+				data.key = "coursedownload";
+			}
 			console.log(data);
 			$.ajax({
 				url: `/chathost/admin/settings/${boxid}`,
@@ -179,7 +183,7 @@ async function loadDataTable() {
 		item.date = moment(item.timestamp * 1000).format('LLL');
 		item.action = `<span onclick="copy('${item.filepath}')"><i class="copy icon"></i></span>&nbsp;&nbsp;`;
 		if (boxid) {
-			item.action += `<span onclick="selectPackage('${item.filepath}')"><i class="download icon"></i></span>`;
+			item.action += `<span onclick="selectPackage('${item.filepath}','${item.type}')"><i class="download icon"></i></span>`;
 		}
 		for (var col of columns) {
 			fitem.push(item[col.field] || '');
