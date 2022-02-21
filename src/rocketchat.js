@@ -370,6 +370,10 @@ console.log(data.users[username]);
 
 async function createGroup(boxid,username,courseName) {
 	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+	if (!data.users[username]) {
+		logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Username not found`);
+		return false;
+	}
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
