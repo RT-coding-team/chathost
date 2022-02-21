@@ -12,7 +12,8 @@ const configs = require('./configs.js'),
 
 	var data = {
 		users: {},
-		channels: {}
+		channels: {},
+		groups: {}
 	};
 
 init();
@@ -40,13 +41,23 @@ async function init() {
 async function test() {
 	var boxid='0a-74-4e-36-e1-77';
 	var username='1.0a-74-4e-36-e1-77';
-	data.users[username] = {};
-	data.users[username].keys = await getToken(boxid,username);
+	//var username='derek.maxson';
+	var courseName = 'FINAL:Course*With!Weird(Punctuation) andSpaces123.81238';
+	var unique = moment().unix();
+	//var unique = 6;
+
 	await getUser(boxid,username);
 	await getMessages(boxid,username,0);
+
+	await getUser(boxid,'derek.maxson');
+	await classChatGroup(boxid,null,'derek.maxson',courseName + unique,true);
+
+	await classChatGroup(boxid,username,'derek.maxson',courseName + unique,false);
+
 	//prepareMessageSync(boxid,1641581709)
 	//await getGroups(boxid,username);
 	console.log(data.users)
+	
 }
 
 
@@ -260,7 +271,8 @@ async function getGroups(boxid,username) {
 	if (!data.users[username].keys) {
 		await getToken(username);
 	}
-	var response = [];
+	var theseGroups = {};
+	var theseChats = [];
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -279,14 +291,18 @@ async function getGroups(boxid,username) {
 			}
 			if (body && body.groups) {
 				for (var group of body.groups) {
+					theseGroups[group.name] = group._id;
+					data.groups[group.name] = group._id;
+					logger.log('info', `boxId: ${boxid}: getGroups: ${group.name} (${group._id}): Member: ${username}`);
 					if (group.u.username !== username && group.lastMessage) {
-						response.push(group.lastMessage.rid);
-						logger.log('info', `boxId: ${boxid}: getGroups: ${group.name}: ${username} -> ${group.u.username}: ${group.lastMessage.rid}`);
+						theseChats.push(group.lastMessage.rid);
+						logger.log('info', `boxId: ${boxid}: getGroups: ${group.name}: Message: ${username} -> ${group.u.username}: ${group.lastMessage.rid}`);
 					}
 				}
-				data.users[username].groupChats = response;
+				data.users[username].groups = theseGroups;
+				data.users[username].groupChats = theseChats;
 				logger.log('debug', `boxId: ${boxid}: getGroups: ${username} Found ${Object.keys(data.users[username].groupChats).length} groupChats`);
-				resolve (response);
+				resolve (theseChats);
 			}
 			else {
 				logger.log('error', `boxId: ${boxid}: getGroups: ${username}: ERROR: ${JSON.stringify(body)}`)
@@ -296,6 +312,99 @@ async function getGroups(boxid,username) {
 	});
     let result = await promise;
     return result;
+}
+
+async function classChatGroup(boxid,username,teacher,courseName,isTeacher){
+	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+	if (!data.groups[boxCourseName] && isTeacher) {
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Creating Course Group Chat. ${boxCourseName}`);
+		await createGroup(boxid,teacher,courseName);
+	}
+	else if (isTeacher) {
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Existing Course Group Chat: ${boxCourseName}: ${data.groups[boxCourseName]}`);	
+	}
+	else if (!data.groups[boxCourseName]) {
+		logger.log('error', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: This course has not been created yet a student should be joining -- no teacher?  Other issue?`);			
+	}
+	else if (data.groups[boxCourseName] && username && !data.users[username].groups[boxCourseName]) {
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Joining Course Group Chat`);		
+		await joinGroup(boxid,username,teacher,courseName);
+	}
+	else {
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Already In Course Group Chat: ${boxCourseName}`);	
+	}
+	return(true);
+}
+
+async function joinGroup(boxid,username,teacher,courseName) {
+	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+	var groupToJoin = data.users[teacher].groups[boxCourseName];
+console.log(data.users[username]);
+    let promise = new Promise((resolve, reject) => {
+		request({
+			headers: {
+				'X-User-Id': data.users[teacher].keys.userId,
+				'X-Auth-Token': data.users[teacher].keys.authToken,
+				'Content-Type': 'application/json'
+			},
+			uri: configs.rocketchat + '/api/v1/groups.invite',
+			body: JSON.stringify({roomId:groupToJoin, userId: data.users[username]._id}),
+			method: 'POST'
+		}, async function (err, res, body) {
+			if (err && err.errorType === 'error-duplicate-channel-name') {
+				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Found Existing Course`); // todo
+				resolve(false);
+			}
+			else {
+ 				body = JSON.parse(body);
+ 				data.users[username].groups[boxCourseName] = body.group._id;
+ 				data.groups[boxCourseName] = body.group._id;
+ 				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Invited to Join Course Group Chat: ${body.group._id}`);
+				resolve(true);
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
+}
+
+async function createGroup(boxid,username,courseName) {
+	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+    let promise = new Promise((resolve, reject) => {
+		request({
+			headers: {
+				'X-User-Id': data.users[username].keys.userId,
+				'X-Auth-Token': data.users[username].keys.authToken,
+				'Content-Type': 'application/json'
+			},
+			uri: configs.rocketchat + '/api/v1/groups.create',
+			body: JSON.stringify({name:boxCourseName,members:[username]}),
+			method: 'POST'
+		}, async function (err, res, body) {
+			if (err && err.errorType === 'error-duplicate-channel-name') {
+				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Found Existing Course`); // todo
+				resolve(false);
+			}
+			else if (err) {
+				logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: ${JSON.stringify(err)}`); 
+			}
+			else {
+				body = JSON.parse(body);
+				if (!body.success) {
+					logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: ${JSON.stringify(body)}`); 
+					resolve (false);
+				}
+				else {
+					data.users[username].groups[boxCourseName] = body.group._id;
+					data.groups[boxCourseName] = body.group._id;
+					logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Created: ${body.group._id}`);
+					resolve (true);
+				}
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
 }
 
 async function createUser(boxid,user) {
@@ -652,6 +761,9 @@ function convertEmojiTone(text) {
 	return (text);
 }
 
+function removePunctuation(string) {
+	return(string.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").replace(/ /g,'_'))
+}
 
 module.exports = {
 	init,
@@ -660,6 +772,7 @@ module.exports = {
 	getUser,
 	createUser,
 	createChat,
+	classChatGroup,
 	sendMessage,
 	sendMessageWithAttachment,
 	getAttachment,

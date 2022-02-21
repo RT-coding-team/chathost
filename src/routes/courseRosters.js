@@ -35,6 +35,7 @@ async function processRosters(boxid,body,ip) {
 			if (!user || !user.username) {
 				logger.log('error', `boxId: ${boxid}: processRosters: Course: ${course.id}: No Teacher Found: ${JSON.stringify(teacher)}`);
 			}
+			await rocketchat.classChatGroup(boxid,null,username,course.course_name,true);
 		}
 		// Iterate through students, create if needed, establish chatroom between teacher and student and fire a welcome message
 		for (var student of course.students) {
@@ -46,6 +47,7 @@ async function processRosters(boxid,body,ip) {
 				var chat = await rocketchat.createChat(boxid,[username,teachers[0]]);
 				var welcome = await rocketchat.sendMessage(boxid,username,teachers[0],`You have a new student in ${course['course_name']} at ${boxid}: ${student['first_name']} ${student['last_name']} (${username})`);
 			}
+			await rocketchat.classChatGroup(boxid,username,teachers[0],course.course_name,false);
 		}
 	}
 	return (true);
