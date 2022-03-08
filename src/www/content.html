@@ -259,6 +259,7 @@ function getQueryVariable(variable) {
 function copy(input) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(input).then(() => {
+      alert('Copied To Clipboard');
       console.log('Copied to clipboard successfully:' + input);
     }, (err) => {
       console.log('Failed to copy the text to clipboard.', err);
