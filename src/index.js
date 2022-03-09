@@ -120,12 +120,18 @@ webapp.use(async function (req, res, next) {
 	}
 	else if (req.headers['x-boxid']) {
 		// Well box is sending credentials but they are invalid
-		logger.log('error', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Invalid Credentials`);	
+		logger.log('error', `boxId: ${req.headers['x-boxid']}: ${req.method} ${req.originalUrl}: ${req.headers['x-forwarded-for'] || req.socket.remoteAddress}: Invalid Credentials: Return 401`);	
 		res.sendStatus(401);
+	}
+	else if (req.headers.authorization) {
+		// Probably a dashboard user that is not valid
+		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials: Return 401`);
+		//console.log(req.headers);
+		res.status(401);	
 	}
 	else {
 		// Probably a dashboard user that is not valid
-		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials`);
+		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials: Redirect to Login`);
 		//console.log(req.headers);
 		res.status(401).redirect('/chathost/login.html');
 	}
