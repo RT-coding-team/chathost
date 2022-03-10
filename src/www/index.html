@@ -200,7 +200,12 @@
 		var final = [];
 		for (var item of data) {
 			var fitem = [];
-			item.sitenameWithDetails = `<span data-toggle="modal" data-target="#detailModal" onclick="loadDetailModal('${item.boxid}')">${item.sitename}</span>`;
+			if (item.sitename === 'UNAUTHORIZED') {
+				item.sitenameWithDetails = `<span data-toggle="modal" data-target="#detailModal" onclick="loadSecurity('${item.boxid}')">${item.sitename}</span>`;		
+			}
+			else {
+				item.sitenameWithDetails = `<span data-toggle="modal" data-target="#detailModal" onclick="loadDetailModal('${item.boxid}')">${item.sitename}</span>`;
+			}
 			item.date = moment(item.timestamp * 1000).format('LLL');
 			item.cts = `${item.courses}-${item.teachers}-${item.students}`;
 			for (var col of columns) {
@@ -231,6 +236,10 @@
 		}
     });
 
+
+	function loadSecurity(boxid) {
+		location.href = `/dashboard/security.html?id=${boxid}`;
+	}
 
 	function loadDetailModal(id) {
 		$("#showDetails").text('');

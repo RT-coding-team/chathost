@@ -9,9 +9,9 @@ const express = require('express'),
     configs = require('./configs.js'),
     Logger = require('./logger.js'),
     rocketchat = require('./rocketchat.js'),
+    mongo = require('./mongo.js'),
     logger = new Logger(configs.logging);
 
-var unauthorizedBoxes = {};
 
 webapp.listen(configs.port);
 webapp.use(async function (req, res, next) {
@@ -128,8 +128,7 @@ webapp.use(async function (req, res, next) {
 	else if (req.headers.authorization) {
 		// Probably a dashboard user that is not valid
 		logger.log('error', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Unauthorized Request: Invalid Authorization Credentials: Return 401`);
-		unauthorizedBoxes[req.headers.authorization] = true;
-		console.log(unauthorizedBoxes);
+		mongo.unauthorizedBoxes(req.headers.authorization);
 		//console.log(req.headers);
 		res.sendStatus(401);	
 	}

@@ -97,6 +97,14 @@ async function getMessageStatusValue(boxid) {
     return result;
 }
 
+function unauthorizedBoxes(string) {
+	var [boxid,key] = string.replace('Bearer ','').split('|');
+	logger.log('debug',`unauthorizedBoxes: ${boxid}: ${string}`);
+	setCourseRoster(boxid,[{sitename:'UNAUTHORIZED'}],'', function(response) {
+		// Nothing to do here;
+	});
+}
+
 // Put the courseRoster in Mongo.  That is all
 function setCourseRoster(boxid,body,ip,callback) {
 	const collection = db.collection('courseRoster');
@@ -504,6 +512,7 @@ module.exports = {
 	getMessageStatusValue,
 	setMessageStatusValue,
 	setCourseRoster,
+	unauthorizedBoxes,
 	getBoxRosters,
 	messageSentToRocketChat,
 	isMessageSentToRocketChat,
