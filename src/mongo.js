@@ -11,6 +11,7 @@ const configs = require('./configs.js'),
 	dbName = "chathost";
 
 var db;
+var settingsPending = {};
 
 MongoClient.connect(configs.mongo,{ useUnifiedTopology: true}, async function(err, client) {
 	assert.equal(null, err);
@@ -344,12 +345,29 @@ function orderLogs( a, b ) {
   return 0;
 }
 
-async function getSettings(boxid) {
+async function getSettings(boxid,sendPending) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('settings');
 		collection.find({boxid:boxid}).toArray(function(err, results) {
 			if (results && results[0]) {
-				resolve(results);
+				var response = [];
+				for (var result of results) {
+					if (sendPending || !settingsPending[result.deleteId] || settingsPending[result.deleteId] > moment.unix()) {
+						result.pending = "No";
+						if (!sendPending) {
+							settingsPending[result.deleteId] = moment().unix() + 7260;  // 121 minutes
+						}
+						if (settingsPending[result.deleteId]) {
+							result.pending = "Yes";						
+						}
+						logger.log('info', `boxId: ${boxid}: getSettings: Sending ${result.key}.  Pending until ${settingsPending[result.deleteId]} (${moment(settingsPending[result.deleteId] * 1000).format('LLL')})`);			
+						response.push(result);
+					}
+					else {
+						logger.log('info', `boxId: ${boxid}: getSettings: Not Resending ${result.key} until ${moment(settingsPending[result.deleteId] * 1000).format('LLL')}`);			
+					}
+				}
+				resolve(response);
 			}
 			else {
 				resolve([]);

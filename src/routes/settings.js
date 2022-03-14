@@ -6,13 +6,13 @@ const express = require('express'),
     Logger = require('../logger.js'),
     logger = new Logger(configs.logging);
 
-router.get('/', async function apiDistricts(req, res) {
-	var response = await mongo.getSettings(req.boxid);
+router.get('/', async function getSettings(req, res) {
+	var response = await mongo.getSettings(req.boxid,false);
 	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: Settings Delivered: ${response.length}`);
     res.send(response);
 });
 
-router.delete('/:deleteId', async function postLogs(req, res) {
+router.delete('/:deleteId', async function deleteSetting(req, res) {
 	var result = await mongo.deleteSetting(req.boxid,req.params.deleteId);
 	if (result) {
 		res.sendStatus(200);

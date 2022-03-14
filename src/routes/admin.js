@@ -80,7 +80,7 @@ router.get('/logs/:boxid', async function getLogs(req, res) {
 });
 
 router.get('/settings/:boxid', async function getSettings(req, res) {
-	var response = await mongo.getSettings(req.params.boxid);
+	var response = await mongo.getSettings(req.params.boxid,true);
 	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: ${response.length} Settings Pending`);
 	res.send(response);
 });
