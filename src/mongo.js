@@ -355,7 +355,7 @@ async function getSettings(boxid,sendPending) {
 					if (sendPending || !settingsPending[result.deleteId] || settingsPending[result.deleteId] > moment.unix()) {
 						result.pending = "No";
 						if (!sendPending) {
-							settingsPending[result.deleteId] = moment().unix() + 7260;  // 121 minutes
+							settingsPending[result.deleteId] = moment('21000101','YYYYMMDD').unix();  // Don't send it until the next century. :)
 						}
 						if (settingsPending[result.deleteId]) {
 							result.pending = "Yes";						
