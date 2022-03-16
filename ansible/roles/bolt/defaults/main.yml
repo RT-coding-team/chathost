@@ -7,6 +7,3 @@ document_root: "/home/ec2-user"
 nvm_version: 0.34.0
 # the version of node you want to install/use
 node_version: 15.11.0
-
-# The port used for front facing HTTP to the public.  AWS Load Balancer config is 8080.  May want to use 80 otherwise
-HTTP_PORT: 8080
