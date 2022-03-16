@@ -15,6 +15,11 @@ router.get('/users', function getState(req, res) {
 	res.send(rocketchat.data);
 });
 
+router.get('/boltURL', function getboltURL(req,res) {
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: `);
+	res.send({url:configs.bolt});
+})
+
 router.get('/boxes', async function getBoxes(req, res) {
 	var response = [];
 	var boxes = await mongo.getBoxInventory();

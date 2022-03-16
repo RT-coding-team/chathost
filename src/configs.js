@@ -5,7 +5,8 @@ var configs = {
 	"mongo": "mongodb://mongo:27017",
 	"rocketchat": 'https://chat.thewellcloud.cloud',
 	"rocketchatadmin": "admin",
-	"rocketchatpassword": "!1TheWell"
+	"rocketchatpassword": "!1TheWell",
+	"bolt": "https://bolt.thewellcloud.cloud"
 };
 
 const

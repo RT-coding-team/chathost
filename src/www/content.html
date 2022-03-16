@@ -115,6 +115,57 @@
 	loadDataTable();
 	//loadBoxInfo();
 
+async function getAndCombineContent() {
+	var bolt = await getDataFromAPI('/chathost/admin/boltURL');
+	var data = await getDataFromAPI(bolt.url + '/exporter/api/files.json');
+	var packageLatest = {};
+	var packageArray = [];
+	for (var package of data) {
+		console.log(package);
+		package.type = "Content";
+		package.filepath = package.filepath.replace('http://','https://');
+		package.unique = package.package;
+		if (package.is_slim) {
+			package.type = "Content-Slim";
+			package.unique = `${package.package}-slim`;
+		}
+		else {
+			continue;
+		}
+		console.log(package);
+		if (!packageLatest[package.unique]) {
+			packageArray.push(package);
+			packageLatest[package.unique] = true;
+		}
+	}
+	var data = await getDataFromAPI(bolt.url + '/content-api/courses.json');
+	var packageLatest = {};
+	for (var package of data) {
+		console.log(package);
+		package.type = "Moodle";
+		package.filepath = package.filepath.replace('http://','https://');
+		package.package = package.title;
+		package.unique = package.title;
+		console.log(package);
+		if (!packageLatest[package.unique]) {
+			packageArray.push(package);
+			packageLatest[package.unique] = true;
+		}
+	}
+	return (packageArray);
+}
+
+async function getDataFromAPI(url) {
+    let promise = new Promise((resolve, reject) => {
+		$.getJSON(url, function(data){
+			console.log(data);
+			resolve(data);
+		});
+	});
+    let result = await promise;
+    return result;	
+}
+
 function loadBoxInfo() {
 			$.ajax({
 				url: `/chathost/admin/roster/${boxid}`,
@@ -195,53 +246,6 @@ async function loadDataTable() {
 		data: final,
 		columns: columns
 	});
-}
-
-async function getAndCombineContent() {
-    let promise = new Promise((resolve, reject) => {
-		$.getJSON( "https://bolt.thewellcloud.cloud/exporter/api/files.json", function(data){
-			var packageLatest = {};
-			var packageArray = [];
-			for (var package of data) {
-				console.log(package);
-				package.type = "Content";
-				package.filepath = package.filepath.replace('http://','https://');
-				package.unique = package.package;
-				if (package.is_slim) {
-					package.type = "Content-Slim";
-					package.unique = `${package.package}-slim`;
-				}
-				else {
-					continue;
-				}
-				console.log(package);
-				if (!packageLatest[package.unique]) {
-					packageArray.push(package);
-					packageLatest[package.unique] = true;
-				}
-			}
-			$.getJSON( "https://bolt.thewellcloud.cloud/content-api/courses.json", function(data){
-				var packageLatest = {};
-				for (var package of data) {
-					console.log(package);
-					package.type = "Moodle";
-					package.filepath = package.filepath.replace('http://','https://');
-					package.package = package.title;
-					package.unique = package.title;
-					console.log(package);
-					if (!packageLatest[package.unique]) {
-						packageArray.push(package);
-						packageLatest[package.unique] = true;
-					}
-				}
-				console.log(packageArray);
-				resolve(packageArray);
-			});
-
-		});
-	});
-    let result = await promise;
-    return result;	
 }
 
 function getQueryVariable(variable) {
