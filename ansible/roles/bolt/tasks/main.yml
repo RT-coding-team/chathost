@@ -14,22 +14,27 @@
   ansible.builtin.file:
     path: "{{ document_root }}/mediabuilder"
     recurse: yes
-    owner: ec2-user
-    group: ec2-user
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
     mode: '777'
 
 - name: Copy env to mediabuilder directory
   template:
     src: env
     dest: "{{ document_root }}/mediabuilder/.env"
-    
+
+- name: Copy run_docker_compose to mediabuilder directory
+  template:
+    src: run_docker_compose.sh
+    dest: "{{ document_root }}/mediabuilder/run_docker_compose.sh"
+        
 - name: Copy nginx template
   template:
     src: exporter.yaml
     dest: "{{ document_root }}/mediabuilder/config/bolt/"
 
 - name: Launch Dockers (docker-compose up -d)
-  command: 'sudo -u ec2-user {{ document_root }}/mediabuilder/run_docker_compose.sh &'
+  command: 'sudo -u {{ ansible_user }} {{ document_root }}/mediabuilder/run_docker_compose.sh &'
 
 - name: Enable Amazon Extras for nginx
   command: amazon-linux-extras enable nginx1

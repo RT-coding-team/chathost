@@ -1,7 +1,7 @@
 ---
 
 - name: Install make to build node
-  yum: 
+  package: 
     name: gcc-c++, make
     state: latest
 
@@ -15,12 +15,12 @@
   shell: /tmp/setup_14.x
 
 - name: Install the latest version of Node
-  yum:
+  package:
     name: nodejs
     state: latest
   
 - name: Install the latest version of Git
-  yum:
+  package:
     name: git
     state: latest
 
@@ -36,23 +36,23 @@
   ansible.builtin.file:
     path: "{{ document_root }}/chathost"
     recurse: yes
-    owner: ec2-user
-    group: ec2-user
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
     mode: '776'
 
 - name: Set data directory for Mongo
   ansible.builtin.file:
     path: "{{ document_root }}/data/db"
     state: directory
-    owner: ec2-user
-    group: ec2-user
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
     mode: '777'
 
 - name: Add the user 'nginx' 
   ansible.builtin.user:
     name: nginx
-    uid: 101
-    group: ec2-user
+#    uid: 101
+    group: '{{ ansible_user }}'
 
 - name: Install node packages based on package.json.
   community.general.npm:
@@ -62,9 +62,14 @@
   template:
     src: env
     dest: "{{ document_root }}/chathost/.env"
+
+- name: Copy run_docker_compose to chathost directory
+  template:
+    src: run_docker_compose.sh
+    dest: "{{ document_root }}/chathost/.env"
     
 - name: Launch Dockers (docker-compose up -d)
-  command: 'sudo -u ec2-user {{ document_root }}/chathost/run_docker_compose.sh &'
+  command: 'sudo -u {{ ansible_user }} {{ document_root }}/chathost/run_docker_compose.sh &'
 
 - name: Check chathost container before continuing
   wait_for:
@@ -75,5 +80,5 @@
   ansible.builtin.cron:
     name: "system.js"
     minute: "*"
-    user: ec2-user
+    user: '{{ ansible_user }}'
     job: "/usr/bin/node {{ document_root }}/chathost/src/system.js >/tmp/systemjs.log 2&>1"
