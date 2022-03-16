@@ -5,15 +5,11 @@
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Install Docker from AWS repo
-  become: true
-  yum:
-    name: docker
-    state: latest
-    
-- name: Give permissions to run docker as ec2-users
-  command: usermod -aG docker ec2-user
-  become: true
+- include_tasks: setup-AWS.yml
+  when: ansible_user == 'ec2-user'
+
+- include_tasks: setup-NOTAWS.yml
+  when: ansible_user != 'ec2-user'
 
 - name: Ensure Docker is started and enabled at boot.
   service:

@@ -1,0 +1,11 @@
+---
+- name: Install Docker from AWS repo
+  become: true
+  yum:
+    name: docker
+    state: latest
+    
+- name: Give permissions to run docker as ec2-users
+  command: usermod -aG docker ec2-user
+  become: true
+

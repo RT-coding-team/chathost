@@ -1,0 +1,20 @@
+---
+- name: Install Docker.
+  package:
+    name: "{{ docker_package }}"
+    state: "{{ docker_package_state }}"
+  notify: restart docker
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Ensure /etc/docker/ directory exists.
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+
+#- name: Configure Docker daemon options.
+#  copy:
+#    content: "{{ docker_daemon_options | to_nice_json }}"
+#    dest: /etc/docker/daemon.json
+#    mode: 0644
+#  notify: restart docker
