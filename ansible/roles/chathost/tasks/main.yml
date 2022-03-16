@@ -70,6 +70,7 @@
   template:
     src: run_docker_compose.sh
     dest: "{{ document_root }}/chathost/run_docker_compose.sh"
+    mode: '775'
     
 - name: Launch Dockers (docker-compose up -d)
   command: 'sudo -u {{ ansible_user }} {{ document_root }}/chathost/run_docker_compose.sh &'

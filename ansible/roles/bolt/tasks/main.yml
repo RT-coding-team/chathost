@@ -27,6 +27,7 @@
   template:
     src: run_docker_compose.sh
     dest: "{{ document_root }}/mediabuilder/run_docker_compose.sh"
+    mode: '775'
         
 - name: Copy nginx template
   template:
