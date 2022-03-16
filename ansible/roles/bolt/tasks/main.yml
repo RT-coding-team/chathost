@@ -43,7 +43,7 @@
   when: ansible_user == 'ec2-user'
     
 - name: Install nginx
-  yum:
+  package:
     name: nginx
     state: latest
 
