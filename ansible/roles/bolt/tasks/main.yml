@@ -40,7 +40,8 @@
 - name: Enable Amazon Extras for nginx
   command: amazon-linux-extras enable nginx1
   become: true
-  
+  when: ansible_user == 'ec2-user'
+    
 - name: Install nginx
   yum:
     name: nginx
