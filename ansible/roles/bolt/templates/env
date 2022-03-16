@@ -34,3 +34,7 @@ CORS_ALLOW_ORIGIN=*
 
 # Added by Derek Maxson 20220201
 MASTERPASSWORD={{ password }}
+
+
+# Added by Derek Maxson 20220316
+HTTP_PORT={{ HTTP_PORT }}
