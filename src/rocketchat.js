@@ -317,6 +317,50 @@ async function getGroups(boxid,username) {
     return result;
 }
 
+async function findClassChatGroup(boxid,teacher,courseName) {
+	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+	logger.log('debug', `boxId: ${boxid}: findClassChatGroup: ${teacher}: ${courseName}: Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
+	if (data.groups[boxCourseName]) {
+		return (data.groups[boxCourseName]);
+	}
+	else {
+		await findGroup(boxid,teacher,boxCourseName);
+	}
+}
+
+async function findGroup(boxid,teacher,boxCourseName) {
+    let promise = new Promise((resolve, reject) => {
+		request({
+			headers: {
+				'X-User-Id': data.users.ADMIN.keys.userId,
+				'X-Auth-Token': data.users.ADMIN.keys.authToken,
+				'Content-Type': 'application/json'
+			},
+			uri: configs.rocketchat + `/api/v1/groups.listAll?query={ "name": { "$eq": "${boxCourseName}" } }`,
+			method: 'GET'
+		}, async function (err, res, body) {
+			if (err) {
+				logger.log('debug', `boxId: ${boxid}: findGroup: ${teacher}: ${courseName}: ERROR: ${err}`);
+				resolve(false);
+			}
+			else {
+ 				body = JSON.parse(body);
+				if (body.groups) {
+					data.groups[boxCourseName] = body.groups[0]._id;
+					logger.log('debug', `boxId: ${boxid}: findGroup: ${teacher}: ${boxCourseName}: Found Existing Group in Rocketchat: ${data.groups[boxCourseName]}`);
+					resolve(true);					
+				}
+				else {
+					logger.log('debug', `boxId: ${boxid}: findGroup: ${teacher}: ${boxCourseName}: NO Existing Group in Rocketchat`);
+					resolve (false);
+				}
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
+}
+
 async function classChatGroup(boxid,username,teacher,courseName,isTeacher){
 	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
 	if (username) {
@@ -788,6 +832,7 @@ module.exports = {
 	createUser,
 	createChat,
 	classChatGroup,
+	findClassChatGroup,
 	sendMessage,
 	sendMessageWithAttachment,
 	getAttachment,
