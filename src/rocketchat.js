@@ -345,7 +345,7 @@ async function findGroup(boxid,teacher,boxCourseName) {
 			}
 			else {
  				body = JSON.parse(body);
-				if (body.groups) {
+				if (body.groups && body.groups[0]) {
 					data.groups[boxCourseName] = body.groups[0]._id;
 					logger.log('debug', `boxId: ${boxid}: findGroup: ${teacher}: ${boxCourseName}: Found Existing Group in Rocketchat: ${data.groups[boxCourseName]}`);
 					resolve(true);					
