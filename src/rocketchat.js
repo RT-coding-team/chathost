@@ -201,6 +201,9 @@ async function getUser(boxid,username) {
 					data.users[username].keys = await getToken(boxid,username);
 					data.users[username].chats = await getChats(boxid,username);
 					data.users[username].groupChats = await getGroups(boxid,username);
+					if (!data.users[username].groups) {
+						data.users[username].groups = {};
+					}
 					resolve (data.users[username]);		
 				}
 				else {
@@ -316,12 +319,21 @@ async function getGroups(boxid,username) {
 
 async function classChatGroup(boxid,username,teacher,courseName,isTeacher){
 	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+	if (username) {
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
+	}
+	else if (teacher) {
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
+	}
+	if (data.users[username] && !data.users[username].groups) {
+		data.users[username].groups = {};
+	}
 	if (!data.groups[boxCourseName] && isTeacher) {
 		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Creating Course Group Chat. ${boxCourseName}`);
 		await createGroup(boxid,teacher,courseName);
 	}
 	else if (isTeacher) {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Existing Course Group Chat: ${boxCourseName}: ${data.groups[boxCourseName]}`);	
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Existing Course Group Chat: ${boxCourseName}: ${data.groups[boxCourseName]}: ID: ${data.groups[boxCourseName]}`);	
 	}
 	else if (!data.groups[boxCourseName]) {
 		logger.log('error', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: This course has not been created yet a student should be joining -- no teacher?  Other issue?`);			
@@ -331,7 +343,7 @@ async function classChatGroup(boxid,username,teacher,courseName,isTeacher){
 		await joinGroup(boxid,username,teacher,courseName);
 	}
 	else {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Already In Course Group Chat: ${boxCourseName}`);	
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Already In Course Group Chat: ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);	
 	}
 	return(true);
 }
@@ -339,7 +351,6 @@ async function classChatGroup(boxid,username,teacher,courseName,isTeacher){
 async function joinGroup(boxid,username,teacher,courseName) {
 	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
 	var groupToJoin = data.users[teacher].groups[boxCourseName];
-console.log(data.users[username]);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -449,8 +460,8 @@ async function createUser(boxid,user) {
     return result;
 }
 
-async function createChat(people,boxid) {
-	logger.log('debug', `boxId: ${boxid}: createChat: ${people.join()}`);
+async function createChat(boxid,people) {
+	logger.log('debug', `boxId: ${boxid}: createChat: ${JSON.stringify(people)}`);
     let promise = new Promise((resolve, reject) => {
 		var postdata = {
 			usernames:people.join()
@@ -496,7 +507,7 @@ async function sendMessage(boxid,fromUsername,toUsername,message) {
 		await getUser(toUsername);
 	}
 	if (!data.users[fromUsername].chats || !data.users[fromUsername].chats[toUsername]) {
-		await createChat([fromUsername,toUsername]);
+		await createChat(boxid,[fromUsername,toUsername]);
 		await getChats(boxid,fromUsername);
 	}
     let promise = new Promise((resolve, reject) => {
@@ -540,7 +551,7 @@ async function sendMessageWithAttachment(boxid,fromUsername,toUsername,message) 
 		await getUser(toUsername);
 	}
 	if (!data.users[fromUsername].chats || !data.users[fromUsername].chats[toUsername]) {
-		await createChat([fromUsername,toUsername]);
+		await createChat(boxid,[fromUsername,toUsername]);
 		await getChats(boxid,fromUsername);
 	}
 	var roomId = data.users[fromUsername].chats[toUsername];
