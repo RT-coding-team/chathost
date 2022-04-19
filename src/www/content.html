@@ -191,7 +191,7 @@ function loadBoxInfo() {
 
 		function saveSetting() {
 			var data = {
-				key: "openwelldownload",
+				key: "subscribe",
 				value: $('#package').text()
 			};
 			if ($('#type').text() === 'Moodle') {
@@ -233,7 +233,10 @@ async function loadDataTable() {
 		var fitem = [];
 		item.date = moment(item.timestamp * 1000).format('LLL');
 		item.action = `<span onclick="copy('${item.filepath}')"><i class="copy icon"></i></span>&nbsp;&nbsp;`;
-		if (boxid) {
+		if (boxid && item.type === 'Content-Slim') {
+			item.action += `<span onclick="selectPackage('${window.location.host}/admin/link/openwell?packageName=${item.package}','${item.type}')"><i class="download icon"></i></span>`;
+		}
+		else if (boxid && item.type === 'Moodle'){
 			item.action += `<span onclick="selectPackage('${item.filepath}','${item.type}')"><i class="download icon"></i></span>`;
 		}
 		for (var col of columns) {
