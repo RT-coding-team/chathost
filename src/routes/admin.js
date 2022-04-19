@@ -20,10 +20,6 @@ router.get('/boltURL', function getboltURL(req,res) {
 	res.send({url:configs.bolt});
 })
 
-router.get('/openwell', function getboltURL(req,res) {
-	res.redirect(configs.bolt + '/exporter/api/files.json');
-})
-
 router.get('/boxes', async function getBoxes(req, res) {
 	var response = [];
 	var boxes = await mongo.getBoxInventory();

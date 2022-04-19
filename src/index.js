@@ -97,6 +97,11 @@ webapp.get('/chathost/logout', function getAuth(req, res) {
 	res.redirect('/dashboard');
 });
 
+// This handles redirection to Bolt's list of packages
+router.get('/openwell', function getboltURL(req,res) {
+	res.redirect(configs.bolt + '/exporter/api/files.json');
+});
+
 // This handles redirection to Moodle authoring
 webapp.get('/chathost/link/authoring', function getAuth(req, res) {
 	var moodle = process.env['CHATHOST_MOODLE'];
