@@ -234,7 +234,7 @@ async function loadDataTable() {
 		item.date = moment(item.timestamp * 1000).format('LLL');
 		item.action = `<span onclick="copy('${item.filepath}')"><i class="copy icon"></i></span>&nbsp;&nbsp;`;
 		if (boxid && item.type === 'Content-Slim') {
-			item.action += `<span onclick="selectPackage('${window.location.origin}/admin/link/openwell?packageName=${encodeURIComponent(item.package)}','${item.type}')"><i class="download icon"></i></span>`;
+			item.action += `<span onclick="selectPackage('${window.location.origin}/chathost/link/openwell?packageName=${encodeURIComponent(item.package)}','${item.type}')"><i class="download icon"></i></span>`;
 		}
 		else if (boxid && item.type === 'Moodle'){
 			item.action += `<span onclick="selectPackage('${item.filepath}','${item.type}')"><i class="download icon"></i></span>`;
