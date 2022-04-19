@@ -98,7 +98,7 @@ webapp.get('/chathost/logout', function getAuth(req, res) {
 });
 
 // This handles redirection to Bolt's list of packages
-router.get('/openwell', function getboltURL(req,res) {
+router.get('/chathost/link/openwell', function getboltURL(req,res) {
 	res.redirect(configs.bolt + '/exporter/api/files.json');
 });
 
