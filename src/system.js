@@ -91,8 +91,10 @@ async function getCPU() {
 }
 
 async function getMEM() {
-	console.log(os.freemem(),os.totalmem())
-	return Math.round((os.totalmem()- os.freemem()) / os.totalmem() * 100);
+	var memTotal = execSync('cat /proc/meminfo |grep MemTotal').toString().replace(/ +(?= )/g,'').split(' ')[1];
+	var memAvailable = execSync('cat /proc/meminfo |grep MemAvailable').toString().replace(/ +(?= )/g,'').split(' ')[1];
+	console.log(memTotal,memAvailable);
+	return Math.round((memTotal - memAvailable) / memTotal * 100);
 }
 
 async function getDisk() {
