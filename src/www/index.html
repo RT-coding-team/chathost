@@ -98,66 +98,7 @@
 
       </div>
 
-
-
-
-<div id="detailModal" class="modal fade">
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<div class="icon-box">
-					<!i class="huge wifi icon"><!/i>
-					<img src="/chathost/images/favicon-relaytrust.png" width=40>
-				</div>
-				&nbsp;&nbsp;&nbsp;
-				&nbsp;&nbsp;&nbsp;
-				<a href="#"><h4 class="modal-title instanceName"></h4></a>
-				&nbsp;&nbsp;&nbsp;
-				&nbsp;&nbsp;&nbsp;
-                <a href="" class="instanceLink"><i class="calendar icon"></i></a>  <!todo>
-                &nbsp;
-				<a id="hrefsettings"><i class="settings icon"></i></a>
-                &nbsp;
-				<a id="hreflogs"><i class="info icon"></i></a>
-                &nbsp;
-				<a id="hrefopenwell"><i class="newspaper icon"></i></a>
-                &nbsp;
-				<a id="hrefsecurity"><i class="lock icon"></i></a>
-				&nbsp;
-				<a id="hreftrash"><i class="trash icon"></i></a>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			</div>
-			<div class="modal-body" id="detailModalBody">
-				<table width=100%>
-					<tr>
-						<td>ID</td>
-						<td id="boxid"></td>
-					</tr>
-					<tr>
-						<td>Last IP</td>
-						<td id="siteip"></td>
-					</tr>
-					<tr>
-						<td>Admin</td>
-						<td id="siteadmin_name"></td>
-					</tr>
-					<tr>
-						<td>Email</td>
-						<td><a href="" id="emailLink"><font id="siteadmin_email"></font></a></td>
-					</tr>
-					<tr>
-						<td>Phone</td>
-						<td id="siteadmin_phone"></td>
-					</tr>
-				
-				</table>
-			</div>
-		</div>
-	</div>
-</div>  
-
-
-  
+ 
    </main>
 
     <footer class="container">
@@ -201,10 +142,10 @@
 		for (var item of data) {
 			var fitem = [];
 			if (item.sitename === 'UNAUTHORIZED') {
-				item.sitenameWithDetails = `<span data-toggle="modal" data-target="#detailModal" onclick="loadSecurity('${item.boxid}')">${item.sitename}</span>`;		
+				item.sitenameWithDetails = `<a href="/dashboard/security.html?id=${item.boxid}">${item.sitename}</a>`;		
 			}
 			else {
-				item.sitenameWithDetails = `<span data-toggle="modal" data-target="#detailModal" onclick="loadDetailModal('${item.boxid}')">${item.sitename}</span>`;
+				item.sitenameWithDetails = `<a href="/dashboard/box.html?id=${item.boxid}">${item.sitename}</a>`;
 			}
 			item.date = moment(item.timestamp * 1000).format('LLL');
 			item.cts = `${item.courses}-${item.teachers}-${item.students}`;
@@ -240,35 +181,11 @@
 	function loadSecurity(boxid) {
 		location.href = `/dashboard/security.html?id=${boxid}`;
 	}
-
-	function loadDetailModal(id) {
-		$("#showDetails").text('');
-		$("#instanceNameConfirm").text('Confirm Action: ' +id );
-		$(".instanceLink").attr('href',`courses.html?id=${id}`);
-		console.log("loadDetailModal: " + id);
-		var emailAll = "";
-		$.getJSON( "/chathost/admin/roster/" + id, function( data ) {
-			console.log(data);
-			boxData = data[0] || {};
-			$(".instanceName").text(boxData.sitename || 'Unnamed');
-			$("#boxid").text(id);
-			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
-			$("#hreflogs").attr('href',`logs.html?id=${id}`);
-			$("#hrefsecurity").attr('href',`security.html?id=${id}`);
-			$("#hrefopenwell").attr('href',`content.html?id=${id}`);
-			$("#hreftrash").attr('href',`trash.html?id=${id}`);
-			$("#emailLink").attr('href',`mailto:${boxData.siteadmin_email}`);
-			var keys = Object.keys(boxData);
-			for (var key of keys) {
-				$("#" + key).text(boxData[key]);
-			}
-			$('#detailModal').modal('show');
-		});
-		$.getJSON( "/chathost/admin/security/" + id, function( data ) {
-			$("#lastSecurityKey").text(data.lastSecurityKey);
-			$("#currentSecurityKey").text(data.currentSecurityKey);
-		});
+	function loadBox(boxid) {
+		location.href = `/dashboard/box.html?id=${boxid}`;	
 	}
+
+
 
 </script>
 

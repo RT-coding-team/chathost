@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/chathost/images/favicon-relaytrust.png">
+
+    <title>RelayTrust: The Well Dashboard</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="public/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="public/jsgrid.min.css" />
+	<link type="text/css" rel="stylesheet" href="public/jsgrid-theme.min.css" />
+    <link rel="stylesheet" type="text/css" class="ui" href="public/semantic/semantic.min.css">
+    <link rel="stylesheet" type="text/css" class="ui" href="public/datatables.css">
+ 	<link href="public/flat-ui.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="public/jumbotron.css" rel="stylesheet">
+	<link href="public/dashboard.css" rel="stylesheet">
+    <style>
+    # {
+    	display: none;
+	}
+    </style>
+  </head>
+  <body>
+
+    <nav id="navMain" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+
+    </nav>
+
+
+    <!main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <main role="main" class="col-md-12">
+
+      <div class="Ajumbotron">
+      <BR><BR>
+        <div class="ui container">
+			<div class="row">
+				<div class="col-md-12">
+					<a href="#"><h2 class="modal-title instanceName"></h2></a>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8">
+				<h4>Box Info</h4>
+				<table width=100%>
+					<tr>
+						<td>Box ID</td>
+						<td id="boxid"></td>
+					</tr>
+					<tr>
+						<td>Last IP</td>
+						<td id="siteip"></td>
+					</tr>
+					<tr>
+						<td>Country</td>
+						<td id="siteadmin_country"></td>
+					</tr>
+					<tr>
+						<td>Admin</td>
+						<td id="siteadmin_name"></td>
+					</tr>
+					<tr>
+						<td>Email</td>
+						<td><a href="" id="emailLink"><font id="siteadmin_email"></font></a></td>
+					</tr>
+					<tr>
+						<td>Phone</td>
+						<td id="siteadmin_phone"></td>
+					</tr>
+				
+				</table>
+				</div>
+				<div class="col-md-4">
+				<h4>Box Functions	</h4>
+
+                <a id="hrefcourses"><i class="calendar icon"></i> View Box Content</a><BR>
+				<a id="hrefsettings"><i class="settings icon"></i> Update Settings</a><BR>
+				<a id="hrefopenwell"><i class="newspaper icon"></i> Select Content</a><BR>
+				<a id="hrefstats"><i class="chart line icon"></i> View Content Stats</a><BR>
+				<a id="hrefsecurity"><i class="lock icon"></i> Security</a><BR>
+				<a id="hreflogs"><i class="info icon"></i> View Logs</a><BR>
+				<a id="hreftrash"><i class="trash icon"></i> Delete</a><BR>
+			</div>
+        </div>
+    </div>
+
+
+
+
+  
+   </main>
+
+    <footer class="container">
+      <p>&copy; Relay Trust, 2021</p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="public/jsgrid.min.js"></script>    	
+	<script type="text/javascript" src="public/bootstrap.min.js"></script>
+    <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
+    <script type="text/javascript" src="public/angular-min.js"></script>
+    <script type="text/javascript" src="public/angular-chart-min.js"></script>
+	<script type="text/javascript" src="public/flat-ui.js"></script>
+    <script type="text/javascript" src="public/chart.js"></script>
+    <script type="text/javascript" src="public/datatables.js"></script>
+    <script type="text/javascript" src="public/moment.js"></script>
+    <script type="text/javascript" src="public/navigation.js"></script>
+
+
+<script>
+
+loadDetails('aa-bb-cc-dd-ee-ff');
+
+	function loadDetails(id) {
+		$("#showDetails").text('');
+		$("#instanceNameConfirm").text('Confirm Action: ' +id );
+		$(".instanceLink").attr('href',`courses.html?id=${id}`);
+		console.log("loadDetailModal: " + id);
+		var emailAll = "";
+		$.getJSON( "/chathost/admin/roster/" + id, function( data ) {
+			console.log(data);
+			boxData = data[0] || {};
+			$(".instanceName").text(boxData.sitename || 'Unnamed');
+			$("#boxid").text(id);
+			$("#hrefcourses").attr('href',`courses.html?id=${id}`);
+			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
+			$("#hreflogs").attr('href',`logs.html?id=${id}`);
+			$("#hrefsecurity").attr('href',`security.html?id=${id}`);
+			$("#hrefopenwell").attr('href',`content.html?id=${id}`);
+			$("#hrefstats").attr('href',`stats.html?id=${id}`);
+			$("#hreftrash").attr('href',`trash.html?id=${id}`);
+			$("#emailLink").attr('href',`mailto:${boxData.siteadmin_email}`);
+			var keys = Object.keys(boxData);
+			for (var key of keys) {
+				$("#" + key).text(boxData[key]);
+			}
+			$('#detailModal').modal('show');
+		});
+		$.getJSON( "/chathost/admin/security/" + id, function( data ) {
+			$("#lastSecurityKey").text(data.lastSecurityKey);
+			$("#currentSecurityKey").text(data.currentSecurityKey);
+		});
+	}
+
+</script>
+
+  </body>
+</html>
