@@ -53,6 +53,10 @@
 						<td id="boxid"></td>
 					</tr>
 					<tr>
+						<td>Last Sync</td>
+						<td id="syncdate"></td>
+					</tr>
+					<tr>
 						<td>Last IP</td>
 						<td id="siteip"></td>
 					</tr>
@@ -140,8 +144,10 @@ loadDetails(boxid);
 			$("#hrefstats").attr('href',`stats.html?id=${id}`);
 			$("#hreftrash").attr('href',`trash.html?id=${id}`);
 			$("#emailLink").attr('href',`mailto:${boxData.siteadmin_email}`);
+			boxData.syncdate = moment(boxData.timestamp * 1000).format('LLL');
 			var keys = Object.keys(boxData);
 			for (var key of keys) {
+				console.log(key)
 				$("#" + key).text(boxData[key]);
 			}
 			$('#detailModal').modal('show');

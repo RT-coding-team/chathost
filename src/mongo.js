@@ -133,6 +133,7 @@ async function getBoxRosters(boxid) {
 		const collection = db.collection('courseRoster');
 		collection.find({'_id': boxid}).toArray(function(err, results) {
 			if (results && results[0]) {
+				results[0].data[0].timestamp = results[0].timestamp;
 				resolve(results[0].data);
 			}
 			else {
