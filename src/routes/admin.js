@@ -2,7 +2,6 @@ const express = require('express'),
     router = express.Router()
     configs = require('../configs.js'),
     fs = require('fs'),
-    request = require('request'),
     mongo = require('../mongo.js'),
     rocketchat = require('../rocketchat.js'),
     messages = require('./messages.js'),
@@ -19,20 +18,6 @@ router.get('/users', function getState(req, res) {
 router.get('/boltURL', function getboltURL(req,res) {
 	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: `);
 	res.send({url:configs.bolt});
-})
-
-router.get('/subscriptions', function getSubscriptions(req,res) {
-	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: `);
-	var url = `${configs.bolt}/exporter/api/files.json`;
-	request({ url: url, method: "GET" , json: true}, (error, response, data) => {
-		var response = [];
-		for (var record of data) {
-			if (record['is_slim']) {
-				response.push(record.package);
-			}
-		}
-		res.send(response);
-	});	
 })
 
 router.get('/boxes', async function getBoxes(req, res) {
