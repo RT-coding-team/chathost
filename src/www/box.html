@@ -76,13 +76,17 @@
 						<td>Phone</td>
 						<td id="siteadmin_phone"></td>
 					</tr>
+					<tr>
+						<td>Content Package</td>
+						<td id="package"></td>
+					</tr>
 				
 				</table>
 				</div>
 				<div class="col-md-4">
 				<h4>Box Functions	</h4>
 
-                <a id="hrefcourses"><i class="eye icon"></i> View Box Content</a><BR>
+                <a id="hrefcourses"><i class="eye icon"></i> View Moodle Courses</a><BR>
 				<a id="hrefsettings"><i class="settings icon"></i> Update Settings</a><BR>
 				<a id="hrefopenwell"><i class="download icon"></i> Select Content</a><BR>
 				<a id="hrefstats"><i class="chart line icon"></i> View Content Stats</a><BR>
@@ -136,6 +140,9 @@ loadDetails(boxid);
 			boxData = data[0] || {};
 			$(".instanceName").text(boxData.sitename || 'Unnamed');
 			$("#boxid").text(id);
+			if (boxData.notMoodle) {
+				$("#hrefcourses").hide();
+			}
 			$("#hrefcourses").attr('href',`courses.html?id=${id}`);
 			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
 			$("#hreflogs").attr('href',`logs.html?id=${id}`);
@@ -144,6 +151,7 @@ loadDetails(boxid);
 			$("#hrefstats").attr('href',`stats.html?id=${id}`);
 			$("#hreftrash").attr('href',`trash.html?id=${id}`);
 			$("#emailLink").attr('href',`mailto:${boxData.siteadmin_email}`);
+			$("#package").attr('href',`mailto:${boxData.package}`);
 			boxData.syncdate = moment(boxData.timestamp * 1000).format('LLL');
 			var keys = Object.keys(boxData);
 			for (var key of keys) {
