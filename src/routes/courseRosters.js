@@ -45,6 +45,9 @@ async function processRosters(boxid,body,ip) {
 			var user = await rocketchat.getUser(boxid,username);
 			if (!user || !user.username) {
 				user = await rocketchat.createUser(boxid,{username:username,email:`${username}@none.com`,password:uuidv4(),name:`${student['first_name']} ${student['last_name']}`,customFields:{wellId:boxid}})
+			}
+			await getChats(boxid,username);
+			if (!data.users[username].chats || !data.users[username].chats[teachers[0]]) {
 				var chat = await rocketchat.createChat(boxid,[username,teachers[0]]);
 				var welcome = await rocketchat.sendMessage(boxid,username,teachers[0],`You have a new student in ${course['course_name']} at ${boxid}: ${student['first_name']} ${student['last_name']} (${username})`);
 			}
