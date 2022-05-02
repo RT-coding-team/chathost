@@ -149,8 +149,7 @@ async function getBoxRosters(boxid) {
 function setLogs(boxid,body,type,callback) {
 	try {
 		const collection = db.collection('logs');
-		var id = `${boxid.toString()}-${type}`;
-		collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
+		collection.insertOne({boxid:boxid,type:type,logs:body}, function(err, result) {
 			if (err) {
 				logger.log('error', `boxId: ${boxid}: setLogs: ${type} FAILED: ${err}`);
 				callback(500);
@@ -310,7 +309,11 @@ async function getLogs(boxid) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('logs');
 		collection.find({boxid:boxid}).toArray(function(err, results) {
-			resolve(results[0].data);
+			var response = [];
+			for (var logObject of results) {
+				response = response.concat(logObject.logs);
+			}
+			resolve(response);
 		});
 	});
     let result = await promise;

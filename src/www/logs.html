@@ -73,12 +73,19 @@
 		console.log(data)
 		
 		var columns = [
-            { title: "Log", field: "log"}            
+            { title: "Time", field: "date" },
+            { title: "Title", field: "mediaIdentifier"},
+            { title: "Interaction", field: "interactionType"}
         ];
 		
 		var final = [];
 		for (var item of data) {
-			final.push({log: item});
+			var fitem = [];
+			item.date = moment(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss');
+			for (var col of columns) {
+				fitem.push(item[col.field] || '');
+			}
+			final.push(fitem);
 		}
 		
 		$('#logGrid').DataTable( {
