@@ -310,11 +310,7 @@ async function getLogs(boxid) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('logs');
 		collection.find({boxid:boxid}).toArray(function(err, results) {
-				resolve(results[0].data);
-			}
-			else {
-				resolve({response:404});
-			}
+			resolve(results[0].data);
 		});
 	});
     let result = await promise;
