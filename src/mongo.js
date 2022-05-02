@@ -152,11 +152,11 @@ function setLogs(boxid,body,type,callback) {
 		var id = `${boxid.toString()}-${type}`;
 		collection.updateOne({ _id:id},{ $set: {'boxid':boxid.toString(),type:type,data: body,timestamp : moment().unix()}},{upsert:true}, function(err, result) {	
 			if (err) {
-				logger.log('error', `boxId: ${boxid}: setLogs: FAILED: ${err}`);
+				logger.log('error', `boxId: ${boxid}: setLogs: ${type} FAILED: ${err}`);
 				callback(500);
 			}
 			else {
-				logger.log('info', `boxId: ${boxid}: setLogs: Success`);
+				logger.log('info', `boxId: ${boxid}: setLogs: ${type}: Success`);
 				callback(200);
 			}
 		});
@@ -310,22 +310,7 @@ async function getLogs(boxid) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('logs');
 		collection.find({boxid:boxid}).toArray(function(err, results) {
-			var response = [];
-			if (results && results[0] && results[0].data && typeof results[0].data === 'array') {
-				for (var logfile of results) {
-					for (var log of logfile.data) {
-						if (!log || !log.log || log.log.length < 1) {
-							// Skip
-							continue;
-						}
-						if (!log.timestamp) {
-							var date = log.log.split('[').pop().split(']')[0];
-							log.timestamp = moment(date,'DD/MMM/YYYY:HH:mm:ss Z').unix();
-						}
-					response.push(log);
-					}
-				}
-				resolve(response.sort(orderLogs));
+				resolve(results[0].data);
 			}
 			else {
 				resolve({response:404});
