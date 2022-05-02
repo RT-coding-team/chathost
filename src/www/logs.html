@@ -73,18 +73,12 @@
 		console.log(data)
 		
 		var columns = [
-            { title: "Time", field: "date" },
             { title: "Log", field: "log"}            
         ];
 		
 		var final = [];
 		for (var item of data) {
-			var fitem = [];
-			item.date = moment(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss');
-			for (var col of columns) {
-				fitem.push(item[col.field] || '');
-			}
-			final.push(fitem);
+			final.push({log: item});
 		}
 		
 		$('#logGrid').DataTable( {
