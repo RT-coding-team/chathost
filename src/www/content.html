@@ -240,7 +240,7 @@ async function loadDataTable() {
 			item.action += `<a href="#" onclick="selectPackage('${window.location.origin}/chathost/link/openwell?packageName=${encodeURIComponent(item.package)}','${item.type}')" data-toggle="tooltip" data-placement="top" title="Subscribe To Content"><i class="rss icon"></i></a>`;
 		}
 		else if (boxid && item.type === 'Moodle'){
-			item.action += `<a href="#" onclick="selectPackage('${item.filepath}','${item.type}')" data-toggle="tooltip" data-placement="top" title="Restore Class on Box"><i class="rss icon"></i></a>`;
+			item.action += `<a href="#" onclick="selectPackage('${item.filepath}','${item.type}')" data-toggle="tooltip" data-placement="top" title="Restore Course on Box"><i class="rss icon"></i></a>`;
 		}
 		for (var col of columns) {
 			fitem.push(item[col.field] || '');
