@@ -109,6 +109,9 @@
 
 
 <script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
 	var boxid = getQueryVariable('id');
 
 	//getAndCombineContent();
@@ -232,12 +235,13 @@ async function loadDataTable() {
 	for (var item of packageArray) {
 		var fitem = [];
 		item.date = moment(item.timestamp * 1000).format('LLL');
-		item.action = `<span onclick="copy('${item.filepath}')"><i class="copy icon"></i></span>&nbsp;&nbsp;`;
+		item.action = `<a href="#" onclick="copy('${item.filepath}')" data-toggle="tooltip" data-placement="top" title="Copy Content URL"><i class="copy icon"></i></a>&nbsp;&nbsp;`;
+		item.action += `<a href="${item.filepath.replace('slim_','')}" download  data-toggle="tooltip" data-placement="top" title="Download Content"><i class="download icon"></i></a>&nbsp;&nbsp;`;
 		if (boxid && item.type === 'Content-Slim') {
-			item.action += `<span onclick="selectPackage('${window.location.origin}/chathost/link/openwell?packageName=${encodeURIComponent(item.package)}','${item.type}')"><i class="download icon"></i></span>`;
+			item.action += `<a href="#" onclick="selectPackage('${window.location.origin}/chathost/link/openwell?packageName=${encodeURIComponent(item.package)}','${item.type}')" data-toggle="tooltip" data-placement="top" title="Subscribe To Content"><i class="rss icon"></i></a>`;
 		}
 		else if (boxid && item.type === 'Moodle'){
-			item.action += `<span onclick="selectPackage('${item.filepath}','${item.type}')"><i class="download icon"></i></span>`;
+			item.action += `<a href="#" onclick="selectPackage('${item.filepath}','${item.type}')" data-toggle="tooltip" data-placement="top" title="Restore Class on Box"><i class="rss icon"></i></a>`;
 		}
 		for (var col of columns) {
 			fitem.push(item[col.field] || '');
