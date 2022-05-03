@@ -204,6 +204,7 @@ async function getUser(boxid,username) {
 					if (!data.users[username].groups) {
 						data.users[username].groups = {};
 					}
+					logger.log('debug', `boxId: ${boxid}: getUser: ${username} Details Found`);
 					resolve (data.users[username]);		
 				}
 				else {
@@ -304,7 +305,7 @@ async function getGroups(boxid,username) {
 				}
 				data.users[username].groups = theseGroups;
 				data.users[username].groupChats = theseChats;
-				logger.log('debug', `boxId: ${boxid}: getGroups: ${username} Found ${Object.keys(data.users[username].groupChats).length} groupChats`);
+				logger.log('debug', `boxId: ${boxid}: getGroups: ${username} Found ${Object.keys(data.users[username].groups).length} groups`);
 				resolve (theseChats);
 			}
 			else {
@@ -317,6 +318,38 @@ async function getGroups(boxid,username) {
     return result;
 }
 
+async function getGroupDetails(boxid,roomId) {
+    let promise = new Promise((resolve, reject) => {
+		request({
+			headers: {
+				'X-User-Id': data.users.ADMIN.keys.userId,
+				'X-Auth-Token': data.users.ADMIN.keys.authToken,
+				'Content-Type': 'application/json'
+			},
+			uri: configs.rocketchat + `/api/v1/groups.listAll?query={ "_id": { "$eq": "${roomId}" } }`,
+			method: 'GET'
+		}, async function (err, res, body) {
+			if (err) {
+				logger.log('debug', `boxId: ${boxid}: getGroupDetails: ERROR: ${err}`);
+				resolve(false);
+			}
+			else {
+ 				body = JSON.parse(body);
+				if (body.groups && body.groups[0]) {
+					logger.log('debug', `boxId: ${boxid}: getGroupDetails: Found Existing Group in Rocketchat: ${roomId}: ${body.groups[0].u.username}: ${body.groups[0].name}`);
+					resolve(body.groups[0]);
+				}
+				else {
+					logger.log('debug', `boxId: ${boxid}: getGroupDetails: ${roomId}: NO Existing Group in Rocketchat`);
+					resolve (false);
+				}
+			}
+		});
+	});
+    let result = await promise;
+    return result;	
+}
+
 async function findClassChatGroup(boxid,teacher,courseName) {
 	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
 	logger.log('debug', `boxId: ${boxid}: findClassChatGroup: ${teacher}: ${courseName}: Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
@@ -324,11 +357,11 @@ async function findClassChatGroup(boxid,teacher,courseName) {
 		return (data.groups[boxCourseName]);
 	}
 	else {
-		await findGroup(boxid,teacher,boxCourseName);
+		await findGroup(boxid,boxCourseName);
 	}
 }
 
-async function findGroup(boxid,teacher,boxCourseName) {
+async function findGroup(boxid,boxCourseName) {
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -340,18 +373,18 @@ async function findGroup(boxid,teacher,boxCourseName) {
 			method: 'GET'
 		}, async function (err, res, body) {
 			if (err) {
-				logger.log('debug', `boxId: ${boxid}: findGroup: ${teacher}: ${courseName}: ERROR: ${err}`);
+				logger.log('debug', `boxId: ${boxid}: findGroup: ${boxCourseName}: ERROR: ${err}`);
 				resolve(false);
 			}
 			else {
  				body = JSON.parse(body);
 				if (body.groups && body.groups[0]) {
 					data.groups[boxCourseName] = body.groups[0]._id;
-					logger.log('debug', `boxId: ${boxid}: findGroup: ${teacher}: ${boxCourseName}: Found Existing Group in Rocketchat: ${data.groups[boxCourseName]}`);
-					resolve(true);					
+					logger.log('debug', `boxId: ${boxid}: findGroup: ${boxCourseName}: Found Existing Group in Rocketchat: ${data.groups[boxCourseName]}`);
+					resolve(data.groups[boxCourseName]);					
 				}
 				else {
-					logger.log('debug', `boxId: ${boxid}: findGroup: ${teacher}: ${boxCourseName}: NO Existing Group in Rocketchat`);
+					logger.log('debug', `boxId: ${boxid}: findGroup: ${boxCourseName}: NO Existing Group in Rocketchat`);
 					resolve (false);
 				}
 			}
@@ -394,7 +427,7 @@ async function classChatGroup(boxid,username,teacher,courseName,isTeacher){
 
 async function joinGroup(boxid,username,teacher,courseName) {
 	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
-	var groupToJoin = data.users[teacher].groups[boxCourseName];
+	var groupToJoin = await findGroup(boxid,boxCourseName);
     let promise = new Promise((resolve, reject) => {
 		request({
 			headers: {
@@ -406,12 +439,16 @@ async function joinGroup(boxid,username,teacher,courseName) {
 			body: JSON.stringify({roomId:groupToJoin, userId: data.users[username]._id}),
 			method: 'POST'
 		}, async function (err, res, body) {
+ 			body = JSON.parse(body);
 			if (err && err.errorType === 'error-duplicate-channel-name') {
-				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Found Existing Course`); // todo
+				logger.log('debug', `boxId: ${boxid}: joinGroup: ${username}: ${courseName}: Found Existing Course`); // todo
+				resolve(false);
+			}
+			else if (!body.group || !body.group._id) {
+				logger.log('debug', `boxId: ${boxid}: joinGroup: ${username}: ${courseName}: Could Not Find Existing Course Group Chat`); // todo
 				resolve(false);
 			}
 			else {
- 				body = JSON.parse(body);
  				data.users[username].groups[boxCourseName] = body.group._id;
  				data.groups[boxCourseName] = body.group._id;
  				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Invited to Join Course Group Chat: ${body.group._id}`);
@@ -833,6 +870,9 @@ module.exports = {
 	createChat,
 	classChatGroup,
 	findClassChatGroup,
+	joinGroup,
+	findGroup,
+	getGroupDetails,
 	sendMessage,
 	sendMessageWithAttachment,
 	getAttachment,

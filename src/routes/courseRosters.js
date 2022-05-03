@@ -22,7 +22,11 @@ async function processRosters(boxid,body,ip) {
 	logger.log('info', `boxId: ${boxid}: process.rosters: Start`);
 	//logger.log('info', JSON.stringify(body));
 	// Go through each course and find the teachers, students and establish Rocketchat accounts and welcome messages
+	var sitename = '';
 	for (var course of body) {
+		if (course.sitename) {
+			sitename = course.sitename;
+		}
 		//logger.log('info', course);
 		logger.log('debug', `boxId: ${boxid}: processRosters: Course: ${course.course_name}`)
 		var teachers = [];
@@ -33,10 +37,19 @@ async function processRosters(boxid,body,ip) {
 			var user = await rocketchat.getUser(boxid,username);
 			teachers.push(username);
 			if (!user || !user.username) {
-				logger.log('error', `boxId: ${boxid}: processRosters: Course: ${course.id}: No Teacher Found: ${JSON.stringify(teacher)}`);
+				logger.log('error', `boxId: ${boxid}: processRosters: Course: ${course.id}: Teacher Not Found: ${JSON.stringify(teacher)}.  CREATING...`);
+				user = await rocketchat.createUser(boxid,{username:username,email:`${username}@none.com`,password:uuidv4(),name:`${teacher['first_name']} ${teacher['last_name']} at ${sitename}`,customFields:{wellId:boxid}})
 			}
-			await rocketchat.findClassChatGroup(boxid,username,course.course_name);
-			await rocketchat.classChatGroup(boxid,null,username,course.course_name,true);
+			else {
+				await rocketchat.findClassChatGroup(boxid,username,course.course_name);
+				await rocketchat.classChatGroup(boxid,null,username,course.course_name,true);
+			}
+			var chatGroup = await rocketchat.findClassChatGroup(boxid,username,course.course_name);
+			var details = await rocketchat.getGroupDetails(boxid,chatGroup);
+ 			if (chatGroup && details.u && details.u.username) {
+ 				await rocketchat.getUser(boxid,details.u.username);
+ 				await rocketchat.joinGroup(boxid,username,details.u.username,course.course_name);
+ 			}
 		}
 		// Iterate through students, create if needed, establish chatroom between teacher and student and fire a welcome message
 		for (var student of course.students) {
@@ -44,14 +57,16 @@ async function processRosters(boxid,body,ip) {
 			logger.log('debug', `boxId: ${boxid}: processRosters: Student: ${username}`);
 			var user = await rocketchat.getUser(boxid,username);
 			if (!user || !user.username) {
-				user = await rocketchat.createUser(boxid,{username:username,email:`${username}@none.com`,password:uuidv4(),name:`${student['first_name']} ${student['last_name']}`,customFields:{wellId:boxid}})
+				user = await rocketchat.createUser(boxid,{username:username,email:`${username}@none.com`,password:uuidv4(),name:`${student['first_name']} ${student['last_name']} at ${sitename}`,customFields:{wellId:boxid}})
 			}
-			await getChats(boxid,username);
-			if (!data.users[username].chats || !data.users[username].chats[teachers[0]]) {
-				var chat = await rocketchat.createChat(boxid,[username,teachers[0]]);
-				var welcome = await rocketchat.sendMessage(boxid,username,teachers[0],`You have a new student in ${course['course_name']} at ${boxid}: ${student['first_name']} ${student['last_name']} (${username})`);
+			await rocketchat.getChats(boxid,username);
+			for (var teacher of teachers) {
+				if (!user.chats || !user.chats[teacher]) {
+					var chat = await rocketchat.createChat(boxid,[username,teacher]);
+					var welcome = await rocketchat.sendMessage(boxid,username,teacher,`You have a new student in ${course['course_name']} at ${boxid}: ${student['first_name']} ${student['last_name']} (${username})`);
+				}
+				await rocketchat.classChatGroup(boxid,username,teacher,course.course_name,false);			
 			}
-			await rocketchat.classChatGroup(boxid,username,teachers[0],course.course_name,false);
 		}
 	}
 	return (true);
