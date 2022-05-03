@@ -201,6 +201,7 @@ async function getUser(boxid,username) {
 					data.users[username].keys = await getToken(boxid,username);
 					data.users[username].chats = await getChats(boxid,username);
 					data.users[username].groupChats = await getGroups(boxid,username);
+
 					if (!data.users[username].groups) {
 						data.users[username].groups = {};
 					}
@@ -350,8 +351,8 @@ async function getGroupDetails(boxid,roomId) {
     return result;	
 }
 
-async function findClassChatGroup(boxid,teacher,courseName) {
-	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+async function findClassChatGroup(boxid,teacher,sitename,courseName) {
+	var boxCourseName = `${boxid}.${sitename}.${removePunctuation(courseName)}`;
 	logger.log('debug', `boxId: ${boxid}: findClassChatGroup: ${teacher}: ${courseName}: Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
 	if (data.groups[boxCourseName]) {
 		return (data.groups[boxCourseName]);
@@ -394,39 +395,39 @@ async function findGroup(boxid,boxCourseName) {
     return result;	
 }
 
-async function classChatGroup(boxid,username,teacher,courseName,isTeacher){
-	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+async function classChatGroup(boxid,username,teacher,sitename,courseName,isTeacher){
+	var boxCourseName = `${boxid}.${sitename}.${removePunctuation(courseName)}`;
 	if (username) {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
 	}
 	else if (teacher) {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): Checking Course Group Chat. ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);
 	}
 	if (data.users[username] && !data.users[username].groups) {
 		data.users[username].groups = {};
 	}
 	if (!data.groups[boxCourseName] && isTeacher) {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Creating Course Group Chat. ${boxCourseName}`);
-		await createGroup(boxid,teacher,courseName);
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): Creating Course Group Chat. ${boxCourseName}`);
+		await createGroup(boxid,teacher,sitename,courseName);
 	}
 	else if (isTeacher) {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): ${courseName}: Existing Course Group Chat: ${boxCourseName}: ${data.groups[boxCourseName]}: ID: ${data.groups[boxCourseName]}`);	
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${teacher} (Teacher? ${isTeacher}): Existing Course Group Chat: ${boxCourseName}: ${data.groups[boxCourseName]}: ID: ${data.groups[boxCourseName]}`);	
 	}
 	else if (!data.groups[boxCourseName]) {
-		logger.log('error', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: This course has not been created yet a student should be joining -- no teacher?  Other issue?`);			
+		logger.log('error', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${boxCourseName}:This course has not been created yet a student should be joining -- no teacher?  Other issue?`);			
 	}
 	else if (data.groups[boxCourseName] && username && !data.users[username].groups[boxCourseName]) {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Joining Course Group Chat`);		
-		await joinGroup(boxid,username,teacher,courseName);
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${boxCourseName}: Joining Course Group Chat`);		
+		await joinGroup(boxid,username,teacher,sitename,courseName);
 	}
 	else {
-		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${courseName}: Already In Course Group Chat: ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);	
+		logger.log('debug', `boxId: ${boxid}: classChatGroup: ${username} (Teacher? ${isTeacher}): ${boxCourseName}: Already In Course Group Chat: ${boxCourseName}: ID: ${data.groups[boxCourseName]}`);	
 	}
 	return(true);
 }
 
-async function joinGroup(boxid,username,teacher,courseName) {
-	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+async function joinGroup(boxid,username,teacher,sitename,courseName) {
+	var boxCourseName = `${boxid}.${sitename}.${removePunctuation(courseName)}`;
 	var groupToJoin = await findGroup(boxid,boxCourseName);
     let promise = new Promise((resolve, reject) => {
 		request({
@@ -441,17 +442,23 @@ async function joinGroup(boxid,username,teacher,courseName) {
 		}, async function (err, res, body) {
  			body = JSON.parse(body);
 			if (err && err.errorType === 'error-duplicate-channel-name') {
-				logger.log('debug', `boxId: ${boxid}: joinGroup: ${username}: ${courseName}: Found Existing Course`); // todo
+				logger.log('debug', `boxId: ${boxid}: joinGroup: ${username}: ${boxCourseName}: Found Existing Course`); // todo
 				resolve(false);
 			}
 			else if (!body.group || !body.group._id) {
-				logger.log('debug', `boxId: ${boxid}: joinGroup: ${username}: ${courseName}: Could Not Find Existing Course Group Chat`); // todo
+				logger.log('debug', `boxId: ${boxid}: joinGroup: ${username}: ${boxCourseName}: Could Not Find Existing Course Group Chat`); // todo
 				resolve(false);
 			}
 			else {
+				if (!data.users || !data.users[username]) {
+					await getUser(username);
+				}
+				if (!data.users[username].groups) {
+					data.users[username].groups = {};
+				}
  				data.users[username].groups[boxCourseName] = body.group._id;
  				data.groups[boxCourseName] = body.group._id;
- 				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Invited to Join Course Group Chat: ${body.group._id}`);
+ 				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${boxCourseName}: Invited to Join Course Group Chat: ${body.group._id}`);
 				resolve(true);
 			}
 		});
@@ -460,10 +467,10 @@ async function joinGroup(boxid,username,teacher,courseName) {
     return result;	
 }
 
-async function createGroup(boxid,username,courseName) {
-	var boxCourseName = `${boxid}.${removePunctuation(courseName)}`;
+async function createGroup(boxid,username,sitename,courseName) {
+	var boxCourseName = `${boxid}.${sitename}.${removePunctuation(courseName)}`;
 	if (!data.users[username]) {
-		logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Username not found`);
+		logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${boxCourseName}: Username not found`);
 		return false;
 	}
     let promise = new Promise((resolve, reject) => {
@@ -478,22 +485,22 @@ async function createGroup(boxid,username,courseName) {
 			method: 'POST'
 		}, async function (err, res, body) {
 			if (err && err.errorType === 'error-duplicate-channel-name') {
-				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Found Existing Course`); // todo
+				logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${boxCourseName}: Found Existing Course`); // todo
 				resolve(false);
 			}
 			else if (err) {
-				logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: ${JSON.stringify(err)}`); 
+				logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${boxCourseName}: ${JSON.stringify(err)}`); 
 			}
 			else {
 				body = JSON.parse(body);
 				if (!body.success) {
-					logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: ${JSON.stringify(body)}`); 
+					logger.log('error', `boxId: ${boxid}: createGroup: ${username}: ${boxCourseName}: ${JSON.stringify(body)}`); 
 					resolve (false);
 				}
 				else {
 					data.users[username].groups[boxCourseName] = body.group._id;
 					data.groups[boxCourseName] = body.group._id;
-					logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${courseName}: Created: ${body.group._id}`);
+					logger.log('debug', `boxId: ${boxid}: createGroup: ${username}: ${boxCourseName}: Created: ${body.group._id}`);
 					resolve (true);
 				}
 			}
