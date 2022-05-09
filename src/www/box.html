@@ -78,7 +78,7 @@
 					</tr>
 					<tr>
 						<td>Content Package</td>
-						<td><span id="package"></span> (<span id="packageStatus"></span> missing items)</td>
+						<td id="contentPackageTD"><span id="package"></span> (<span id="packageStatus"></span> missing items)</td>
 					</tr>
 				
 				</table>
@@ -142,6 +142,9 @@ loadDetails(boxid);
 			$("#boxid").text(id);
 			if (boxData.notMoodle) {
 				$("#hrefcourses").hide();
+			}
+			if (!boxData.package || boxData.package.length === 0) {
+				$("contentPackageTD").hide();
 			}
 			$("#hrefcourses").attr('href',`courses.html?id=${id}`);
 			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
