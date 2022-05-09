@@ -57,10 +57,12 @@ async function processRosters(boxid,body,ip) {
 			logger.log('debug', `boxId: ${boxid}: processRosters: Student: ${username}`);
 			var user = await rocketchat.getUser(boxid,username);
 			if (!user || !user.username) {
+				logger.log('debug', `boxId: ${boxid}: processRosters: Create Student: ${username}`);
 				user = await rocketchat.createUser(boxid,{username:username,email:`${username}@none.com`,password:uuidv4(),name:`${student['first_name']} ${student['last_name']} at ${sitename}`,customFields:{wellId:boxid}})
 			}
 			for (var teacher of teachers) {
 				if (!user.chats || !user.chats[teacher]) {
+					logger.log('debug', `boxId: ${boxid}: processRosters: Creating Teacher/Student Stat: ${teacher} -> ${username} `);
 					var chat = await rocketchat.createChat(boxid,[username,teacher]);
 					var welcome = await rocketchat.sendMessage(boxid,username,teacher,`You have a new student in ${course['course_name']} at ${boxid}: ${student['first_name']} ${student['last_name']} (${username})`);
 				}
