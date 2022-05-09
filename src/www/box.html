@@ -157,6 +157,7 @@ loadDetails(boxid);
 				console.log(key)
 				$("#" + key).text(boxData[key]);
 			}
+			$("#packageStatus").text(boxData.packageStatus || "0");			
 			$('#detailModal').modal('show');
 		});
 		$.getJSON( "/chathost/admin/security/" + id, function( data ) {
