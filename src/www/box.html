@@ -78,7 +78,7 @@
 					</tr>
 					<tr>
 						<td>Content Package</td>
-						<td id="package"></td>
+						<td><span id="package"></span> (<span id="packageStatus"></span> missing items)</td>
 					</tr>
 				
 				</table>
@@ -151,7 +151,6 @@ loadDetails(boxid);
 			$("#hrefstats").attr('href',`stats.html?id=${id}`);
 			$("#hreftrash").attr('href',`trash.html?id=${id}`);
 			$("#emailLink").attr('href',`mailto:${boxData.siteadmin_email}`);
-			$("#package").attr('href',`mailto:${boxData.package}`);
 			boxData.syncdate = moment(boxData.timestamp * 1000).format('LLL');
 			var keys = Object.keys(boxData);
 			for (var key of keys) {
