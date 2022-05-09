@@ -160,7 +160,7 @@ loadDetails(boxid);
 			$("#packageStatus").text(boxData.packageStatus || "0");			
 			$('#detailModal').modal('show');
 			if (!boxData.package || boxData.package.length === 0) {
-				$("contentPackageTD").hide();
+				$("#contentPackageTD").hide();
 			}
 		});
 		$.getJSON( "/chathost/admin/security/" + id, function( data ) {
