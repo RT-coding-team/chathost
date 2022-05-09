@@ -143,9 +143,6 @@ loadDetails(boxid);
 			if (boxData.notMoodle) {
 				$("#hrefcourses").hide();
 			}
-			if (!boxData.package || boxData.package.length === 0) {
-				$("contentPackageTD").hide();
-			}
 			$("#hrefcourses").attr('href',`courses.html?id=${id}`);
 			$("#hrefsettings").attr('href',`settings.html?id=${id}`);
 			$("#hreflogs").attr('href',`logs.html?id=${id}`);
@@ -162,6 +159,9 @@ loadDetails(boxid);
 			}
 			$("#packageStatus").text(boxData.packageStatus || "0");			
 			$('#detailModal').modal('show');
+			if (!boxData.package || boxData.package.length === 0) {
+				$("contentPackageTD").hide();
+			}
 		});
 		$.getJSON( "/chathost/admin/security/" + id, function( data ) {
 			$("#lastSecurityKey").text(data.lastSecurityKey);
