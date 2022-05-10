@@ -63,11 +63,15 @@
 							</div>
 							<h6>Schedule New Setting Change</h6>
 								<select class="form-control" id="key">
-									<option value="apssid">SSID</option>
-									<option value="appassphrase">WPA Passphrase</option>
+									<option value="">---Select---</option>
+									<option value="apssid">Access Point Wi-Fi SSID</option>
+									<option value="appassphrase">Access Point Wi-Fi Passphrase</option>
+									<option value="apchannel">Access Point Wi-Fi Channel</option>
 									<option value="hostname">Hostname (http://xxxxxxx and http://learn.xxxxxxx)</option>
-									<option value="moodle-security-key">Moodle Security Key for Chathost</option>
-									<option value="coursedownload">URL For Moodle Course Restore</option>
+									<option value="brand">Modify Brand.txt changes (key=value)</option>
+									<option value="subscribe">Subscribe to Package (URL)</option>
+									<option value="openwelldonwload">Download Package (URL)</option>
+									<option value="coursedownload">Add Moodle Course (URL)</option>
 								</select>
 								<input class="form-control" id="value">
 								<button onclick="saveSetting();" class="btn btn-sm btn-info">Update</button>
