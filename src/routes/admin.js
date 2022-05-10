@@ -15,6 +15,32 @@ router.get('/users', function getState(req, res) {
 	res.send(rocketchat.data);
 });
 
+router.get('/users/:userid', function getUser(req, res) {
+	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: `);
+	try {
+		var response = JSON.parse(JSON.stringify(rocketchat.data.users[req.params.userid]));
+		if (!response || !response.username) {
+			// Unknown user is 204
+			res.sendStatus(204);
+		}
+		else if (req.params.userid.toLowerCase() === 'admin') {
+			// Don't let Admin be searched
+			res.sendStatus(401);
+		}
+		else {
+			if (response && response.keys) {
+				// Don't send API keys
+				response.keys = {};
+			}
+			res.send(response);
+		}
+	}
+	catch (err) {
+		console.log(`	Could not retrieve user: ${req.params.user}: ${err}`);
+		res.sendStatus(500);
+	}
+});
+
 router.get('/boltURL', function getboltURL(req,res) {
 	logger.log('debug', `boxId: ${req.boxid}: ${req.method} ${req.originalUrl}: `);
 	res.send({url:configs.bolt});
