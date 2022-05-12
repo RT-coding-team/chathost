@@ -44,8 +44,9 @@
           <h2 id="title"></h2>
 
 <div class="accordion" id="table">
+
        
-          
+   
     </div>
 
 
@@ -61,6 +62,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
 	<script type="text/javascript" src="public/bootstrap.js"></script>
     <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
@@ -73,10 +75,31 @@
 <script>
 
 
+function getUser(userid,region) {
+	$.getJSON( "/chathost/admin/users/" + userid, function( data ) {
+		data.chatString = '';
+		data.groupString = '';
+		for (var chat of Object.keys(data.chats)) {
+			data.chatString += `<font size="-1">&nbsp;&nbsp;&nbsp;&nbsp;<a href="/direct/${data.chats[chat]}" target="${data.chats[chat]}">${chat}</a></font><BR>`;
+		}
+		for (var group of Object.keys(data.groups)) {
+			data.groupString += `<font size="-1">&nbsp;&nbsp;&nbsp;&nbsp;<a href="/group/${data.groups[group]}" target="${data.groups[group]}">${group}</a></font><BR>`;
+		}
+		var html = `
+			Last Rocketchat Login: ${data.lastLogin}<BR>
+			Direct Chats:<BR>
+			${data.chatString}
+			Groups Chats:<BR>
+			${data.groupString}
+		`;
+		$(`#${region}`).html(html);
+	});
+}
 
 
 // Treeview stuff here
 $(function() {
+
 
 var final = '';
 
@@ -87,42 +110,50 @@ var final = '';
 	$.getJSON( "/chathost/admin/roster/" + boxid, function( data ) {
 		console.log(data)
 
-		$('#title').text(`${data[0].sitename}: ${boxid}`)
+		$('#title').text(`Courses: ${data[0].sitename}: ${boxid}`)
 
-		var counter = 0;
+		var courseCounter = 0;
+		var userCounter = 0;
 		if (data.length > 0) {
 			data.shift();
 		}
 
+		
 		for (var course of data) {
-			console.log(`Course: ${counter}: ${course.course_name}`);
-			counter++;
-			var courseName = 'Course: ' + course.course_name;
-			var teachersAndStudents = '';
-			for (var teacher of course.teachers) {
-				teachersAndStudents += `Teacher: ${teacher.first_name} ${teacher.last_name} (${teacher.username}: <a href="mailto:${teacher.email}">${teacher.email}</a>)<BR>\n`;
-			}
-			for (var student of course.students) {
-				teachersAndStudents += `Student: ${student.first_name} ${student.last_name} (${student.username})<BR>\n`;
-			}
+			courseCounter++;
+			console.log(`Course: ${courseCounter}: ${course.course_name} with ${course.teachers.length} teachers and ${course.students.length} students`);
+			var courseName = course.course_name;
 			var html = `
 
 				  <div class="accordion-item">
-					<h2 class="accordion-header" id="panelsStayOpen-heading${counter}">
-					  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${counter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${counter}">
-						${courseName}
-					  </button>
-					</h2>
-					<div id="panelsStayOpen-collapse${counter}" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-heading${counter}">
-					  <div class="accordion-body">
-						${teachersAndStudents}
-					  </div>
+					<div class="alert alert-primary" id="panelsStayOpen-heading${courseCounter}">${courseName}
 					</div>
+						<div id="courseRegion-${courseCounter}"></div>
 				  </div>
-				</div>`;
+				</div><BR><BR>`;
 			$("#table").append(html);
+
+			// Now populate teachers and students
+			for (var teacher of course.teachers) {
+				userCounter++;
+				var html = `<button onClick="getUser('${teacher.username}','details-${userCounter}');" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${userCounter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${userCounter}">Teacher: ${teacher.first_name} ${teacher.last_name} (${teacher.username}: <a href="mailto:${teacher.email}">${teacher.email}</a>)</button>`;
+				html += `<div id="panelsStayOpen-collapse${userCounter}" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-heading${userCounter}"><div class="accordion-body" id="details-${userCounter}">Loading...</div></div>`;
+				$(`#courseRegion-${courseCounter}`).append(html);
+			}
+			for (var student of course.students) {
+				userCounter++;
+				console.log(student);
+				var html = `<button onClick="getUser('${student.username}.${boxid}','details-${userCounter}');" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${userCounter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${userCounter}">Student: ${student.first_name} ${student.last_name} (${student.username}.${boxid}: <a href="mailto:${teacher.email}">${teacher.email}</a>)</button>`;
+				html += `<div id="panelsStayOpen-collapse${userCounter}" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-heading${userCounter}"><div class="accordion-body" id="details-${userCounter}">Loading...</div></div>`;
+				$(`#courseRegion-${courseCounter}`).append(html);
+
+				//teachersAndStudents += `Student: ${student.first_name} ${student.last_name} (${student.username})<BR>\n`;
+			}
+			
 		}
+
 	});
+
 
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
