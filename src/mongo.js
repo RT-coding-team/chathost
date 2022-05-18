@@ -146,10 +146,9 @@ async function getBoxRosters(boxid) {
 }
 
 // Put the logs in Mongo.  That is all
-function setLogs(boxid,body,type,callback) {
+function setLogs(boxid,data,type,callback) {
 	try {
 		const collection = db.collection('logs');
-		var data = body.logs
 		for (var log of data) {
 			log.boxid = boxid;
 			log.type = type;
@@ -309,15 +308,23 @@ async function getAttachmentExists(id) {
     return result;
 }
 
-// See if attachment exists
+async function searchLogs(querystring) {
+    let promise = new Promise((resolve, reject) => {
+    	console.log('1');
+		const collection = db.collection('logs');
+		console.log(querystring);
+		collection.find(querystring).toArray(function(err, response) {
+			resolve(response);
+		});
+	});
+    let result = await promise;
+    return result;
+}
+
 async function getLogs(boxid) {
     let promise = new Promise((resolve, reject) => {
 		const collection = db.collection('logs');
-		collection.find({boxid:boxid}).toArray(function(err, results) {
-			var response = [];
-			for (var logObject of results) {
-				response = response.concat(logObject.logs);
-			}
+		collection.find({boxid:boxid}).toArray(function(err, response) {
 			resolve(response);
 		});
 	});
@@ -529,6 +536,7 @@ module.exports = {
 	getAttachmentExists,
 	setAttachmentsInbound,
 	setLogs,
+	searchLogs,
 	getLogs,
 	getSettings,
 	putSetting,
