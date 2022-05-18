@@ -149,7 +149,12 @@ async function getBoxRosters(boxid) {
 function setLogs(boxid,body,type,callback) {
 	try {
 		const collection = db.collection('logs');
-		collection.insertOne({boxid:boxid,type:type,logs:body}, function(err, result) {
+		var data = body.logs
+		for (var log of data) {
+			log.boxid = boxid;
+			log.type = type;
+		}
+		collection.insertMany(data, function(err, result) {
 			if (err) {
 				logger.log('error', `boxId: ${boxid}: setLogs: ${type} FAILED: ${err}`);
 				callback(500);
