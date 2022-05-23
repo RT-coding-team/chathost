@@ -4,9 +4,6 @@ Comprehensive Partner Support Services For The Well.  Ansible playbook for AWS E
 This project is related to The Well, a raspberry pi based platform for Moodle class delivery.
 
 # Components
-* Moodle (Course Authoring)
-* MariaDB for Moodle
-* nginx for Moodle
 * Rocketchat
 * MongoDB for Rocketchat and Chathost APIs
 * Chathost APIs (Developer Info: https://github.com/RT-coding-team/chathost/tree/main/src)
