@@ -7,7 +7,62 @@
 	},
 	"item": [
 		{
-			"name": "UI: Get Auth UNAUTHORIZED",
+			"name": "UI: Get healthCheck",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Authorization Confirmed\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "",
+						"value": "{",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/healthCheck",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"healthCheck"
+					]
+				},
+				"description": "If prior step was successful, this will now be true."
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Make sure we're logged out before beginning",
 			"event": [
 				{
 					"listen": "test",
@@ -40,7 +95,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://{{host}}:{{port}}/chathost/auth",
+					"raw": "http://{{host}}:{{port}}/chathost/logout",
 					"protocol": "http",
 					"host": [
 						"{{host}}"
@@ -48,7 +103,7 @@
 					"port": "{{port}}",
 					"path": [
 						"chathost",
-						"auth"
+						"logout"
 					]
 				},
 				"description": "Check to make sure that we are not authenticated."
@@ -772,6 +827,101 @@
 			"response": []
 		},
 		{
+			"name": "UI: Delete Security Key For Box",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/security/te-st-bo-x4-th-is/",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"security",
+						"te-st-bo-x4-th-is",
+						""
+					]
+				},
+				"description": "Get the current security key that a Well can use to access the server"
+			},
+			"response": []
+		},
+		{
+			"name": "UI: Get Security Key For Box After Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/admin/security/te-st-bo-x4-th-is/",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"admin",
+						"security",
+						"te-st-bo-x4-th-is",
+						""
+					]
+				},
+				"description": "Get the current security key that a Well can use to access the server"
+			},
+			"response": []
+		},
+		{
 			"name": "UI: Logout",
 			"event": [
 				{
@@ -874,18 +1024,7 @@
 			"response": []
 		},
 		{
-			"name": "SYNC: GET messagesStatus Unauthorized",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
+			"name": "SYNC: GET with empty Bearer",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -895,24 +1034,34 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciO",
+							"value": "",
 							"type": "string"
 						}
 					]
 				},
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "aa-bb-cc-dd-ee-ff",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer 07acd2ae-d60b-493c-bfe2-6ded2c37ced",
+						"type": "text",
+						"disabled": true
+					}
+				],
 				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
+					"mode": "graphql",
+					"graphql": {
+						"query": "",
+						"variables": ""
 					}
 				},
 				"url": {
-					"raw": "http://{{host}}:{{port}}/chathost/messageStatus",
+					"raw": "http://{{host}}:{{port}}/chathost/healthCheck",
 					"protocol": "http",
 					"host": [
 						"{{host}}"
@@ -920,10 +1069,59 @@
 					"port": "{{port}}",
 					"path": [
 						"chathost",
-						"messageStatus"
+						"healthCheck"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST logs Moodle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\n\t\"timestamp\": \"1634572746\",\n\t\"log\": \"\\\\core\\\\event\\\\course_viewed\"\n}, {\n\t\"timestamp\": \"1634572758\",\n\t\"log\": \"\\\\core\\\\event\\\\course_viewed\"\n}, {\n\t\"timestamp\": \"1634572780\",\n\t\"log\": \"\\\\core\\\\event\\\\user_loggedin\"\n}, {\n\t\"timestamp\": \"1634572794\",\n\t\"log\": \"\\\\core\\\\event\\\\capability_assigned\"\n}, {\n\t\"timestamp\": \"1634572822\",\n\t\"log\": \"\\\\core\\\\event\\\\config_log_created\"\n}, {\n\t\"timestamp\": \"1634572882\",\n\t\"log\": \"\\\\core\\\\event\\\\notification_sent\"\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/logs/moodle",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"logs",
+						"moodle"
 					]
 				},
-				"description": "Example of unauthenticated box"
+				"description": "Various logs may be sent from the Well to the server"
 			},
 			"response": []
 		},
@@ -944,10 +1142,66 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"timestamp\":1624383205,\n        \"log\":\"Log Line 1\"\n    },\n    {\n        \"timestamp\":1624383211,\n        \"log\": \"Log Line 2\"\n    }\n]",
+					"raw": "[{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-3\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473151},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-4\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473153},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-5\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473155},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-6\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473157},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-7\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473189},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-8\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473191},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-7\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473194},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-6\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473195},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-5\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473197},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-4\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473198},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-3\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473199},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-2\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473200},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-13\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473204},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-12\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473205},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-11\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652473206},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-12\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652475024},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-3\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652480127},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-4\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652481874},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-5\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652483536},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-7\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652484332},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-6\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652484337},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-2-episode-01\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"video\",\"timestamp\":1652484346},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-2-episode-01\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"video\",\"timestamp\":1652484353},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-2-episode-01\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"video\",\"timestamp\":1652484359},{\"interactionType\":\"view\",\"mediaIdentifier\":\"the-holy-bible\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"epub\",\"timestamp\":1652485021},{\"interactionType\":\"view\",\"mediaIdentifier\":\"the-holy-bible\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"epub\",\"timestamp\":1652565516},{\"interactionType\":\"view\",\"mediaIdentifier\":\"the-holy-bible\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"epub\",\"timestamp\":1652565619},{\"interactionType\":\"view\",\"mediaIdentifier\":\"the-holy-bible\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"epub\",\"timestamp\":1652565648},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-1\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652565669},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-11\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652565677},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-12\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652565804},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-13\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652565848,\"country\":\"\",\"locationName\":\"Dev-Apps\",\"deviceProvider\":\"connectbox\"},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-2-episode-01\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"video\",\"timestamp\":1652802762,\"country\":\"\",\"locationName\":\"Dev-Apps\",\"deviceProvider\":\"connectbox\"},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-9\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652807064,\"country\":\"\",\"locationName\":\"Dev-Apps\",\"deviceProvider\":\"connectbox\"},{\"interactionType\":\"download\",\"mediaIdentifier\":\"series-1-episode-8\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652807095,\"country\":\"\",\"locationName\":\"Dev-Apps\",\"deviceProvider\":\"connectbox\"},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-1\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652892714,\"country\":\"\",\"locationName\":\"Dev-Apps\",\"deviceProvider\":\"connectbox\"},{\"interactionType\":\"view\",\"mediaIdentifier\":\"series-1-episode-11\",\"mediaLanguage\":\"en\",\"mediaProvider\":\"\",\"mediaType\":\"audio\",\"timestamp\":1652892921,\"country\":\"us\",\"locationName\":\"Dev-Apps\",\"deviceProvider\":\"connectbox\"}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/logs/content",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"logs",
+						"content"
+					]
+				},
+				"description": "Various logs may be sent from the Well to the server"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: POST logs with JSON Error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Success\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[BADJSON\n    {\n        \"timestamp\":1624383205,\n        \"log\":\"Log Line 1\"\n    },\n    {\n        \"timestamp\":1624383211,\n        \"log\": \"Log Line 2\"\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -993,7 +1247,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -1036,7 +1296,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -1084,7 +1350,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -1127,10 +1399,16 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "[{\n\t\"id\": 1,\n\t\"course_name\": \"FROMDUMP:fullsitename\",\n\t\"summary\": \"\",\n\t\"created_on\": 1612889052,\n\t\"updated_on\": 1612889167,\n\t\"students\": [],\n\t\"teachers\": [],\n\t\"sitename\": \"devderek\",\n\t\"siteadmin_name\": \"Derek Maxson\",\n\t\"siteadmin_email\": \"dmaxson@frontporch.com\",\n\t\"siteadmin_phone\": \"+12092885511\"\n}, {\n\t\"id\": 2,\n\t\"course_name\": \"Cooking a Perfect Burger\",\n\t\"summary\": \"Learn to cook the perfect burger.\",\n\t\"created_on\": 1616454755,\n\t\"updated_on\": 1616454755,\n\t\"students\": [{\n\t\t\"id\": 4,\n\t\t\"username\": \"mr-awesome\",\n\t\t\"first_name\": \"Mister\",\n\t\t\"last_name\": \"Awesome\",\n\t\t\"email\": \"mr-awesome@yahoo.com\",\n\t\t\"last_accessed\": 1616721358,\n\t\t\"language\": \"en\"\n\t}, {\n\t\t\"id\": 3,\n\t\t\"username\": \"user\",\n\t\t\"first_name\": \"User\",\n\t\t\"last_name\": \"User\",\n\t\t\"email\": \"user@email.com\",\n\t\t\"last_accessed\": 1616464680,\n\t\t\"language\": \"en\"\n\t}],\n\t\"teachers\": [{\n\t\t\"id\": 2,\n\t\t\"username\": \"derek.maxson\",\n\t\t\"first_name\": \"Derek\",\n\t\t\"last_name\": \"Maxson\",\n\t\t\"email\": \"dmaxson@frontporch.com\",\n\t\t\"last_accessed\": 1616792461,\n\t\t\"language\": \"en\"\n\t}]\n}]",
+					"raw": "[{\n\t\"id\": 1,\n\t\"course_name\": \"FROMDUMP:fullsitename\",\n\t\"summary\": \"\",\n\t\"created_on\": 1612889052,\n\t\"updated_on\": 1612889167,\n\t\"students\": [],\n\t\"teachers\": [],\n\t\"sitename\": \"devderek\",\n\t\"siteadmin_name\": \"Derek Maxson\",\n\t\"siteadmin_email\": \"dmaxson@frontporch.com\",\n\t\"siteadmin_phone\": \"+12092885511\"\n}, {\n\t\"id\": 2,\n\t\"course_name\": \"Cooking a Perfect Burger\",\n\t\"summary\": \"Learn to cook the perfect burger.\",\n\t\"created_on\": 1616454755,\n\t\"updated_on\": 1616454755,\n\t\"students\": [{\n\t\t\"id\": 4,\n\t\t\"username\": \"mr-awesome\",\n\t\t\"first_name\": \"Mister\",\n\t\t\"last_name\": \"Awesome\",\n\t\t\"email\": \"mr-awesome@yahoo.com\",\n\t\t\"last_accessed\": 1616721358,\n\t\t\"language\": \"en\"\n\t}, {\n\t\t\"id\": 3,\n\t\t\"username\": \"user\",\n\t\t\"first_name\": \"User\",\n\t\t\"last_name\": \"User\",\n\t\t\"email\": \"user@email.com\",\n\t\t\"last_accessed\": 1616464680,\n\t\t\"language\": \"en\"\n\t}],\n\t\"teachers\": [{\n\t\t\"id\": 2,\n\t\t\"username\": \"8.teacher\",\n\t\t\"first_name\": \"TEST\",\n\t\t\"last_name\": \"TEACHER\",\n\t\t\"email\": \"teacher@frontporch.com\",\n\t\t\"last_accessed\": 1616792461,\n\t\t\"language\": \"en\"\n\t},{\n\t\t\"id\": 12,\n\t\t\"username\": \"derek.maxson\",\n\t\t\"first_name\": \"Derek\",\n\t\t\"last_name\": \"Maxson\",\n\t\t\"email\": \"dmaxson@frontporch.com\",\n\t\t\"last_accessed\": 1616792461,\n\t\t\"language\": \"en\"\n\t}],\n    \"sitename\": \"devderek\",\n\t\"siteadmin_name\": \"Derek Maxson\",\n\t\"siteadmin_email\": \"dmaxson@frontporch.com\",\n\t\"siteadmin_phone\": \"+12092885511\"\n}]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1205,6 +1483,11 @@
 							"value": "image/png",
 							"type": "text",
 							"disabled": true
+						},
+						{
+							"key": "x-boxid",
+							"value": "{{boxid}}\n",
+							"type": "text"
 						}
 					]
 				},
@@ -1241,7 +1524,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "[{\"id\":98,\"conversation_id\":5,\"subject\":null,\"message\":\"Message Test From Postman\",\"sender\":{\"id\":\"3\",\"username\":\"mr-awesome\",\"email\":\"derek@email.com\"},\"recipient\":{\"id\":\"3\",\"username\":\"derek.maxson\",\"email\":\"dmaxson@frontporch.com\"},\"created_on\":1615406784}]",
@@ -1284,7 +1573,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "[]",
@@ -1326,7 +1621,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "[{\"id\":99,\"conversation_id\":5,\"subject\":null,\"message\":\"<attachment type=\\\"image\\\" id=\\\"490240422\\\" filepath=\\\"/\\\" filename=\\\"sunset.png\\\">\",\"sender\":{\"id\":\"3\",\"username\":\"mr-awesome\",\"email\":\"derek@email.com\"},\"recipient\":{\"id\":\"3\",\"username\":\"derek.maxson\",\"email\":\"dmaxson@frontporch.com\"},\"attachment\":{\"type\":\"photo\",\"id\":490240422,\"filepath\":\"/\",\"filename\":\"sunset.png\"},\"created_on\":1615406784}]",
@@ -1369,7 +1670,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "[{\"id\":66,\"conversation_id\":5,\"subject\":null,\"message\":\"<attachment type=\\\"image\\\" id=\\\"666\\\" filepath=\\\"/\\\" filename=\\\"sunset.png\\\">\",\"sender\":{\"id\":\"3\",\"username\":\"user\",\"email\":\"derek@email.com\"},\"recipient\":{\"id\":\"3\",\"username\":\"derek.maxson\",\"email\":\"dmaxson@frontporch.com\"},\"attachment\":{\"type\":\"photo\",\"id\":666,\"filepath\":\"/\",\"filename\":\"sunset.png\"},\"created_on\":1615406784}]",
@@ -1415,7 +1722,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -1457,7 +1770,13 @@
 			],
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://{{host}}:{{port}}/chathost/attachments/file-upload/rkL38FGkKCf2hQN3r/Clipboard%20-%20May%2024,%202021%2011:27%20AM",
 					"protocol": "http",
@@ -1494,7 +1813,13 @@
 			],
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://{{host}}:{{port}}/chathost/attachments/490240422/exists",
 					"protocol": "http",
@@ -1530,7 +1855,13 @@
 			],
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://{{host}}:{{port}}/chathost/attachments/000/exists",
 					"protocol": "http",
@@ -1547,6 +1878,123 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "SYNC: GET messagesStatus Unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciO",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/messageStatus",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"messageStatus"
+					]
+				},
+				"description": "Example of unauthenticated box"
+			},
+			"response": []
+		},
+		{
+			"name": "SYNC: GET settings with old key (error condition)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "0e-76-d5-e7-e2-a5|dashboardmadethiskey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-boxid",
+						"value": "{{boxid}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\n\t\"course_name\": \"Dev-apps.thewellcloud.cloud\",\n\t\"id\": 1,\n\t\"notMoodle\": true,\n\t\"siteadmin_phone\": \"\",\n\t\"siteadmin_name\": \"\",\n\t\"sitename\": \"dev-apps\",\n\t\"students\": [],\n\t\"teachers\": [],\n\t\"siteadmin_email\": \"\"\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/chathost/courseRosters",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"chathost",
+						"courseRosters"
+					]
+				},
+				"description": "Example of unauthenticated box"
+			},
+			"response": []
 		}
 	],
 	"auth": {
@@ -1554,7 +2002,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "postman",
+				"value": "aa-bb-cc-dd-ee-ff|1234567890ABCD",
 				"type": "string"
 			}
 		]
@@ -1614,6 +2062,10 @@
 		},
 		{
 			"key": "cookie-relaytrust.sig",
+			"value": ""
+		},
+		{
+			"key": "timestamp",
 			"value": ""
 		}
 	]
