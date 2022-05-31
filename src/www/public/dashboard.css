@@ -67,3 +67,7 @@ footer {
 	text-align: center;
 	width: 100%;
 }
+#main-content {
+	margin-top: 75px;
+	padding-bottom: 75px;
+}

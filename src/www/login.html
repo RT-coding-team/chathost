@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" class="ui" href="/chathost/public/semantic/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="/chathost/public/psaltery.css">
-    
+
           <style type="text/css">
             body {
               background-color: #DADADA;
@@ -25,18 +25,18 @@
 <body>
 
     <div class="ui middle aligned center aligned grid">
-        <div class="column"><h2 class="ui image header"><div class="content"><img src="/chathost/images/thewelllogo.png"><BR>Log-in to your account</div></h2><form method="POST" action="/chathost/auth/" class="ui large form"><div class="ui stacked segment"><div class="field"><div class="ui left icon input"><i class="user icon"></i><input name="username" placeholder="E-mail address" autocapitalize="none"></div></div><div class="field"><div class="ui left icon input"><i class="lock icon"></i><input type="password" name="password" placeholder="Password"></div></div><button type="submit" class="ui large fluid submit button primary">Login</button></div><div class="ui error message"></div><input type="hidden" name="redirect" id="redirectField"></form><div class="ui message">Can't Log In?<BR>Use your Rocketchat login credentials.  You must be a Rocketchat Admin or Leader To Access The Dashboard.<BR><BR><a href="images.html">Download Well Images Here</a></div></div>
+        <div class="column"><h2 class="ui image header"><div class="content"><img src="/chathost/images/thewelllogo.png"><BR>Log-in to your account</div></h2><form method="POST" action="/chathost/auth/" class="ui large form"><div class="ui stacked segment"><div class="field"><div class="ui left icon input"><i class="user icon"></i><input name="username" placeholder="E-mail address" autocapitalize="none"></div></div><div class="field"><div class="ui left icon input"><i class="lock icon"></i><input type="password" name="password" placeholder="Password"></div></div><button type="submit" class="ui large fluid submit button primary">Login</button></div><div class="ui error message"></div><input type="hidden" name="redirect" id="redirectField"></form><div class="ui message">Can't Log In?<BR>Use your Rocketchat login credentials.  You must be a Rocketchat Admin or Leader To Access The Dashboard.<br></br><a href="images.html">Download Well Images Here</a></div></div>
     </div>
 	<script type="text/javascript" src="/chathost/public/jquery-3.1.0.min.js"></script>
     <script type="text/javascript" src="/chathost/public/react.js"></script>
     <script type="text/javascript" src="/chathost/public/bundle.js"></script>
     <script type="text/javascript" src="/chathost/public/semantic/semantic.min.js"></script>
-    
+
     <script>
-    
+
 $("#redirectField").val(getUrlVars()['redirect']);
-    
-    
+
+
 function getUrlVars()
 {
     var vars = [], hash;
@@ -51,6 +51,6 @@ function getUrlVars()
 }
 
 
-    
+
     </script>
 </body>
