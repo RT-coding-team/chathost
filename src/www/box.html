@@ -80,7 +80,7 @@
 						<td>Content Package</td>
 						<td id="contentPackageTD"><span id="package"></span> (<span id="packageStatus"></span> missing items)</td>
 					</tr>
-				
+
 				</table>
 				</div>
 				<div class="col-md-4">
@@ -100,10 +100,10 @@
 
 
 
-  
+
    </main>
 
-    <footer class="container">
+    <footer>
       <p>&copy; Relay Trust, 2021</p>
     </footer>
 
@@ -113,7 +113,7 @@
     <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
 	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="public/jsgrid.min.js"></script>    	
+	<script type="text/javascript" src="public/jsgrid.min.js"></script>
 	<script type="text/javascript" src="public/bootstrap.min.js"></script>
     <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
     <script type="text/javascript" src="public/angular-min.js"></script>
@@ -157,7 +157,7 @@ loadDetails(boxid);
 				console.log(key)
 				$("#" + key).text(boxData[key]);
 			}
-			$("#packageStatus").text(boxData.packageStatus || "0");			
+			$("#packageStatus").text(boxData.packageStatus || "0");
 			$('#detailModal').modal('show');
 			if (!boxData.package || boxData.package.length === 0) {
 				$("#contentPackageTD").hide();

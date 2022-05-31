@@ -55,3 +55,12 @@
 .navbar {
 	border-radius: 0px;
 }
+footer {
+	bottom: 0px;
+	color: #343a40;
+	max-width: 100%;
+	padding: 10px;
+	position: fixed;
+	text-align: center;
+	width: 100%;
+}

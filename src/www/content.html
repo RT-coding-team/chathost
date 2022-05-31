@@ -70,7 +70,7 @@
 							</div>
 								<BR>
 								<button id="button" style="display:none;" onclick="saveSetting();" class="btn btn-sm btn-info">Send Package To Device</button>
-							
+
 						</div>
 
 
@@ -89,7 +89,7 @@
 
    </main>
 
-    <footer class="container">
+    <footer>
       <p>&copy; Relay Trust, 2021</p>
     </footer>
 
@@ -99,7 +99,7 @@
     <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
 	<script type="text/javascript" src="public/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="public/jsgrid.min.js"></script>    	
+	<script type="text/javascript" src="public/jsgrid.min.js"></script>
 	<script type="text/javascript" src="public/bootstrap.min.js"></script>
     <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
     <script type="text/javascript" src="public/angular-min.js"></script>
@@ -167,7 +167,7 @@ async function getDataFromAPI(url) {
 		});
 	});
     let result = await promise;
-    return result;	
+    return result;
 }
 
 function loadBoxInfo() {
@@ -226,9 +226,9 @@ async function loadDataTable() {
 	var columns = [
 		{ title: "Type", field: "type" },
 		{ title: "Package", field: "package" },
-		{ title: "Actions", field: "action"}            
+		{ title: "Actions", field: "action"}
 	];
-	
+
 	var final = [];
 	for (var item of packageArray) {
 		var fitem = [];
@@ -247,7 +247,7 @@ async function loadDataTable() {
 		}
 		final.push(fitem);
 	}
-	
+
 	$('#pendingGrid').DataTable( {
 		data: final,
 		columns: columns
