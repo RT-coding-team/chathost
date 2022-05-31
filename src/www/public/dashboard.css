@@ -55,6 +55,9 @@
 .navbar {
 	border-radius: 0px;
 }
+.navbar-collapse.collapse.in {
+	display: block;
+}
 footer {
 	bottom: 0px;
 	color: #343a40;
