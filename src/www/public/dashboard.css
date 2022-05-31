@@ -52,3 +52,6 @@
 .toggle:checked + .lbl-toggle::before {
   transform: rotate(90deg) translateX(-3px);
 }
+.navbar {
+	border-radius: 0px;
+}
