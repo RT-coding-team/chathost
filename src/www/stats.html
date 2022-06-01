@@ -41,6 +41,9 @@
                               </div>
                           </div>
                       </div>
+                      <div class="text-right ml-auto p-3">
+                        <a href="#" id="download-link"><i class="download icon"></i> Download</a>
+                      </div>
                   </div>
               </div>
               <div class="ui bottom attached segment">
@@ -90,25 +93,22 @@
       <script type="text/javascript" src="public/navigation.js"></script>
       <script>
         /**
+         * Our columns we use
+         *
+         * @type {Array}
+         */
+        var columns = ['boxid', 'mediaIdentifier', 'interactionType', 'mediaType', 'mediaLanguage', 'mediaProvider', 'date'];
+
+        /**
          * Get the data from the API.
          *
          * @return {object} The response
          */
         async function getData() {
-          return $.ajax({
+          var data = await $.ajax({
             url: '/chathost/admin/stats',
             method: 'GET'
           });
-        }
-
-        /**
-         * Load the page
-         *
-         * @return {void}
-         */
-        async function load() {
-          var columns = ['boxid', 'mediaIdentifier', 'interactionType', 'mediaType', 'mediaLanguage', 'mediaProvider', 'date'];
-          var data = await getData();
           var final = [];
           for (var item of data) {
             var fitem = [];
@@ -118,8 +118,38 @@
       			}
       			final.push(fitem);
           }
+          return final;
+        };
+
+        /**
+         * Set up the download link
+         *
+         * @return {void}
+         * @link https://stackoverflow.com/a/14966131
+         */
+        function setUpDownloadLink(data) {
+          data.unshift(columns);
+          var content = "data:text/csv;charset=utf-8,";
+          var rows = [];
+          for (var item of data) {
+            rows.push('"' + item.join('","') + '"');
+          }
+          content += rows.join('\n');
+          var encodedUri = encodeURI(content);
+          $('#download-link')
+            .attr('href', encodedUri)
+            .attr('download', 'usage-stats.csv');
+        }
+
+        /**
+         * Load the page
+         *
+         * @return {void}
+         */
+        async function load() {
+          var data = await getData();
           $('#stats-grid').DataTable({
-      			data: final,
+      			data: data,
             order: [[6, 'desc']],
             orderCellsTop: true,
             fixedHeader: true,
@@ -147,7 +177,8 @@
                 });
             }
       		});
-        }
+          setUpDownloadLink(data);
+        };
 
         $(function() {load();});
       </script>
