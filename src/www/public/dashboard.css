@@ -71,9 +71,6 @@ footer {
 	margin-top: 75px;
 	padding-bottom: 75px;
 }
-/* #stats-grid thead tr:first-child th {
-	border-bottom: 0px;
-} */
 #stats-grid .form-control {
 	height: 15px;
 }
