@@ -33,28 +33,28 @@
     </nav>
 
 
-    <!main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-    <main role="main" class="col-md-12">
+    <!main id="main-content" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+    <main id="main-content" class="col-md-12">
 
       <div class="Ajumbotron">
-      <BR><BR>
- 
+      
+
   	<div class="container">
       <div class="row"  class="col-md-12">
           <h2 id="title"></h2>
 
 <div class="accordion" id="table">
 
-       
-   
+
+
     </div>
 
 
- 
-   </main>
-<BR><BR><BR><BR><BR>
 
-    <footer class="container">
+   </main>
+
+
+    <footer>
       <p>&copy; Relay Trust, 2021</p>
     </footer>
 
@@ -118,7 +118,7 @@ var final = '';
 			data.shift();
 		}
 
-		
+
 		for (var course of data) {
 			courseCounter++;
 			console.log(`Course: ${courseCounter}: ${course.course_name} with ${course.teachers.length} teachers and ${course.students.length} students`);
@@ -130,7 +130,7 @@ var final = '';
 					</div>
 						<div id="courseRegion-${courseCounter}"></div>
 				  </div>
-				</div><BR><BR>`;
+				</div>`;
 			$("#table").append(html);
 
 			// Now populate teachers and students
@@ -149,7 +149,7 @@ var final = '';
 
 				//teachersAndStudents += `Student: ${student.first_name} ${student.last_name} (${student.username})<BR>\n`;
 			}
-			
+
 		}
 
 	});

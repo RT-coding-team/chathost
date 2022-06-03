@@ -52,3 +52,25 @@
 .toggle:checked + .lbl-toggle::before {
   transform: rotate(90deg) translateX(-3px);
 }
+.navbar {
+	border-radius: 0px;
+}
+.navbar-collapse.collapse.in {
+	display: block;
+}
+footer {
+	bottom: 0px;
+	color: #343a40;
+	max-width: 100%;
+	padding: 10px;
+	position: fixed;
+	text-align: center;
+	width: 100%;
+}
+#main-content {
+	margin-top: 75px;
+	padding-bottom: 75px;
+}
+#stats-grid .form-control {
+	height: 15px;
+}
