@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <link rel="icon" href="/chathost/images/favicon-relaytrust.png">
+      <title>RelayTrust: The Well Dashboard</title>
+      <!-- Bootstrap core CSS -->
+      <link href="public/bootstrap.min.css" rel="stylesheet">
+      <link type="text/css" rel="stylesheet" href="public/jsgrid.min.css" />
+      <link type="text/css" rel="stylesheet" href="public/jsgrid-theme.min.css" />
+      <link rel="stylesheet" type="text/css" class="ui" href="public/semantic/semantic.min.css">
+      <link rel="stylesheet" type="text/css" class="ui" href="public/datatables.css">
+      <link href="public/flat-ui.css" rel="stylesheet">
+      <!-- Custom styles for this template -->
+      <link href="public/jumbotron.css" rel="stylesheet">
+      <link href="public/dashboard.css" rel="stylesheet">
+      <style>
+          # {
+              display: none;
+          }
+      </style>
+  </head>
+
+  <body>
+      <nav id="navMain" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      </nav>
+      <main id="main-content" class="col-md-12">
+          <div class="ui" id="reports">
+              <div class="section-summary section-reports">
+                  <div class="ui top attached borderless menu">
+                      <div class="item">
+                          <div class="ui header small">
+                              <i class="chart bar icon"></i>
+                              <div class="content">
+                                  Stats
+                                  <div class="sub header"></div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="text-right ml-auto p-3">
+                        <a href="#" id="download-link"><i class="download icon"></i> Download</a>
+                      </div>
+                  </div>
+              </div>
+              <div class="ui bottom attached segment">
+                <table id="stats-grid" class="display" width="100%">
+                  <thead>
+                    <tr>
+                      <th class="border-bottom-0">Boxid</th>
+                      <th class="border-bottom-0">Media</th>
+                      <th class="border-bottom-0">Interaction</th>
+                      <th class="border-bottom-0">Media Type</th>
+                      <th class="border-bottom-0">Language</th>
+                      <th class="border-bottom-0">Provider</th>
+                      <th class="border-bottom-0">Date</th>
+                    </tr>
+                    <tr class="filters">
+                      <th><input type="text" class="form-control" name="filter-box-id" placeholder="filter" /></th>
+                      <th><input type="text" class="form-control" name="filter-media" placeholder="filter" /></th>
+                      <th><input type="text" class="form-control" name="filter-interaction" placeholder="filter" /></th>
+                      <th><input type="text" class="form-control" name="filter-media-type" placeholder="filter" /></th>
+                      <th><input type="text" class="form-control" name="filter-language" placeholder="filter" /></th>
+                      <th><input type="text" class="form-control" name="filter-provider" placeholder="filter" /></th>
+                      <th><input type="text" class="form-control" name="filter-date" placeholder="filter" /></th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+          </div>
+      </main>
+      <footer class="copyright">
+          <p>&copy; Relay Trust, 2021</p>
+      </footer>
+      <!-- Bootstrap core JavaScript
+      ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="public/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
+      <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script> -->
+      <!-- <script type="text/javascript" src="public/jquery.validate.min.js"></script> -->
+      <script type="text/javascript" src="public/jsgrid.min.js"></script>
+      <script type="text/javascript" src="public/bootstrap.min.js"></script>
+      <script type="text/javascript" src="public/semantic/semantic.min.js"></script>
+      <!-- <script type="text/javascript" src="public/angular-min.js"></script>
+      <script type="text/javascript" src="public/angular-chart-min.js"></script> -->
+      <script type="text/javascript" src="public/flat-ui.js"></script>
+      <!-- <script type="text/javascript" src="public/chart.js"></script> -->
+      <script type="text/javascript" src="public/datatables.js"></script>
+      <script type="text/javascript" src="public/moment.js"></script>
+      <script type="text/javascript" src="public/navigation.js"></script>
+      <script>
+        /**
+         * Our columns we use
+         *
+         * @type {Array}
+         */
+        var columns = ['boxid', 'mediaIdentifier', 'interactionType', 'mediaType', 'mediaLanguage', 'mediaProvider', 'date'];
+
+        /**
+         * Get the data from the API.
+         *
+         * @return {object} The response
+         */
+        async function getData() {
+          var data = await $.ajax({
+            url: '/chathost/admin/stats',
+            method: 'GET'
+          });
+          var final = [];
+          for (var item of data) {
+            var fitem = [];
+            item.date = moment(item.timestamp * 1000).format('LLL');
+            for (var col of columns) {
+      				fitem.push(item[col] || '');
+      			}
+      			final.push(fitem);
+          }
+          return final;
+        };
+
+        /**
+         * Set up the download link
+         *
+         * @return {void}
+         * @link https://stackoverflow.com/a/14966131
+         */
+        function setUpDownloadLink(data) {
+          data.unshift(columns);
+          var content = "data:text/csv;charset=utf-8,";
+          var rows = [];
+          for (var item of data) {
+            rows.push('"' + item.join('","') + '"');
+          }
+          content += rows.join('\n');
+          var encodedUri = encodeURI(content);
+          $('#download-link')
+            .attr('href', encodedUri)
+            .attr('download', 'usage-stats.csv');
+        }
+
+        /**
+         * Load the page
+         *
+         * @return {void}
+         */
+        async function load() {
+          var data = await getData();
+          $('#stats-grid').DataTable({
+      			data: data,
+            order: [[6, 'desc']],
+            orderCellsTop: true,
+            fixedHeader: true,
+            initComplete: function() {
+              // Add an input on each table header
+              // @link https://datatables.net/extensions/fixedheader/examples/options/columnFiltering.html
+              var api = this.api();
+              api
+                .columns()
+                .eq(0)
+                .each(function (colIndex) {
+                  var header = api.column(colIndex).header();
+                  var index = $(header).index();
+                  var cell = $('.filters th').eq(index);
+                  var $input = $(cell).children('input').eq(0);
+                  $input.on('keyup', function (event) {
+                        event.stopPropagation();
+                        console.log(this.value);
+                        $(this).attr('title', this.value);
+                        api
+                          .column(colIndex)
+                          .search($(this).val())
+                          .draw();
+                    });
+                });
+            }
+      		});
+          setUpDownloadLink(data);
+        };
+
+        $(function() {load();});
+      </script>
+  </body>
+
+</html>
