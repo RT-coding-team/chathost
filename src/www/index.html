@@ -144,6 +144,9 @@
 			if (item.sitename === 'UNAUTHORIZED') {
 				item.sitenameWithDetails = `<a href="/dashboard/security.html?id=${item.boxid}">${item.sitename}</a>`;		
 			}
+			else if (item.sitename === '') {
+				item.sitenameWithDetails = `<a href="/dashboard/security.html?id=${item.boxid}">(Name Not Configured)</a>`;		
+			}
 			else {
 				item.sitenameWithDetails = `<a href="/dashboard/box.html?id=${item.boxid}">${item.sitename}</a>`;
 			}
