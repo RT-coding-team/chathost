@@ -10,6 +10,7 @@ const express = require('express'),
     Logger = require('./logger.js'),
     rocketchat = require('./rocketchat.js'),
     mongo = require('./mongo.js'),
+    //processLogs = require('./processLogs.js'),
     logger = new Logger(configs.logging);
 
 
