@@ -143,7 +143,7 @@ var final = '';
 			for (var student of course.students) {
 				userCounter++;
 				console.log(student);
-				var html = `<button onClick="getUser('${student.username}.${boxid}','details-${userCounter}');" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${userCounter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${userCounter}">Student: ${student.first_name} ${student.last_name} (${student.username}.${boxid}: <a href="mailto:${teacher.email}">${teacher.email}</a>)</button>`;
+				var html = `<button onClick="getUser('${student.username}.${boxid}','details-${userCounter}');" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse${userCounter}" aria-expanded="true" aria-controls="panelsStayOpen-collapse${userCounter}">Student: ${student.first_name} ${student.last_name} (${student.username}.${boxid}: <a href="mailto:${student.email}">${student.email}</a>)</button>`;
 				html += `<div id="panelsStayOpen-collapse${userCounter}" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-heading${userCounter}"><div class="accordion-body" id="details-${userCounter}">Loading...</div></div>`;
 				$(`#courseRegion-${courseCounter}`).append(html);
 
