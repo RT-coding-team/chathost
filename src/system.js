@@ -16,7 +16,6 @@ run();
 async function run() {
 	var results = {};
  	results.docker = await checkDocker();
- 	results.rocketchat = await checkURL('http://localhost:3000');
  	results.chathost = await checkURL('http://localhost:2820/chathost/healthCheck');
  	results.bolt = await checkURL('http://localhost:8080');
  	results.mongo = await checkMongo();

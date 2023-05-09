@@ -3,7 +3,6 @@ const express = require('express'),
     configs = require('../configs.js'),
     fs = require('fs'),
     mongo = require('../mongo.js'),
-    rocketchat = require('../rocketchat.js'),
     messages = require('./messages.js'),
     Logger = require('../logger.js'),
     logger = new Logger(configs.logging);
