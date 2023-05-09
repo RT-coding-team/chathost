@@ -8,9 +8,9 @@
 
 
 
-ec2-34-209-13-79.us-west-2.compute.amazonaws.com ansible_user=ec2-user password=PASSWORD url=thewellcloud.cloud email=abk@relaytrust.org
+#ec2-34-209-13-79.us-west-2.compute.amazonaws.com ansible_user=ec2-user password=PASSWORD url=thewellcloud.cloud email=abk@relaytrust.org
 
-
+164.92.152.11 ansible_user=root document_root=/home/chathost password=PASSWORD url=connectbox.org email=kirk.wilson@globalsystems.design http_port=80
 
 
 

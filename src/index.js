@@ -8,7 +8,6 @@ const express = require('express'),
 	moment = require('moment-timezone'),
     configs = require('./configs.js'),
     Logger = require('./logger.js'),
-    rocketchat = require('./rocketchat.js'),
     mongo = require('./mongo.js'),
     logger = new Logger(configs.logging);
 
